@@ -1,0 +1,132 @@
+/**index.wxss**/
+
+@import '../../libs/iconfont.wxss';
+@import 'calendar.wxss';
+.icon-small {
+	font-family: 'iconfont';
+	font-size: 30rpx;
+	color: #FF7F6A;
+	margin-right: 10rpx;
+}
+
+.page-title {
+	font-weight: 500;
+	font-size: 45rpx;
+	margin-bottom: 10rpx;
+}
+
+.page-info {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	margin: 30rpx 0;
+}
+
+.icon-location:before {
+	content: '\e614';
+}
+
+.icon-phone:before {
+	content: '\e6b9';
+}
+
+#date {
+	color: #FF7F6A;
+	padding: 5rpx 20rpx;
+	border: 1px solid #FF7F6A;
+	border-radius: 80rpx;
+	font-size: 25rpx;
+}
+
+.section-title {
+	padding: 30rpx 0;
+	font-weight: 500;
+	font-size: 40rpx;
+}
+
+.event,
+.group {
+	border-radius: 15rpx;
+	margin-bottom: 20rpx;
+	border: 1px solid #FF7F6A;
+}
+
+.group {
+	width: 100%;
+	display: flex;
+	min-height: 160rpx;
+}
+
+.group-title {
+	display: flex;
+	flex-direction: column;
+	width: 10%;
+	padding: 15rpx 10rpx;
+	background-color: #FF7F6A;
+	border-radius: 12rpx 0 0 12rpx;
+	justify-content: center;
+	align-items: center;
+}
+
+.group-title-text {
+	font-size: 30rpx;
+	color: #fff;
+	transform: rotate(-90deg);
+}
+
+.group-content {
+	font-size: 30rpx;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	padding: 20rpx 20rpx 20rpx 40rpx;
+}
+
+.group-item {
+	margin: 10rpx 10rpx;
+	display: flex;
+}
+
+.group-item view {
+	margin-right: 25rpx;
+}
+
+.vip {
+	border: 1px solid #FF7F6A;
+	border-radius: 10rpx;
+	color: #FF7F6A;
+	padding: 0 15rpx;
+	font-size: 25rpx;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.event {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.event-title {
+	font-size: 35rpx;
+	background-color: #FF7F6A;
+	color: #fff;
+	padding: 20rpx 40rpx;
+	border-radius: 12rpx 12rpx 0 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.event-content {
+	font-size: 30rpx;
+	padding: 20rpx 40rpx;
+	display: flex;
+	justify-content: space-between;
+}
+
+.event-host {
+	font-style: italic;
+}

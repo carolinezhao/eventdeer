@@ -1,0 +1,65 @@
+<!--index.wxml-->
+
+<import src="./calendar.wxml"></import>
+
+<view class="calendar-wrap">
+    <template is="calendar" data="{{...calendar}}"></template>
+</view>
+
+<view class="container">
+    <view class="page-title">Today</view>
+    <view id="date">{{currentDate}}</view>
+
+    <view class="page-info">
+        <view id="location">
+            <text class="icon-small icon-location"></text>{{location}}</view>
+        <view id="phone">
+            <text class="icon-small icon-phone"></text>{{phone}}</view>
+    </view>
+
+
+    <view class="section-title">Regular Course</view>
+
+    <template name="group-item-content">
+        <view>{{time}}</view>
+        <view>{{description}}</view>
+        <view class="vip" wx:if="{{isVIP}}">VIP</view>
+    </template>
+
+    <template name="group-item-empty">
+        <view class="group-item">no arrangement</view>
+    </template>
+
+    <view class="group" wx:for="{{courseSets}}" wx:for-index="index" wx:for-item="courseSet" wx:key="index">
+        <view class="group-title">
+            <view class="group-title-text">{{courseSet.courseType}}</view>
+        </view>
+        <view class="group-content">
+            <block wx:if="{{courseSet.courseNum == 0}}">
+                <template is="group-item-empty"></template>
+            </block>
+            <block wx:else>
+                <view class="group-item" wx:for="{{courseSet.courses}}" wx:for-index="index" wx:for-item="course" wx:key="index">
+                    <template is="group-item-content" data="{{...course}}"></template>
+                </view>
+            </block>
+        </view>
+    </view>
+
+
+    <view class="section-title">Special Event</view>
+
+    <template name="event-item">
+        <view class="event-title">{{description}}</view>
+        <view class="event-content">
+            <view>{{time}}</view>
+            <view class="vip" wx:if="{{isVIP}}">VIP</view>
+            <view class="event-host" wx:if="{{teacher}}">by {{teacher}}</view>
+        </view>
+    </template>
+
+    <view class="event" wx:for="{{events}}" wx:for-index="index" wx:for-item="event" wx:key="index">
+        <template is="event-item" data="{{...event}}"></template>
+    </view>
+
+</view>
