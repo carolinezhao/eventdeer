@@ -1,0 +1,12 @@
+<view class="container">
+    <view class="section-title">{{countDownDay}}</view>
+
+    <view class="headline">
+        <a bindtap="openDetailPage">
+            <view class="title">{{headline.title}}</view>
+            <view class="time">{{headline.time}} @{{headline.location}}</view>
+            <view class="learnmore">Tap to see details.</view>
+        </a>
+    </view>
+
+</view>
