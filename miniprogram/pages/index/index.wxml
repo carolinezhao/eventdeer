@@ -50,7 +50,7 @@
     <view class="section-title">Special Event</view>
 
     <template name="event-item">
-        <view class="event-title">{{description}}</view>
+        <view class="event-title">{{title}}</view>
         <view class="event-content">
             <view>{{time}}</view>
             <view class="vip" wx:if="{{isVIP}}">VIP</view>
