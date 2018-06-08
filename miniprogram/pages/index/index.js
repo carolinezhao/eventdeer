@@ -53,19 +53,16 @@ Page({
         }
 
         // Get Current Date
-        let currentDate = (new Date()).toDateString();
-        this.setData({
-            currentDate: currentDate
-        })
+        this.getCurrentDate();
 
         // LeanCloud
         // 获取并设置 courseSets
-        let query1 = new AV.Query('Courses');
-        // 查询当天
-        query1.greaterThanOrEqualTo('time', this.queryTime('start'));
-        query1.lessThan('time', this.queryTime('end'));
+        let queryCourses = new AV.Query('Courses');
+        // 查询时间：今日零点-明日零点
+        queryCourses.greaterThanOrEqualTo('time', app.queryTime('today'));
+        queryCourses.lessThan('time', app.queryTime('tomorrow'));
 
-        query1.ascending('time')
+        queryCourses.ascending('time')
             .find()
             .then(courses => {
                 let type1 = 'FTClass',
@@ -78,7 +75,7 @@ Page({
                     // attributes 是 LeanCloud 自动生成的，拿到的数据都放在这个属性中。
                     let course = item.attributes;
                     let type = course.type;
-                    course.time = this.formatTime(course.time);
+                    course.time = app.formatTime(course.time);
                     switch (type) {
                         case type1:
                             // 这里直接 push(item) 页面也能渲染一样的结果？
@@ -90,25 +87,24 @@ Page({
                         case type3:
                             arrType3.push(course);
                             break;
+                        default:
+                            break;
                     }
                 }
-                let length1 = arrType1.length,
-                    length2 = arrType2.length,
-                    length3 = arrType3.length;
                 // 设置数据，渲染到页面
                 this.setData({
                     courseSets: [{
                         courseType: type1,
                         courses: arrType1,
-                        courseNum: length1
+                        courseNum: arrType1.length
                     }, {
                         courseType: type2,
                         courses: arrType2,
-                        courseNum: length2
+                        courseNum: arrType2.length
                     }, {
                         courseType: type3,
                         courses: arrType3,
-                        courseNum: length3
+                        courseNum: arrType3.length
                     }]
                 })
                 console.log(this.data.courseSets);
@@ -116,17 +112,18 @@ Page({
             .catch(console.error);
 
         // 获取并设置 events
-        let query2 = new AV.Query('Events');
-        query2.greaterThanOrEqualTo('time', this.queryTime('start'));
-        query2.lessThan('time', this.queryTime('end'));
+        let queryEvents = new AV.Query('Events');
+        // 查询时间：今日零点-明日零点
+        queryEvents.greaterThanOrEqualTo('time', app.queryTime('today'));
+        queryEvents.lessThan('time', app.queryTime('tomorrow'));
 
-        query2.ascending('time')
+        queryEvents.ascending('time')
             .find()
             .then(events => {
                 let arrEvents = [];
                 for (let item of events) {
                     let event = item.attributes;
-                    event.time = this.formatTime(event.time, event.duration);
+                    event.time = app.formatTime(event.time, event.duration);
                     arrEvents.push(event);
                 }
                 this.setData({
@@ -145,32 +142,10 @@ Page({
             hasUserInfo: true
         })
     },
-    formatTime: function (timeObj, duration) {
-        // console.log(typeof duration);
-        let hour = timeObj.getHours();
-        let courseTime;
-        // course 对象中没有 duration；event 对象中的 duration 默认为 1，也可能大于 1.
-        if (duration == undefined) {
-            courseTime = `${hour}:00`;
-        } else {
-            courseTime = `${hour}:00-${hour + duration}:00`
-        }
-        return courseTime;
+    getCurrentDate: function () {
+        let currentDate = (new Date()).toDateString();
+        this.setData({
+            currentDate: currentDate
+        })
     },
-    queryTime: function (string) {
-        let currentYear = (new Date()).getFullYear();
-        let currentMonth = (new Date()).getMonth();
-        let currentDate = (new Date()).getDate();
-        let tmrDate = (new Date()).getDate() + 1;
-        // 当天零点
-        let startTime = new Date(currentYear, currentMonth, currentDate);
-        // 次日零点
-        let endTime = new Date(currentYear, currentMonth, tmrDate);
-        switch (string) {
-            case 'start':
-                return startTime;
-            case 'end':
-                return endTime;
-        }
-    }
 })
