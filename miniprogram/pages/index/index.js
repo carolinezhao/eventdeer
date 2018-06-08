@@ -57,6 +57,26 @@ Page({
 
         // LeanCloud
         // 获取并设置 courseSets
+        this.queryCourses();
+        // 获取并设置 events
+        this.queryEvents();
+    },
+    getUserInfo: function (e) {
+        console.log(e)
+        app.globalData.userInfo = e.detail.userInfo
+        this.setData({
+            userInfo: e.detail.userInfo,
+            hasUserInfo: true
+        })
+    },
+    getCurrentDate: function () {
+        let currentDate = (new Date()).toDateString();
+        this.setData({
+            currentDate: currentDate
+        })
+    },
+    queryCourses: function () {
+        console.log('queryCourses starts');
         let queryCourses = new AV.Query('Courses');
         // 查询时间：今日零点-明日零点
         queryCourses.greaterThanOrEqualTo('time', app.queryTime('today'));
@@ -110,8 +130,9 @@ Page({
                 console.log(this.data.courseSets);
             })
             .catch(console.error);
-
-        // 获取并设置 events
+    },
+    queryEvents: function () {
+        console.log('queryEvents starts');
         let queryEvents = new AV.Query('Events');
         // 查询时间：今日零点-明日零点
         queryEvents.greaterThanOrEqualTo('time', app.queryTime('today'));
@@ -120,32 +141,23 @@ Page({
         queryEvents.ascending('time')
             .find()
             .then(events => {
-                let arrEvents = [];
-                for (let item of events) {
+                // let arrEvents = [];
+                // for (let item of events) {
+                //     let event = item.attributes;
+                //     event.time = app.formatTime(event.time, event.duration);
+                //     arrEvents.push(event);
+                // }
+                
+                let arrEvents = events.map(item => {
                     let event = item.attributes;
                     event.time = app.formatTime(event.time, event.duration);
-                    arrEvents.push(event);
-                }
+                    return event;
+                })
                 this.setData({
                     events: arrEvents
-                })
+                })       
                 console.log(this.data.events);
             })
             .catch(console.error);
-
-    },
-    getUserInfo: function (e) {
-        console.log(e)
-        app.globalData.userInfo = e.detail.userInfo
-        this.setData({
-            userInfo: e.detail.userInfo,
-            hasUserInfo: true
-        })
-    },
-    getCurrentDate: function () {
-        let currentDate = (new Date()).toDateString();
-        this.setData({
-            currentDate: currentDate
-        })
-    },
+    }
 })
