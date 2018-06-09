@@ -1,7 +1,7 @@
 <view class="container">
 
     <template name="section-item">
-        <a bindtap="openDetailPage">
+        <a bindtap="openDetailPage" data-queryid="{{id}}">
             <view class="title">
                 <view class="vip" wx:if="{{isVIP}}">VIP</view>{{title}}</view>
             <view class="date">{{date}}</view>
