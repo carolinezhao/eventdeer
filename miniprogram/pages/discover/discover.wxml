@@ -1,12 +1,22 @@
 <view class="container">
-    <view class="section-title">{{countDownDay}}</view>
 
-    <view class="headline">
+    <template name="section-item">
         <a bindtap="openDetailPage">
-            <view class="title">{{headline.title}}</view>
-            <view class="time">{{headline.time}} @{{headline.location}}</view>
-            <view class="learnmore">Tap to see details.</view>
+            <view class="title">
+                <view class="vip" wx:if="{{isVIP}}">VIP</view>{{title}}</view>
+            <view class="date">{{date}}</view>
+            <view class="time">{{time}}</view>
+            <view class="tip">Tap to see details.</view>
         </a>
-    </view>
+    </template>
+
+    <block wx:for="{{eventSets}}" wx:for-index="index" wx:for-item="eventSet" wx:key="index">
+        <block wx:if="{{eventSet.eventNum !== 0}}">
+            <view class="section-title">{{eventSet.countDown}}</view>
+            <view class="card" wx:for="{{eventSet.events}}" wx:for-index="index" wx:for-item="event" wx:key="index">
+                <template is="section-item" data="{{...event}}"></template>
+            </view>
+        </block>
+    </block>
 
 </view>

@@ -1,38 +1,52 @@
 .section-title {
-    width: 100%;
+    width: 95%;
     color: #8E8E93;
-    padding: 10rpx 0;
+    margin-bottom: 15rpx;
 }
 
-.headline {
+.card {
     width: 100%;
     border-radius: 15rpx;
     color: #fff;
     box-shadow: 5px 5px 10px 0px #dedede;
     background: linear-gradient(to bottom right, #ff5f6d, #ffc371);
+    margin-bottom: 30rpx;
 }
 
-.headline a {
+.card a {
     padding: 40rpx 40rpx;
     display: flex;
     flex-direction: column;
 }
 
 .title {
-    font-size: 60rpx;
+    font-size: 50rpx;
     padding-bottom: 20rpx;
     border-bottom: .2px solid #dedede;
+    display: flex;
+    align-items: center;
 }
 
-.time {
-    padding: 20rpx 0;
+.title .vip {
+    border: 1.5px solid #fff;
+    border-radius: 10rpx;
+    color: #fff;
+    padding: 2rpx 10rpx;
+    height: 90%;
+    margin-right: 15rpx;
+    font-size: 35rpx;
+    display: inline-block;
+    /* display: flex;
+	flex-direction: column;
+	justify-content: center; */
 }
 
-.description {
-    font-size: 30rpx;
-    padding: 10rpx 0;
+.date,
+.time,
+.tip {
+    padding-top: 15rpx;
 }
 
-.learnmore {
+.tip {
     font-size: 25rpx;
 }
