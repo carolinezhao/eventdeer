@@ -1,0 +1,9 @@
+<view class="container">
+    <view data="{{event}}">
+        <view>{{event.title}}</view>
+        <view class="vip" wx:if="{{event.isVIP}}">VIP</view>
+        <view>{{event.date}}</view>
+        <view>{{event.time}}</view>
+        <view>{{event.detail}}</view>
+    </view>
+</view>
