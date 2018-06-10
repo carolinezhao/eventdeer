@@ -1,9 +1,16 @@
 <view class="container">
-    <view data="{{event}}">
-        <view>{{event.title}}</view>
-        <view class="vip" wx:if="{{event.isVIP}}">VIP</view>
-        <view>{{event.date}}</view>
-        <view>{{event.time}}</view>
-        <view>{{event.detail}}</view>
+    <view class="inner-container" data="{{event}}">
+        <view class="header">
+            <image mode="aspectFill" src="../../img/picnic.jpg"></image>
+        </view>
+        <view class="content">
+            <view class="title">{{event.title}}<text class="vip" wx:if="{{event.isVIP}}">VIP</text></view>
+            <view>{{event.date}}</view>
+            <view>{{event.time}}</view>
+            <!-- text 能显示换行，view 不能 -->
+            <view class="detail">
+                <text>{{event.detail}}</text>
+            </view>
+        </view>
     </view>
 </view>
