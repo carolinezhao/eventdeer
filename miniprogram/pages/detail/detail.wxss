@@ -1,32 +1,37 @@
-.inner-container {
-    width: 100%;
-    border: 1px dashed #8E8E93;
-    border-radius: 15rpx 15rpx 0 0;
+.icon-small {
+    color: #222;
 }
 
-.header {
+.inner-container {
     width: 100%;
-    border-radius: 12rpx 12rpx 0 0;
+    border: 1.5px dashed #8E8E93;
+    border-radius: 18rpx 18rpx 0 0;
+}
+
+.image-container {
+    width: 100%;
+    border-radius: 16rpx 16rpx 0 0;
     overflow: hidden;
 }
 
 /* image 组件默认宽 300px，高 225px */
-.header image {
+
+.image-container image {
     width: 100%;
     height: 350rpx;
 }
 
 .content {
     width: 100%;
-    padding: 10rpx;
+    padding: 20rpx;
 }
 
-.content view {
+.content view:not(.title) {
     margin-bottom: 15rpx;
 }
 
 .title {
-    font-size: 40rpx;
+    font-size: 50rpx;
     margin: 30rpx 0;
 }
 
@@ -42,8 +47,7 @@
 }
 
 .detail {
-    margin-top: 15rpx;
+    margin-top: 30rpx;
     font-size: 30rpx;
     line-height: 45rpx;
 }
-

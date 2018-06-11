@@ -1,12 +1,9 @@
 /**index.wxss**/
 
-@import '../../libs/iconfont.wxss';
 @import 'calendar.wxss';
+
 .icon-small {
-	font-family: 'iconfont';
-	font-size: 30rpx;
 	color: #FF7F6A;
-	margin-right: 10rpx;
 }
 
 .page-title {
@@ -20,14 +17,6 @@
 	display: flex;
 	justify-content: space-between;
 	margin: 30rpx 0;
-}
-
-.icon-location:before {
-	content: '\e614';
-}
-
-.icon-phone:before {
-	content: '\e6b9';
 }
 
 #date {

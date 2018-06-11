@@ -1,5 +1,9 @@
+.icon-small {
+	color: #fff;
+}
+
 .section-title {
-    width: 95%;
+    width: 98%;
     color: #8E8E93;
     margin-bottom: 15rpx;
 }
@@ -9,7 +13,10 @@
     border-radius: 15rpx;
     color: #fff;
     box-shadow: 5px 5px 10px 0px #dedede;
-    background: linear-gradient(to bottom right, #ff5f6d, #ffc371);
+    /* background: linear-gradient(to bottom right, #ff5f6d, #ffc371);
+    background: linear-gradient(to bottom right, #7168A3, #C2B1F8);
+    background: linear-gradient(to bottom right, #1d976c, #93f9b9); */
+    background: linear-gradient(to bottom right, #4ca1af, #c4e0e5);
     margin-bottom: 30rpx;
 }
 
@@ -43,10 +50,12 @@
 
 .date,
 .time,
+.location,
 .tip {
-    padding-top: 15rpx;
+    padding-top: 12rpx;
 }
 
 .tip {
+    color: #dedede;
     font-size: 25rpx;
 }
