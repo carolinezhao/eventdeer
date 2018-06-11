@@ -1,0 +1,10 @@
+<view class="container">
+    <view class="title">用户反馈</view>
+    <form bindsubmit="formSubmit">
+        <view class="text">您在使用小程序的过程中，遇到过哪些问题？希望增加哪些功能？</view>
+        <view class="text-container">
+            <textarea name="content" maxlength="200"></textarea>
+        </view>
+        <button formType="submit">提交</button>
+    </form>
+</view>
