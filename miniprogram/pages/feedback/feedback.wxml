@@ -1,9 +1,9 @@
 <view class="container">
     <view class="title">反馈与建议</view>
-    <form bindsubmit="formSubmit">
+    <form bindsubmit="checkIfSubmit">
         <view class="text">您在使用小程序的过程中，遇到过哪些问题？希望增加哪些功能？</view>
         <view class="text-container">
-            <textarea name="content" maxlength="200"></textarea>
+            <textarea name="content" value="{{formContent}}" maxlength="200"></textarea>
         </view>
         <button formType="submit">提交</button>
     </form>
