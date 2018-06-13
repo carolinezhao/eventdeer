@@ -11,7 +11,7 @@
 
 <view class="list-container">
     <block wx:for="{{lists}}" wx:for-index="index" wx:for-item="list" wx:key="index">
-        <view class="feedback" bindtap="{{list.bindtap}}">
+        <view class="list" bindtap="{{list.bindtap}}">
             <a>
                 <text class="list-name">
                     <text class="icon-small {{list.icon}}"></text>{{list.name}}</text>
@@ -19,4 +19,13 @@
             </a>
         </view>
     </block>
+</view>
+
+<view class="logout-container">
+    <view class="list" bindtap="logout">
+        <a>
+            <text class="logout">
+                <text class="icon-small icon-logout"></text>退出登录</text>
+        </a>
+    </view>
 </view>

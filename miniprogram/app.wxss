@@ -46,7 +46,7 @@
 /* me page */
 
 .icon-setting:before {
-    content: '\e64e'
+    content: '\e87d'
 }
 
 .icon-feedback:before {
@@ -55,4 +55,12 @@
 
 .icon-arrow:before {
     content: '\e64d'
+}
+
+.icon-logout:before {
+    content: '\e6ce'
+}
+
+.icon-list:before {
+    content: '\e631'
 }

@@ -8,11 +8,13 @@ form {
 
 .title {
 	font-size: 45rpx;
+	margin: 30rpx 0;
 }
 
 .text {
 	font-size: 35rpx;
 	margin: 30rpx 0;
+	line-height: 55rpx;
 }
 
 textarea {

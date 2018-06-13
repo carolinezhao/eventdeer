@@ -27,25 +27,35 @@
 
 .list-container {
 	background-color: #f8f8f8;
-	padding-top: 35rpx;
+	padding: 35rpx 0;
 }
 
 .icon-small {
+	font-size: 35rpx;
+	color: #dedede;
 	margin-right: 20rpx;
 }
 
-.feedback {
+.list {
 	width: 100%;
-	/* border-top: .5px solid #dedede; */
-	border-bottom: .5px solid #dedede;
 	display: flex;
+	margin-bottom: 5rpx;
 }
 
-.feedback a {
+.list a {
 	width: 100%;
 	background-color: #fff;
 	padding: 20rpx 55rpx;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+}
+
+.logout-container {
+	background-color: #f8f8f8;
+	padding: 35rpx 0 70rpx 0;
+}
+
+.logout {
+	color: red;
 }
