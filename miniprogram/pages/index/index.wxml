@@ -62,4 +62,5 @@
         <template is="event-item" data="{{...event}}"></template>
     </view>
 
+    <button class="navi" open-type="share">Share</button>
 </view>

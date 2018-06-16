@@ -14,7 +14,7 @@ Page({
         this.queryComingEvents();
     },
     openDetailPage: function (params) {
-        console.log(params.currentTarget.dataset);
+        // console.log(params.currentTarget.dataset);
         // 获取所点击卡片的事件 id
         let queryid = params.currentTarget.dataset.queryid;
 
@@ -105,6 +105,18 @@ Page({
             // 这种情况不应该出现
             return 'Out of date'
         }
+    },
+    onShareAppMessage: function (res) {
+        // 页面内转发按钮
+        if (res.from === 'button') {
+            console.log(res.target);
+        }
+        // 右上角转发菜单
+        if (res.from === 'menu') {}
+        return {
+            title: '近期活动预告',
+            path: '',
+            imageUrl: ''
+        }
     }
-
 })

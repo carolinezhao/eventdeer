@@ -56,9 +56,8 @@ Page({
         this.getCurrentDate();
 
         // LeanCloud
-        // 获取并设置 courseSets
+        // 获取并设置 courseSets 和 events
         this.queryCourses();
-        // 获取并设置 events
         this.queryEvents();
     },
     getUserInfo: function (e) {
@@ -85,6 +84,7 @@ Page({
         queryCourses.ascending('time')
             .find()
             .then(courses => {
+                console.log(courses);
                 let type1 = 'FTClass',
                     type2 = 'Extend',
                     type3 = 'GroupChat';
@@ -95,7 +95,7 @@ Page({
                     // attributes 是 LeanCloud 自动生成的，拿到的数据都放在这个属性中。
                     let course = item.attributes;
                     let type = course.type;
-                    course.time = app.formatTime(course.time);
+                    course.time = app.displayTime(course.time);
                     switch (type) {
                         case type1:
                             // 这里直接 push(item) 页面也能渲染一样的结果？
@@ -144,13 +144,13 @@ Page({
                 // let arrEvents = [];
                 // for (let item of events) {
                 //     let event = item.attributes;
-                //     event.time = app.formatTime(event.time, event.duration);
+                //     event.time = app.displayTime(event.time, event.duration);
                 //     arrEvents.push(event);
                 // }
                 
                 let arrEvents = events.map(item => {
                     let event = item.attributes;
-                    event.time = app.formatTime(event.time, event.duration);
+                    event.time = app.displayTime(event.time, event.duration);
                     return event;
                 })
                 this.setData({
@@ -159,5 +159,18 @@ Page({
                 console.log(this.data.events);
             })
             .catch(console.error);
+    },
+    onShareAppMessage: function (res) {
+        // 页面内转发按钮
+        if (res.from === 'button') {
+            console.log(res.target);
+        }
+        // 右上角转发菜单
+        if (res.from === 'menu') {}
+        return {
+            title: '今日活动安排',
+            path: '',
+            imageUrl: ''
+        }
     }
 })

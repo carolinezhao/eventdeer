@@ -22,7 +22,7 @@
 
     <view class="button-container">
         <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
-        <button class="" bindtap="openDiscoverPage" wx:if="{{isDisplay}}">查看全部活动预告</button>
-        <button class="share" open-type="share">分享</button>
+        <button class="navi" bindtap="openDiscoverPage" wx:if="{{isDisplay}}">查看全部活动预告</button>
+        <button class="navi" open-type="share">Share</button>
     </view>
 </view>

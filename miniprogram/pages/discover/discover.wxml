@@ -1,12 +1,13 @@
 <view class="container">
-
     <template name="section-item">
         <a bindtap="openDetailPage" data-queryid="{{id}}">
             <view class="title">
                 <text class="vip" wx:if="{{isVIP}}">VIP</text>{{title}}</view>
             <view class="date">{{date}}</view>
-            <view class="time"><text class="icon-small icon-clock"></text>{{time}}</view>
-            <view class="location" wx:if="{{location != 'center'}}"><text class="icon-small icon-location-hollow"></text>{{location}}</view>
+            <view class="time">
+                <text class="icon-small icon-clock"></text>{{time}}</view>
+            <view class="location" wx:if="{{location != 'center'}}">
+                <text class="icon-small icon-location-hollow"></text>{{location}}</view>
             <view class="tip">Tap to see details.</view>
         </a>
     </template>
@@ -20,4 +21,5 @@
         </block>
     </block>
 
+    <button class="navi" open-type="share">Share</button>
 </view>

@@ -22,8 +22,10 @@
 }
 
 .content {
+    box-sizing: border-box;
+    /* 默认为 content-box，如果没有这一项，则 100% + padding/margin 会导致超出父元素 */
     width: 100%;
-    padding: 20rpx;
+    padding: 25rpx;
 }
 
 .content view:not(.title) {
@@ -32,7 +34,7 @@
 
 .title {
     font-size: 50rpx;
-    margin: 30rpx 0;
+    margin-bottom: 30rpx;
 }
 
 .vip {
