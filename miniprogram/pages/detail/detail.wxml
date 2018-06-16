@@ -3,7 +3,7 @@
         <view class="image-container">
             <image mode="aspectFill" src="../../img/picnic.jpg"></image>
         </view>
-        
+
         <view class="content">
             <view class="title">{{event.title}}
                 <text class="vip" wx:if="{{event.isVIP}}">VIP</text>
@@ -22,7 +22,11 @@
 
     <view class="button-container">
         <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
-        <button class="navi" bindtap="openDiscoverPage" wx:if="{{isDisplay}}">查看全部活动预告</button>
-        <button class="navi" open-type="share">Share</button>
+        <button class="navi long" bindtap="openDiscoverPage" wx:if="{{isDisplay}}">View All Upcoming Events</button>
+        <!-- <button class="navi" open-type="share">Share</button> -->
+        <!-- 保存为图片后：保存到相册，分享到朋友圈 -->
+        <button class="navi" bindtap="saveAsImage">Save as Image</button>
     </view>
 </view>
+
+<canvas canvas-id="event-detail"></canvas>
