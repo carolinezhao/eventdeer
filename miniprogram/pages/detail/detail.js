@@ -8,9 +8,11 @@ const app = getApp()
 Page({
     data: {
         queryid: '',
-        event: [],
-        isDisplay: false, // 默认为从程序主入口进入，不显示该元素
+        event: {},
         hasUserInfo: false,
+        isDisplayButton: false, // 默认为从程序主入口进入，不显示该元素
+        isDisplayCanvas: false,
+        // isDisplayCanvas: true, // test
         // nickName: '',
         nickName: 'rabbit', // test
         tempFilePath: '' // 图片临时路径
@@ -25,13 +27,16 @@ Page({
         // 查询并设置详情
         this.queryTargetEvent();
 
-        if (app.globalData.userInfo) {
-            let nickname = app.globalData.userInfo.nickName;
-            this.setData({
-                hasUserInfo: true,
-                nickname: nickname
-            })
-        }
+        // if (app.globalData.userInfo) {
+        //     let nickname = app.globalData.userInfo.nickName;
+        //     this.setData({
+        //         hasUserInfo: true,
+        //         nickname: nickname
+        //     })
+        // }
+
+        // test
+        // this.drawCanvas();
 
         //
         wx.showShareMenu({
@@ -98,21 +103,72 @@ Page({
         }
     },
     saveAsImage: function () {
-        if (!this.data.hasUserInfo) {
-            app.toLogin();
-        } else {
+        // if (!this.data.hasUserInfo) {
+        //     app.toLogin();
+        // } else {
+        // // 要改成 css 动画吗？
+        this.setData({
+            isDisplayCanvas: true
+        })
+        this.drawCanvas();
+        // }
+    },
+    drawCanvas: function () {
+        // canvas 不能读取页面元素
+        // canvas 中元素的单位都是 px
+
         // 创建对象
         let ctx = wx.createCanvasContext('event-detail');
+        console.log(ctx);
         console.log('create image');
-        // detail-page 内容，小程序码，分享人
-        // canvas 不能读取页面元素
-        ctx.setFontSize(20);
-        ctx.fillText(`shared by ${this.data.nickName}`, 20, 30);
-        // ctx.setTextAlign('left');
 
+        let canvasWidth = 300, // css
+            canvasHeight = 450; // css
+
+        let boxWidth = 260,
+            boxHeight = 350,
+            boxBorderWidth = 1,
+            boxStartX = (canvasWidth - boxWidth) / 2,
+            boxStartY = 20;
+
+        let contentWidth = boxWidth - boxBorderWidth * 2,
+            imageHeight = 130,
+            imageStatX = boxStartX + boxBorderWidth,
+            imageStatY = boxStartY + boxBorderWidth;
+
+        let textLeftGap = 10,
+            textTopGap = 30,
+            textStartX = imageStatX + textLeftGap,
+            textStartY = imageStatY + imageHeight + textTopGap,
+            textLineGap = 25,
+            textMaxWidth = contentWidth - textLeftGap * 2;
+
+        // 活动信息-边框
+        ctx.setStrokeStyle('blue');
+        ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight);
+        // 活动信息-头图
+        ctx.drawImage('../../img/picnic.jpg', imageStatX, imageStatY, contentWidth, imageHeight);
+        // 活动信息-文字
+        ctx.setFontSize(20);
+        this.createFillText(ctx, this.data.event, textStartX, textStartY, textMaxWidth, textLineGap);
+
+        // 分享人
+        ctx.setFontSize(12);
+        ctx.fillText(`shared by ${this.data.nickName}`, 20, 430);
+
+        // 小程序码
+
+        // must-end-with
         // ctx.draw(); // test
         ctx.draw(false, (options) => this.getTempFilePath(options));
-        }
+    },
+    createFillText: function (ctx, obj, x, y, maxWidth, gap) {
+        // obj 不是全部属性都显示
+        ctx.fillText(obj.title, x, y, maxWidth);
+        ctx.fillText(obj.date, x, y += gap, maxWidth);
+        ctx.fillText(obj.time, x, y += gap, maxWidth);
+        ctx.fillText(obj.location, x, y += gap, maxWidth);
+        ctx.fillText(obj.detail, x, y += gap, maxWidth);
     },
     getTempFilePath: function (options) {
         console.log(options);

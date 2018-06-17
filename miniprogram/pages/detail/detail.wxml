@@ -22,11 +22,13 @@
 
     <view class="button-container">
         <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
-        <button class="navi long" bindtap="openDiscoverPage" wx:if="{{isDisplay}}">View All Upcoming Events</button>
+        <button class="navi long" bindtap="openDiscoverPage" wx:if="{{isDisplayButton}}">View All Upcoming Events</button>
         <!-- <button class="navi" open-type="share">Share</button> -->
         <!-- 保存为图片后：保存到相册，分享到朋友圈 -->
         <button class="navi" bindtap="saveAsImage">Save as Image</button>
     </view>
 </view>
 
-<canvas canvas-id="event-detail"></canvas>
+<view class="canvas-container" wx:if="{{isDisplayCanvas}}">
+    <canvas canvas-id="event-detail"></canvas>
+</view>
