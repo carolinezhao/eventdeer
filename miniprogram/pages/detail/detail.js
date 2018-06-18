@@ -148,9 +148,17 @@ Page({
         ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight);
         // 活动信息-头图
         ctx.drawImage('../../img/picnic.jpg', imageStatX, imageStatY, contentWidth, imageHeight);
+
         // 活动信息-文字
-        ctx.setFontSize(20);
-        this.createFillText(ctx, this.data.event, textStartX, textStartY, textMaxWidth, textLineGap);
+        ctx.setFontSize(18);
+        console.log(textMaxWidth);
+        let obj = this.data.event;
+        // 选择展示 obj 部分属性
+        let arr = [obj.title, obj.date, obj.time, obj.location, obj.detail];
+        arr.forEach((item) => {
+            this.createFillText(ctx, item, textStartX, textStartY, textMaxWidth, textLineGap);
+            textStartY += textLineGap;
+        })
 
         // 分享人
         ctx.setFontSize(12);
@@ -158,17 +166,49 @@ Page({
 
         // 小程序码
 
+        // 设置文字格式，要放在文字之前才生效
+        // ctx.font = 'italic bold 20px cursive';
+
         // must-end-with
         // ctx.draw(); // test
         ctx.draw(false, (options) => this.getTempFilePath(options));
     },
-    createFillText: function (ctx, obj, x, y, maxWidth, gap) {
-        // obj 不是全部属性都显示
-        ctx.fillText(obj.title, x, y, maxWidth);
-        ctx.fillText(obj.date, x, y += gap, maxWidth);
-        ctx.fillText(obj.time, x, y += gap, maxWidth);
-        ctx.fillText(obj.location, x, y += gap, maxWidth);
-        ctx.fillText(obj.detail, x, y += gap, maxWidth);
+    createFillText: function (ctx, string, x, y, maxWidth, gap) {
+        // 中文字宽度 36，英文字母宽度约为 4-17
+        // console.log(ctx.measureText('W').width);
+        let averLetterWidth = 20;
+
+        // 一行可容纳文本的最大 canvas 宽度：maxWidth
+        // 文本占用的 canvas 宽度
+        let textWidth = ctx.measureText(string).width;
+        // console.log(textWidth);
+
+        if (textWidth <= maxWidth) {
+            ctx.fillText(string, x, y, maxWidth);
+        } else {
+            let originArr = string.split(''),
+                len = originArr.length,
+                tempStr = '',
+                lineArr = [],
+                tempTextWidth;
+
+            originArr.forEach((item, index) => {
+                // bad solution: push-->join
+                tempStr += item;
+                tempTextWidth = ctx.measureText(tempStr).width;
+                console.log(item, index, tempStr, tempTextWidth);
+                // 界限比较模糊，某些特殊情况的显示可能会有问题
+                if ((maxWidth - tempTextWidth < averLetterWidth) || (index === (len - 1))) {
+                    ctx.fillText(tempStr, x, y, maxWidth);
+                    lineArr.push(tempStr); // 按划分好的行存入数组，用于限制行数显示
+                    y += gap;
+                    tempStr = '';
+                    // 字符串中的自动换行：iOS 可显示，Andriod 和开发者工具不显示。
+                }
+            })
+            console.log(lineArr);
+            // a failed solution: 中英文所占宽度不同，一个字符串的 width 和 length 不是成比例的。
+        }
     },
     getTempFilePath: function (options) {
         console.log(options);
