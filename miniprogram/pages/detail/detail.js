@@ -143,14 +143,26 @@ Page({
             textLineGap = 25,
             textMaxWidth = contentWidth - textLeftGap * 2;
 
+        let codeWidth = 43 * 1.2,
+            codeHeight = codeWidth,
+            codeTopGap = 12,
+            codeStartX = boxStartX + boxWidth - codeWidth - 5,
+            codeStartY = boxStartY + boxHeight + codeTopGap;
+
+        let signatureX = boxStartX,
+            signatureY = codeStartY + codeHeight - 5;
+
         // 活动信息-边框
-        ctx.setStrokeStyle('blue');
-        ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight);
+        ctx.setStrokeStyle('#8E8E93');
+        ctx.setLineWidth(boxBorderWidth);
+        ctx.setLineDash([3, 2]);
+        ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight); // 不填充的矩形
+
         // 活动信息-头图
         ctx.drawImage('../../img/picnic.jpg', imageStatX, imageStatY, contentWidth, imageHeight);
 
         // 活动信息-文字
-        ctx.setFontSize(18);
+        ctx.setFontSize(15);
         console.log(textMaxWidth);
         let obj = this.data.event;
         // 选择展示 obj 部分属性
@@ -161,13 +173,12 @@ Page({
         })
 
         // 分享人
-        ctx.setFontSize(12);
-        ctx.fillText(`shared by ${this.data.nickName}`, 20, 430);
+        // ctx.font = 'style(italic) weight(bold) size family';
+        ctx.font = 'normal normal 11px Roboto';
+        ctx.fillText(`shared by ${this.data.nickName}`, signatureX, signatureY);
 
-        // 小程序码
-
-        // 设置文字格式，要放在文字之前才生效
-        // ctx.font = 'italic bold 20px cursive';
+        // 小程序码 (按照43像素的整数倍缩放，效果最佳)
+        ctx.drawImage('../../img/qrcode.jpg', codeStartX, codeStartY, codeWidth, codeHeight);
 
         // must-end-with
         // ctx.draw(); // test
@@ -214,8 +225,10 @@ Page({
         console.log(options);
         // 在 draw 回调里调用该方法才能保证图片导出成功。
         wx.canvasToTempFilePath({
+            // 输出图片默认为：canvas宽/高 * 屏幕像素密度
             canvasId: 'event-detail',
             fileType: 'jpg', // 'jpg' or 'png'(default)
+            quality: 1,
             success: (res) => {
                 console.log(res.tempFilePath);
                 this.setData({
