@@ -9,31 +9,30 @@ Page({
     data: {
         queryid: '',
         event: {},
-        hasUserInfo: false,
         isDisplayButton: false, // 默认为从程序主入口进入，不显示该元素
         isDisplayCanvas: false,
         // isDisplayCanvas: true, // test
+        deviceInfo: {},
+        canvas: {},
+        hasUserInfo: false,
         // nickName: '',
-        nickName: 'rabbit', // test
+        nickName: 'rabbit', // test 
         tempFilePath: '' // 图片临时路径
     },
     onLoad: function (param) {
         // param 是由上一页传递过来的内容
         console.log(param);
-        // 根据场景值显示不同内容
+
+        // ===== 页面基础内容 =====
+        // 根据场景值判断是否显示 button
         this.checkScene();
-        // 设置查询内容
-        this.setReceivedData(param);
+        // 上级页面传来的参数：id 用于查询
+        this.setQueryData(param);
         // 查询并设置详情
         this.queryTargetEvent();
 
-        // if (app.globalData.userInfo) {
-        //     let nickname = app.globalData.userInfo.nickName;
-        //     this.setData({
-        //         hasUserInfo: true,
-        //         nickname: nickname
-        //     })
-        // }
+        // ===== 用户和设备信息，以备 canvas 使用 =====
+        this.setPublicData();
 
         // test
         // this.drawCanvas();
@@ -57,9 +56,32 @@ Page({
         }
         console.log(this.data.isDisplay);
     },
-    setReceivedData: function (param) {
+    setQueryData: function (param) {
         this.setData({
             queryid: param.queryid
+        })
+    },
+    setPublicData: function () {
+        // 获取昵称
+        if (app.globalData.userInfo) {
+            let nickname = app.globalData.userInfo.nickName;
+            // this.setData({
+            //     hasUserInfo: true,
+            //     nickname: nickname
+            // })
+        }
+        // 获取设备信息
+        wx.getSystemInfo({
+            success: (res) => {
+                console.log(res);
+                this.setData({
+                    deviceInfo: {
+                        maxHeight: res.windowHeight,
+                        maxWidth: res.windowWidth
+                    }
+                })
+                console.log(this.data.deviceInfo);
+            }
         })
     },
     queryTargetEvent: function () {
@@ -114,16 +136,31 @@ Page({
         // }
     },
     drawCanvas: function () {
-        // canvas 不能读取页面元素
+        // canvas 不能读取页面元素的内容，只能通过 js 绘制。
         // canvas 中元素的单位都是 px
 
+        // 根据设备信息设置 canvas 和 container
+        // if (!this.data.deviceInfo) {
+        // } else {
+        let device = this.data.deviceInfo; // 单位为 px
+        this.setData({
+            // 如果 canvas 采用这种方案，则内容也需要根据比例设置
+            canvas: {
+                // width: `${device.maxWidth * 0.8}px`,
+                // height: `${device.maxHeight * 0.8}px`,
+                container: `${device.maxHeight}px`
+            },
+        })
+        console.log(this.data.canvas);
+        // }
+       
         // 创建对象
-        let ctx = wx.createCanvasContext('event-detail');
-        console.log(ctx);
-        console.log('create image');
+        let ctx = wx.createCanvasContext('event-info');
+        // console.log(ctx); // 对象信息
 
-        let canvasWidth = 300, // css
-            canvasHeight = 450; // css
+        // 这两个变量应与 canvas 的实际宽高保持一致 (上方根据比例设置或CSS)
+        let canvasWidth = 300,
+            canvasHeight = 450;
 
         let boxWidth = 260,
             boxHeight = 350,
@@ -207,7 +244,7 @@ Page({
                 // bad solution: push-->join
                 tempStr += item;
                 tempTextWidth = ctx.measureText(tempStr).width;
-                console.log(item, index, tempStr, tempTextWidth);
+                // console.log(item, index, tempStr, tempTextWidth);
                 // 界限比较模糊，某些特殊情况的显示可能会有问题
                 if ((maxWidth - tempTextWidth < averLetterWidth) || (index === (len - 1))) {
                     ctx.fillText(tempStr, x, y, maxWidth);
@@ -226,7 +263,7 @@ Page({
         // 在 draw 回调里调用该方法才能保证图片导出成功。
         wx.canvasToTempFilePath({
             // 输出图片默认为：canvas宽/高 * 屏幕像素密度
-            canvasId: 'event-detail',
+            canvasId: 'event-info',
             fileType: 'jpg', // 'jpg' or 'png'(default)
             quality: 1,
             success: (res) => {
@@ -256,6 +293,11 @@ Page({
                     mask: 'true',
                 })
             }
+        })
+    },
+    closeCanvas: function () {
+        this.setData({
+            isDisplayCanvas: false
         })
     }
 })
