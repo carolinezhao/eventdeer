@@ -29,6 +29,9 @@
     </view>
 </view>
 
-<view class="canvas-container" wx:if="{{isDisplayCanvas}}">
-    <canvas canvas-id="event-detail"></canvas>
+<view class="canvas-container" wx:if="{{isDisplayCanvas}}" style="height: {{canvas.container}}">
+    <canvas canvas-id="event-info" id="canvas" style="width: {{canvas.width}}; height: {{canvas.height}}"></canvas>
+    <view class="close-button" bindtap="closeCanvas">
+        <view class="icon-big icon-close"></view>
+    </view>
 </view>

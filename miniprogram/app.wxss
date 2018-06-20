@@ -29,12 +29,22 @@ button {
     border-color: #222;
 }
 
+.long {
+    width: 600rpx;
+}
+
 /* icon */
 
 .icon-small {
     font-family: 'iconfont';
     font-size: 30rpx;
     margin-right: 10rpx;
+}
+
+.icon-big {
+    font-family: 'iconfont';
+    font-size: 50rpx;
+    color: #dedede;
 }
 
 /* index page */
@@ -56,6 +66,10 @@ button {
 .icon-clock:before {
     content: '\e622';
     /* content: '\e641'; */
+}
+
+.icon-close:before {
+    content: '\e76a';
 }
 
 /* me page */

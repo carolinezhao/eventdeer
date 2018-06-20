@@ -1,24 +1,3 @@
-.canvas-container {
-    width: 100%;
-    height: 1000rpx;
-    background-color: rgba(0, 0, 0, 0.5);
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-canvas {
-    /* canvas 中内容的单位是 px */
-    width: 300px;
-    height: 450px;
-    box-sizing: border-box;
-    background-color: #fff;
-}
-
 .icon-small {
     color: #222;
 }
@@ -75,6 +54,33 @@ canvas {
     line-height: 45rpx;
 }
 
+/* canvas */
+
 .button-container {
     margin-bottom: 50rpx;
+}
+
+.canvas-container {
+    width: 100%;
+    /* height: 1000rpx; */
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    /* canvas 中内容的单位是 px */
+    width: 300px;
+    height: 450px;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.close-button {
+    padding: 30rpx;
 }
