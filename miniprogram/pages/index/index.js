@@ -1,5 +1,11 @@
 // index.js
 
+// calendar
+import initCalendar, {
+    getSelectedDay,
+    jumpToToday
+} from 'calendar';
+
 // LeanCloud
 const AV = require('../../libs/av-weapp-min.js');
 
@@ -17,12 +23,6 @@ Page({
         // 数据库数据
         courseSets: [],
         events: [],
-    },
-    //事件处理函数
-    bindViewTap: function () {
-        wx.navigateTo({
-            url: '../logs/logs'
-        })
     },
     onLoad: function () {
         if (app.globalData.userInfo) {
@@ -57,8 +57,9 @@ Page({
 
         // LeanCloud
         // 获取并设置 courseSets 和 events
-        this.queryCourses();
-        this.queryEvents();
+        // 自动查询区间：今日零点-明日零点
+        this.queryCourses('today', 'tomorrow');
+        this.queryEvents('today', 'tomorrow');
     },
     getUserInfo: function (e) {
         console.log(e)
@@ -74,12 +75,11 @@ Page({
             currentDate: currentDate
         })
     },
-    queryCourses: function () {
+    queryCourses: function (startTime, endTime) {
         console.log('queryCourses starts');
         let queryCourses = new AV.Query('Courses');
-        // 查询时间：今日零点-明日零点
-        queryCourses.greaterThanOrEqualTo('time', app.queryTime('today'));
-        queryCourses.lessThan('time', app.queryTime('tomorrow'));
+        queryCourses.greaterThanOrEqualTo('time', app.queryTime(startTime));
+        queryCourses.lessThan('time', app.queryTime(endTime));
 
         queryCourses.ascending('time')
             .find()
@@ -131,12 +131,11 @@ Page({
             })
             .catch(console.error);
     },
-    queryEvents: function () {
+    queryEvents: function (startTime, endTime) {
         console.log('queryEvents starts');
         let queryEvents = new AV.Query('Events');
-        // 查询时间：今日零点-明日零点
-        queryEvents.greaterThanOrEqualTo('time', app.queryTime('today'));
-        queryEvents.lessThan('time', app.queryTime('tomorrow'));
+        queryEvents.greaterThanOrEqualTo('time', app.queryTime(startTime));
+        queryEvents.lessThan('time', app.queryTime(endTime));
 
         queryEvents.ascending('time')
             .find()
@@ -147,7 +146,7 @@ Page({
                 //     event.time = app.displayTime(event.time, event.duration);
                 //     arrEvents.push(event);
                 // }
-                
+
                 let arrEvents = events.map(item => {
                     let event = item.attributes;
                     event.time = app.displayTime(event.time, event.duration);
@@ -155,7 +154,7 @@ Page({
                 })
                 this.setData({
                     events: arrEvents
-                })       
+                })
                 console.log(this.data.events);
             })
             .catch(console.error);
@@ -172,5 +171,42 @@ Page({
             path: '',
             imageUrl: ''
         }
+    },
+    onShow: function () {
+        // 日历功能
+        initCalendar({
+            // multi: true, // 是否开启多选,
+            // disablePastDay: true, // 是否禁选过去日期
+            /**
+             * 选择日期后执行的事件
+             * @param { object } currentSelect 当前点击的日期
+             * @param { array } allSelectedDays 选择的所有日期（当mulit为true时，才有allSelectedDays参数）
+             */
+            afterTapDay: (currentSelect, allSelectedDays) => {
+                console.log('当前点击的日期', currentSelect);
+                // console.log('当前点击的日期是否有事件标记: ', currentSelect.hasTodo || false);
+                // allSelectedDays && console.log('选择的所有日期', allSelectedDays);
+                console.log('getSelectedDay方法', getSelectedDay());
+            },
+            /**
+             * 日期点击事件（此事件会完全接管点击事件）
+             * @param { object } currentSelect 当前点击的日期
+             * @param { object } event 日期点击事件对象
+             */
+            // onTapDay(currentSelect, event) {
+            //   console.log(currentSelect);
+            //   console.log(event);
+            // },
+            /**
+             * 日历初次渲染完成后触发事件，如设置事件标记
+             */
+            // afterCalendarRender() {
+            // },
+        });
+    },
+    // 日历功能：跳转至今天
+    jump: function () {
+        console.log('jump to today');
+        jumpToToday();
     }
 })
