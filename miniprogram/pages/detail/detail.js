@@ -51,7 +51,7 @@ Page({
         })
         if (isSingle) {
             this.setData({
-                isDisplay: true
+                isDisplayButton: true
             })
         }
         console.log(this.data.isDisplay);
@@ -70,7 +70,7 @@ Page({
             //     nickname: nickname
             // })
         }
-        // 获取设备信息
+        // 获取设备信息 (在 onReady 函数中调用？？)
         wx.getSystemInfo({
             success: (res) => {
                 console.log(res);
@@ -153,7 +153,7 @@ Page({
         })
         console.log(this.data.canvas);
         // }
-       
+
         // 创建对象
         let ctx = wx.createCanvasContext('event-info');
         // console.log(ctx); // 对象信息
@@ -177,17 +177,18 @@ Page({
             textTopGap = 30,
             textStartX = imageStatX + textLeftGap,
             textStartY = imageStatY + imageHeight + textTopGap,
-            textLineGap = 25,
-            textMaxWidth = contentWidth - textLeftGap * 2;
+            textMaxWidth = contentWidth - textLeftGap * 2,
+            textLineGap = 20,
+            textParaGap = 30;
 
         let codeWidth = 43 * 1.2,
             codeHeight = codeWidth,
             codeTopGap = 12,
-            codeStartX = boxStartX + boxWidth - codeWidth - 5,
+            codeStartX = boxStartX,
             codeStartY = boxStartY + boxHeight + codeTopGap;
 
-        let signatureX = boxStartX,
-            signatureY = codeStartY + codeHeight - 5;
+        let signatureX = boxStartX + codeWidth + 10,
+            signatureY = codeStartY + 25;
 
         // 活动信息-边框
         ctx.setStrokeStyle('#8E8E93');
@@ -204,15 +205,21 @@ Page({
         let obj = this.data.event;
         // 选择展示 obj 部分属性
         let arr = [obj.title, obj.date, obj.time, obj.location, obj.detail];
-        arr.forEach((item) => {
+        arr.forEach((item, index) => {
             this.createFillText(ctx, item, textStartX, textStartY, textMaxWidth, textLineGap);
-            textStartY += textLineGap;
-        })
+            // 设置不同间距
+            if (index === 0 || index === 3) {
+                textStartY += textParaGap;
+            } else {
+                textStartY += textLineGap;
+            }
+        });
 
-        // 分享人
+        // 签名
         // ctx.font = 'style(italic) weight(bold) size family';
         ctx.font = 'normal normal 11px Roboto';
-        ctx.fillText(`shared by ${this.data.nickName}`, signatureX, signatureY);
+        ctx.fillText('长按识别小程序码查看更多活动', signatureX, signatureY);
+        ctx.fillText(`Shared by ${this.data.nickName}`, signatureX, signatureY + 16);
 
         // 小程序码 (按照43像素的整数倍缩放，效果最佳)
         ctx.drawImage('../../img/qrcode.jpg', codeStartX, codeStartY, codeWidth, codeHeight);
@@ -247,14 +254,22 @@ Page({
                 // console.log(item, index, tempStr, tempTextWidth);
                 // 界限比较模糊，某些特殊情况的显示可能会有问题
                 if ((maxWidth - tempTextWidth < averLetterWidth) || (index === (len - 1))) {
-                    ctx.fillText(tempStr, x, y, maxWidth);
                     lineArr.push(tempStr); // 按划分好的行存入数组，用于限制行数显示
-                    y += gap;
                     tempStr = '';
                     // 字符串中的自动换行：iOS 可显示，Andriod 和开发者工具不显示。
                 }
-            })
+            });
+
             console.log(lineArr);
+            lineArr.forEach((item, index) => {
+                if (index <= 3) {
+                    ctx.fillText(item, x, y);
+                    y += gap; // 内部间距
+                } else if (index === 4) {
+                    ctx.fillText('......', x, y);
+                }
+            })
+
             // a failed solution: 中英文所占宽度不同，一个字符串的 width 和 length 不是成比例的。
         }
     },
