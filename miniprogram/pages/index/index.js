@@ -18,6 +18,8 @@ Page({
         canIUse: wx.canIUse('button.open-type.getUserInfo'),
         // 页面数据
         currentDate: '',
+        selectedDate: '',
+        isSelected: false,
         location: 'Haidian',
         phone: '6666-8888',
         // 数据库数据
@@ -52,14 +54,28 @@ Page({
             })
         }
 
-        // Get Current Date
-        this.getCurrentDate();
+        // Set Current Date
+        this.setCurrentDate();
 
         // LeanCloud
         // 获取并设置 courseSets 和 events
         // 自动查询区间：今日零点-明日零点
         this.queryCourses('today', 'tomorrow');
         this.queryEvents('today', 'tomorrow');
+    },
+    onShow: function () {
+        console.log('show page');
+        // 切回此页面后自动跳转到今天
+        this.setData({
+            selectedDate: '',
+            isSelected: false
+        })
+        // 自动查询区间：今日零点-明日零点
+        this.queryCourses('today', 'tomorrow');
+        this.queryEvents('today', 'tomorrow');
+
+        // 日历
+        this.calendar();
     },
     getUserInfo: function (e) {
         console.log(e)
@@ -69,7 +85,7 @@ Page({
             hasUserInfo: true
         })
     },
-    getCurrentDate: function () {
+    setCurrentDate: function () {
         let currentDate = (new Date()).toDateString();
         this.setData({
             currentDate: currentDate
@@ -172,8 +188,8 @@ Page({
             imageUrl: ''
         }
     },
-    onShow: function () {
-        // 日历功能
+    calendar: function () {
+        // 日历配置，没有则不能显示。
         initCalendar({
             // multi: true, // 是否开启多选,
             // disablePastDay: true, // 是否禁选过去日期
@@ -187,6 +203,9 @@ Page({
                 // console.log('当前点击的日期是否有事件标记: ', currentSelect.hasTodo || false);
                 // allSelectedDays && console.log('选择的所有日期', allSelectedDays);
                 console.log('getSelectedDay方法', getSelectedDay());
+
+                // 显示选择的日期，并查询当天事件               
+                this.setSelected(currentSelect);
             },
             /**
              * 日期点击事件（此事件会完全接管点击事件）
@@ -204,9 +223,29 @@ Page({
             // },
         });
     },
-    // 日历功能：跳转至今天
+    setSelected: function (obj) {
+        let startTimeStr = `${obj.year}/${obj.month}/${obj.day}`,
+            endTimeStr = `${obj.year}/${obj.month}/${obj.day + 1}`;
+        console.log(startTimeStr, endTimeStr);
+        let selectedDate = (new Date(startTimeStr)).toDateString();
+        this.setData({
+            selectedDate: selectedDate,
+            isSelected: true
+        })
+        // 根据点击日期查询
+        this.queryCourses(startTimeStr, endTimeStr);
+        this.queryEvents(startTimeStr, endTimeStr);
+    },
     jump: function () {
         console.log('jump to today');
+        // 日历功能：跳转至今天
         jumpToToday();
+        this.setData({
+            selectedDate: '',
+            isSelected: false
+        })
+        // 自动查询区间：今日零点-明日零点
+        this.queryCourses('today', 'tomorrow');
+        this.queryEvents('today', 'tomorrow');
     }
 })

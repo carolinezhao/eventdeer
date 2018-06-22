@@ -1,6 +1,9 @@
 /**index.wxss**/
 
 @import 'calendar.wxss';
+.calendar-container {
+	padding: 30rpx;
+}
 
 .icon-small {
 	color: #FF7F6A;
@@ -19,7 +22,7 @@
 	margin: 30rpx 0;
 }
 
-#date {
+.date {
 	color: #FF7F6A;
 	padding: 5rpx 20rpx;
 	border: 1px solid #FF7F6A;

@@ -2,13 +2,15 @@
 
 <import src="./calendar.wxml"></import>
 
-<view class="calendar-wrap">
+<view class="calendar-container">
     <template is="calendar" data="{{...calendar}}"></template>
 </view>
 
 <view class="container">
-    <view class="page-title">Today</view>
-    <view id="date">{{currentDate}}</view>
+    <view class="page-title" wx:if="{{!isSelected}}">Today</view>
+    <view class="date" wx:if="{{!isSelected}}">{{currentDate}}</view>
+    <view class="page-title" wx:if="{{isSelected}}">{{selectedDate}}</view>
+    <view class="date" wx:if="{{isSelected}}" bindtap="jump">Jump to Today</view>
 
     <view class="page-info">
         <view id="location">
