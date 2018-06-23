@@ -17,6 +17,7 @@ Page({
         hasUserInfo: false,
         canIUse: wx.canIUse('button.open-type.getUserInfo'),
         // 页面数据
+        ifShowCalender: false,
         currentDate: '',
         selectedDate: '',
         isSelected: false,
@@ -228,10 +229,17 @@ Page({
             endTimeStr = `${obj.year}/${obj.month}/${obj.day + 1}`;
         console.log(startTimeStr, endTimeStr);
         let selectedDate = (new Date(startTimeStr)).toDateString();
-        this.setData({
-            selectedDate: selectedDate,
-            isSelected: true
-        })
+        if (selectedDate === this.data.currentDate) {
+            this.setData({
+                selectedDate: '',
+                isSelected: false
+            })
+        } else {
+            this.setData({
+                selectedDate: selectedDate,
+                isSelected: true
+            })
+        }
         // 根据点击日期查询
         this.queryCourses(startTimeStr, endTimeStr);
         this.queryEvents(startTimeStr, endTimeStr);
@@ -247,5 +255,10 @@ Page({
         // 自动查询区间：今日零点-明日零点
         this.queryCourses('today', 'tomorrow');
         this.queryEvents('today', 'tomorrow');
+    },
+    showCalendar: function () {
+        this.setData({
+            ifShowCalender: !this.data.ifShowCalender
+        })
     }
 })

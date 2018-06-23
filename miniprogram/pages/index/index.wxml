@@ -2,11 +2,14 @@
 
 <import src="./calendar.wxml"></import>
 
-<view class="calendar-container">
+<view class="calendar-container" wx:if="{{ifShowCalender}}">
     <template is="calendar" data="{{...calendar}}"></template>
 </view>
 
 <view class="container">
+    <text bindtap="showCalendar">
+        <text class="icon-small icon-calendar"></text>
+    </text>
     <view class="page-title" wx:if="{{!isSelected}}">Today</view>
     <view class="date" wx:if="{{!isSelected}}">{{currentDate}}</view>
     <view class="page-title" wx:if="{{isSelected}}">{{selectedDate}}</view>
