@@ -7,21 +7,25 @@
 </view>
 
 <view class="container">
-    <view class="calendar-button" bindtap="toggleCalendar">
+    <view class="calendar-button theme-color" bindtap="toggleCalendar">
         <text class="icon-big icon-calendar"></text>
         <text wx:if="{{!ifShowCalender}}">Show</text>
-        <text wx:elif="{{ifShowCalender}}">Hide</text>
+        <text wx:else>Hide</text>
     </view>
-    <view class="page-title" wx:if="{{!isSelected}}">Today</view>
-    <view class="date" wx:if="{{!isSelected}}">{{currentDate}}</view>
-    <view class="page-title" wx:if="{{isSelected}}">{{selectedDate}}</view>
-    <view class="date" wx:if="{{isSelected}}" bindtap="jump">Jump to Today</view>
+    <block wx:if="{{!isSelected}}">
+        <view class="page-title">Today</view>
+        <view class="date theme-color">{{currentDate}}</view>
+    </block>
+    <block wx:else>
+        <view class="page-title">{{selectedDate}}</view>
+        <view class="date theme-color" bindtap="jump">Jump to Today</view>
+    </block>
 
     <view class="page-info">
         <view>
-            <text class="icon-small icon-location"></text>{{location}}</view>
+            <text class="icon-small icon-location theme-color"></text>{{location}}</view>
         <view>
-            <text class="icon-small icon-phone"></text>{{phone}}</view>
+            <text class="icon-small icon-phone theme-color"></text>{{phone}}</view>
     </view>
 
 
@@ -30,7 +34,7 @@
     <template name="group-item-content">
         <view>{{time}}</view>
         <view>{{description}}</view>
-        <view class="vip" wx:if="{{isVIP}}">VIP</view>
+        <view class="vip theme-color" wx:if="{{isVIP}}">VIP</view>
     </template>
 
     <template name="group-item-empty">
@@ -38,7 +42,7 @@
     </template>
 
     <view class="group" wx:for="{{courseSets}}" wx:for-index="index" wx:for-item="courseSet" wx:key="index">
-        <view class="group-title">
+        <view class="group-title theme-bg-color">
             <view class="group-title-text">{{courseSet.courseType}}</view>
         </view>
         <view class="group-content">
@@ -57,10 +61,10 @@
     <view class="section-title">Special Event</view>
 
     <template name="event-item">
-        <view class="event-title">{{title}}</view>
+        <view class="event-title theme-bg-color">{{title}}</view>
         <view class="event-content">
             <view>{{time}}</view>
-            <view class="vip" wx:if="{{isVIP}}">VIP</view>
+            <view class="vip theme-color" wx:if="{{isVIP}}">VIP</view>
             <view class="event-host" wx:if="{{teacher}}">by {{teacher}}</view>
         </view>
     </template>

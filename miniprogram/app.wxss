@@ -13,6 +13,27 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* layout */
+
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* color */
+
+.theme-color {
+    color: #FF7F6A;
+}
+
+.theme-bg-color {
+    background-color: #FF7F6A;
+}
+
 /* button */
 
 button {
@@ -44,10 +65,13 @@ button {
 .icon-big {
     font-family: 'iconfont';
     font-size: 50rpx;
-    color: #dedede;
 }
 
 /* index page */
+
+.icon-calendar:before {
+    content: '\e607';
+}
 
 .icon-location:before {
     content: '\e614';
@@ -66,6 +90,14 @@ button {
 .icon-clock:before {
     content: '\e622';
     /* content: '\e641'; */
+}
+
+.icon-share:before {
+    content: '\e608';
+}
+
+.icon-save:before {
+    content: '\e6f1';
 }
 
 .icon-close:before {
