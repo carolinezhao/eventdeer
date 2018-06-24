@@ -1,0 +1,38 @@
+{
+    "pages": [
+        "pages/index/index",
+        "pages/discover/discover",
+        "pages/detail/detail",
+        "pages/me/me",
+        "pages/feedback/feedback"
+    ],
+    "window": {
+        "backgroundTextStyle": "light",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTitleText": "活动鹿",
+        "navigationBarTextStyle": "black"
+    },
+    "tabBar": {
+        "color": "#515151",
+        "selectedColor": "#FF7F6A",
+        "list": [{
+                "text": "Today",
+                "pagePath": "pages/index/index",
+                "iconPath": "libs/today.png",
+                "selectedIconPath": "libs/today-pick.png"
+            },
+            {
+                "text": "Discover",
+                "pagePath": "pages/discover/discover",
+                "iconPath": "libs/discover.png",
+                "selectedIconPath": "libs/discover-pick.png"
+            },
+            {
+                "text": "Me",
+                "pagePath": "pages/me/me",
+                "iconPath": "libs/me.png",
+                "selectedIconPath": "libs/me-pick.png"
+            }
+        ]
+    }
+}

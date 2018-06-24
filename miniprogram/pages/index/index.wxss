@@ -1,11 +1,31 @@
 /**index.wxss**/
 
 @import 'calendar.wxss';
-.calendar-container {
-	padding: 30rpx;
+.icon-small {
+	color: #FF7F6A;
 }
 
-.icon-small {
+.icon-big {
+	color: #FF7F6A;
+	margin-right: 10rpx;
+}
+
+.calendar-container {
+	padding: 0 40rpx;
+	margin-bottom: 10rpx;
+}
+
+.calendar {
+	padding-bottom: 15rpx;
+	border-bottom: .5px solid #dedede;
+}
+
+.calendar-button {
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	font-size: 30rpx;
 	color: #FF7F6A;
 }
 

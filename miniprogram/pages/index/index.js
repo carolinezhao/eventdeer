@@ -193,7 +193,7 @@ Page({
         // 日历配置，没有则不能显示。
         initCalendar({
             // multi: true, // 是否开启多选,
-            // disablePastDay: true, // 是否禁选过去日期
+            disablePastDay: false, // 是否禁选过去日期
             /**
              * 选择日期后执行的事件
              * @param { object } currentSelect 当前点击的日期
@@ -256,9 +256,9 @@ Page({
         this.queryCourses('today', 'tomorrow');
         this.queryEvents('today', 'tomorrow');
     },
-    showCalendar: function () {
+    toggleCalendar: function () {
         this.setData({
-            ifShowCalender: !this.data.ifShowCalender
+            ifShowCalender: !this.data.ifShowCalender,
         })
     }
 })

@@ -3,22 +3,24 @@
 <import src="./calendar.wxml"></import>
 
 <view class="calendar-container" wx:if="{{ifShowCalender}}">
-    <template is="calendar" data="{{...calendar}}"></template>
+    <template class="calendar" is="calendar" data="{{...calendar}}"></template>
 </view>
 
 <view class="container">
-    <text bindtap="showCalendar">
-        <text class="icon-small icon-calendar"></text>
-    </text>
+    <view class="calendar-button" bindtap="toggleCalendar">
+        <text class="icon-big icon-calendar"></text>
+        <text wx:if="{{!ifShowCalender}}">Show</text>
+        <text wx:elif="{{ifShowCalender}}">Hide</text>
+    </view>
     <view class="page-title" wx:if="{{!isSelected}}">Today</view>
     <view class="date" wx:if="{{!isSelected}}">{{currentDate}}</view>
     <view class="page-title" wx:if="{{isSelected}}">{{selectedDate}}</view>
     <view class="date" wx:if="{{isSelected}}" bindtap="jump">Jump to Today</view>
 
     <view class="page-info">
-        <view id="location">
+        <view>
             <text class="icon-small icon-location"></text>{{location}}</view>
-        <view id="phone">
+        <view>
             <text class="icon-small icon-phone"></text>{{phone}}</view>
     </view>
 
