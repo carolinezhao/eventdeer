@@ -1,11 +1,14 @@
 <template>
-  <div>
+  <div class="page-container">
+    <img src="../assets/eventdeer.png">
     <h2>{{msg}}</h2>
-    <h2>Login</h2>
-    <label>Username</label>
-    <input placeholder="Enter your username">
-    <label>Password</label>
-    <input placeholder="Enter your password">
+    <form action="">
+      <div class="flex-col flex-container">
+        <input type="text" placeholder="Username" autocomplete="">
+        <input type="password" placeholder="Password" autocomplete="">
+        <button type="submit" class="theme-bg-color">Login</button>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -22,10 +25,27 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h2 {
-  font-weight: normal;
-}
-a {
-  color: #42b983;
-}
+  .page-container {
+    text-align: center;
+    margin-top: 60px;
+  }
+
+  .flex-container {
+    justify-content: space-around;
+    align-items: center;
+    height: 150px;
+  }
+
+  h2 {
+    font-weight: normal;
+  }
+
+  input,
+  button {
+    padding: 5px 10px;
+    height: 40px;
+    width: 220px;
+    border: 1px solid #42b983;
+    font-size: 16px;
+  }
 </style>
