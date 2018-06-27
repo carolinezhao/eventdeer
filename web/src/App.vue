@@ -23,22 +23,36 @@ export default {
   select {
     box-sizing: border-box;
     border-radius: 5px;
+    border: 1px solid #bfcbd9;
+    color: #2c3e50;
   }
 
-  button {
+  /* button size */
+
+  button.small {
+    font-size: 14px;
+    width: 70px;
+    padding: 5px 0;
+  }
+
+  /* button color */
+
+  button.main {
     background-color: #42b983;
-    border: 1px solid #42b983;
+    border-color: #42b983;
     color: #fff;
-    font-size: 15px;
+    font-size: 16px;
+  }
+
+  button.danger {
+    background-color: #f66;
+    border-color: #f66;
+    color: #fff;
   }
 
   .flex-col {
     display: flex;
     flex-direction: column;
-  }
-
-  .theme-color {
-    color: #42b983
   }
 
   .theme-bg-color {

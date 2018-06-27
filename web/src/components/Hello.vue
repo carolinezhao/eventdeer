@@ -6,7 +6,7 @@
       <div class="flex-col flex-container">
         <input type="text" placeholder="Username" autocomplete="">
         <input type="password" placeholder="Password" autocomplete="">
-        <button type="submit" class="theme-bg-color">Login</button>
+        <button type="submit" class="main">Login</button>
       </div>
     </form>
   </div>
@@ -17,7 +17,7 @@ export default {
   name: 'Login',
   data () {
     return {
-      msg: 'Welcome to EventDeer'
+      msg: 'EventDeer Dashboard'
     }
   }
 }
@@ -45,7 +45,10 @@ export default {
     padding: 5px 10px;
     height: 40px;
     width: 220px;
+  }
+
+  input {
     border: 1px solid #42b983;
-    font-size: 16px;
+    font-size: 15px;
   }
 </style>
