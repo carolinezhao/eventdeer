@@ -72,26 +72,26 @@
     <section class="table">
       <table>
         <thead>
-          <tr class="table-head">
-            <th>
+          <tr>
+            <th class="center-align">
               <input type="checkbox">
             </th>
-            <th class="col-title" v-for="title in colTitles" v-bind:key="title">{{title}}</th>
+            <th class="left-align" v-for="title in colTitles" v-bind:key="title">{{title}}</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr>
-            <th>
+          <tr v-for="course in courses" v-bind:key="course.id">
+            <td class="center-align">
               <input type="checkbox">
-            </th>
-            <th></th>
+            </td>
+            <td class="left-align" v-for="value in course" v-bind:key="value.id">{{value}}</td>
           </tr>
         </tbody>
 
         <tfoot>
           <tr>
-            <td colspan="2"></td>
+            <td class="center-align" colspan="6">Page {{currentPage}} of {{totalPage}}</td>
           </tr>
         </tfoot>
       </table>
@@ -105,7 +105,25 @@ export default {
   name: 'Create',
   data () {
     return {
-      colTitles: ['Date', 'Time', 'Type', 'Description', 'VIP']
+      colTitles: ['Date', 'Time', 'Type', 'Description', 'VIP'],
+      // fake data
+      courses: [
+        {
+          date: 'Wed Jun 27',
+          time: '15:00',
+          type: 'FTClass',
+          description: 'Unit 60',
+          isVIP: true},
+        {
+          date: 'Thu Jun 28',
+          time: '19:00',
+          type: 'FTClass',
+          description: 'Unit 30',
+          isVIP: false
+        }
+      ],
+      currentPage: '1',
+      totalPage: '3'
     }
   },
   methods: {
@@ -187,14 +205,24 @@ export default {
     border: 1px solid #bfcbd9;
     width: 100%;
     border-collapse: collapse;
-    border-spacing: 0px;
   }
 
-  th:not(.col-title) {
-    font-weight: normal;
+  .center-align {
+    text-align: center;
   }
 
-  th.col-title {
+  .left-align {
+    text-align: left;
+  }
+
+  th {
     background-color: #bfcbd9;
+    font-weight: normal;
+    height: 40px;
+  }
+
+  td {
+    font-weight: 300;
+    height: 35px;
   }
 </style>
