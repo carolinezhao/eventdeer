@@ -102,7 +102,7 @@
 
 <script>
 export default {
-  name: 'Create',
+  name: 'Course',
   data () {
     return {
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
