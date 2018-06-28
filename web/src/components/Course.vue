@@ -1,7 +1,5 @@
 <template>
-  <div class="page-container">
-    <div class="path">Location: ... / Courses</div>
-
+  <div>
     <section class="form-section">
       <!-- <div class="section-title">创建课程</div> -->
       <form id="course-form">
@@ -96,7 +94,6 @@
         </tfoot>
       </table>
     </section>
-
   </div>
 </template>
 
@@ -136,17 +133,6 @@ export default {
 <style scoped>
   /* scoped 中尽量使用选择器，而不是元素标签 */
 
-  .page-container {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 16px;
-    padding: 20px;
-  }
-
-  .path {
-    background-color: #bfcbd9;
-  }
-
-  .form-section,
   .button-section,
   .table-section {
     margin-top: 20px;
@@ -207,7 +193,7 @@ export default {
 
   #course-table {
     border: 1px solid #bfcbd9;
-    width: 60%;
+    width: 80%;
     border-collapse: collapse;
   }
 
