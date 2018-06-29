@@ -1,13 +1,22 @@
 <template>
   <div class="page-container flex">
-    <section class="home-navbar flex-col">
-      <div class="top-fixed flex-center">eventdeer</div>
-      <router-link to="/home/course">
-        <div class="nav-inner">Course</div>
+    <section class="navbar-container">
+      <router-link to="/home">
+        <div class="top-btn flex-center">Dashboard</div>
       </router-link>
-      <router-link to="/home/event">
-        <div class="nav-inner">Event</div>
-      </router-link>
+      <div class="navbar flex-col">
+        <template v-for="nav in navs">
+          <!-- to='string' :to='js' -->
+          <router-link :to="'/home/' + nav.toLowerCase()" v-bind:key="nav.id">
+            <div class="nav-inner">{{nav}}</div>
+          </router-link>
+        </template>
+      </div>
+
+      <!-- 路径 '/' 必须有 exact，否则永远是 active 状态 -->
+      <!-- <router-link to="/" exact> -->
+      <div class="nav-logout" v-on:click="logout">Logout</div>
+      <!-- </router-link> -->
     </section>
 
     <section class="home-content">
@@ -22,6 +31,14 @@ export default {
   name: 'Home',
   data () {
     return {
+      navs: ['Course', 'Event']
+    }
+  },
+  methods: {
+    logout () {
+      let AV = this.$AV
+      AV.User.logOut()
+      this.$router.push('/')
     }
   }
 }
@@ -38,19 +55,26 @@ export default {
     padding: 20px;
   }
 
-  .home-navbar {
+  .navbar-container {
     width: 10%;
+    min-width: 100px;
     background-color: #bfcbd9;
     height: 100vh;
   }
 
-  .top-fixed {
+  .top-btn {
+    height: 10%;
+    min-height: 60px;
     background-color: #2c3e50;
     color: #fff;
-    height: 60px;
   }
 
-  .nav-inner {
+  .navbar {
+    height: 75%;
+  }
+
+  .nav-inner,
+  .nav-logout {
     text-align: center;
     color: #2c3e50;
     padding: 15px 0;
@@ -59,6 +83,17 @@ export default {
   .nav-inner:hover {
     background-color: #61788d;
     color: #fff;
+    transition: all .5s;
+  }
+
+  .nav-logout {
+    background-color: #f66;
+    color: #fff;
+  }
+
+  .nav-logout:hover {
+    background-color: #e04e4e;
+    border-color: #e04e4e;
     transition: all .5s;
   }
 
