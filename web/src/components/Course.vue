@@ -1,7 +1,7 @@
 <template>
   <div>
-    <section class="form-section">
-      <!-- <div class="section-title">创建课程</div> -->
+    <section class="form-section flex-col">
+      <div class="section-title flex-center">New Course</div>
       <form id="course-form">
         <div class="form-row">
           <label class="form-label">Date</label>
@@ -55,7 +55,7 @@
 
         <div class="form-row button">
           <div class="form-content">
-            <button type="submit" class="main create-button">Create</button>
+            <button type="submit" class="main-button create-button">Create</button>
           </div>
         </div>
       </form>
@@ -63,8 +63,8 @@
 
     <section class="button-section">
       <!-- <div class="section-title">已创建课程列表</div> -->
-      <button class="small">Edit</button>
-      <button class="danger small">Remove</button>
+      <button class="primary-button small-button">Edit</button>
+      <button class="danger-button small-button">Remove</button>
     </section>
 
     <section class="table-section">
@@ -131,12 +131,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  /* scoped 中尽量使用选择器，而不是元素标签 */
-
   .button-section,
   .table-section {
     margin-top: 20px;
     overflow: hidden;
+  }
+
+  .section-title {
+    border-bottom: 1px solid #bfcbd9;
+    padding: 10px 0;
+    font-weight: 500;
   }
 
   /* 表单 */
@@ -145,7 +149,10 @@ export default {
     width: 40%;
     border: 1px solid #bfcbd9;
     border-radius: 5px;
-    padding: 10px;
+  }
+
+  #course-form {
+    margin: 10px;
   }
 
   .form-row {
@@ -171,20 +178,21 @@ export default {
   }
 
   .create-button {
-    /* same with the width of label */
-    margin-left: 40%;
+    margin-left: 40%; /* same with the width of label */
     height: 30px;
     width: 100px;
+    font-size: 16px;
   }
 
-  .form-select,
+  .small-button {
+    font-size: 14px;
+    width: 70px;
+    padding: 5px 0;
+    margin-right: 10px;
+  }
+
   .short-input {
-    height: 25px;
-    font-size: 15px;
     text-align: center;
-  }
-
-  .short-input {
     width: 32px;
     padding: 5px 5px 6px;
   }

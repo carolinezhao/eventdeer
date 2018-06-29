@@ -1,7 +1,7 @@
 <template>
   <div class="page-container flex">
     <section class="home-navbar flex-col">
-      <div class="top-fixed flex-col">eventdeer</div>
+      <div class="top-fixed flex-center">eventdeer</div>
       <router-link to="/home/course">
         <div class="nav-inner">Course</div>
       </router-link>
@@ -11,6 +11,7 @@
     </section>
 
     <section class="home-content">
+      <!-- 渲染路由匹配到的组件 -->
       <router-view></router-view>
     </section>
   </div>
@@ -18,14 +19,17 @@
 
 <script>
 export default {
-  name: 'Home'
+  name: 'Home',
+  data () {
+    return {
+    }
+  }
 }
 </script>
 
 <style scoped>
   .page-container {
     width: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-size: 16px;
   }
 
@@ -37,14 +41,13 @@ export default {
   .home-navbar {
     width: 10%;
     background-color: #bfcbd9;
+    height: 100vh;
   }
 
   .top-fixed {
     background-color: #2c3e50;
     color: #fff;
     height: 60px;
-    justify-content: center;
-    align-items: center;
   }
 
   .nav-inner {
@@ -54,8 +57,18 @@ export default {
   }
 
   .nav-inner:hover {
-    background-color: #2c3e5080;
+    background-color: #61788d;
     color: #fff;
     transition: all .5s;
+  }
+
+  /* <router-link> 匹配到对应路由时，自动添加 class="router-link-active" */
+
+  .router-link-active {
+    background-color: #61788d;
+  }
+
+  .router-link-active .nav-inner {
+    color: #fff;
   }
 </style>
