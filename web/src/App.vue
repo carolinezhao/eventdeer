@@ -12,42 +12,77 @@ export default {
 
 <style>
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
+    width: 100vw;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  a {
+    text-decoration: none;
   }
 
   input,
-  button,
-  select {
+  select,
+  button {
     box-sizing: border-box;
     border-radius: 5px;
     border: 1px solid #bfcbd9;
     color: #2c3e50;
   }
 
-  /* button size */
+  input,
+  select {
+    height: 25px;
+    font-size: 15px;
+    outline: none;
+  }
 
-  button.small {
-    font-size: 14px;
-    width: 70px;
-    padding: 5px 0;
+  input:focus {
+    border-color: #42b983;
   }
 
   /* button color */
 
-  button.main {
+  .primary-button:hover {
+    border-color: #42b983;
+    color: #42b983;
+    transition: all .5s;
+  }
+
+  .main-button {
     background-color: #42b983;
     border-color: #42b983;
     color: #fff;
-    font-size: 16px;
   }
 
-  button.danger {
+  .main-button:hover {
+    background-color: #309c6b;
+    border-color: #309c6b;
+    transition: all .5s;
+  }
+
+  .danger-button {
     background-color: #f66;
     border-color: #f66;
     color: #fff;
+  }
+
+  .danger-button:hover {
+    background-color: #e04e4e;
+    border-color: #e04e4e;
+    transition: all .5s;
+  }
+
+  /* layout */
+
+  .flex {
+    display: flex;
   }
 
   .flex-col {
@@ -55,7 +90,9 @@ export default {
     flex-direction: column;
   }
 
-  .theme-bg-color {
-    background-color: #42b983;
+  .flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>
