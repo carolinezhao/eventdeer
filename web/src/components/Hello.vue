@@ -4,14 +4,13 @@
       <div class="logo-container">
         <img class="logo" src="../assets/eventdeer.png">
       </div>
-      <h2 class="page-title">{{msg}}</h2>
-      <form action="">
-        <div class="flex-col flex-container">
-          <input class="login-input" type="text" placeholder="Username" autocomplete="">
-          <input class="login-input" type="password" placeholder="Password" autocomplete="">
-          <button class="main-button login-button" type="submit">Login</button>
-        </div>
-      </form>
+      <h2 class="page-title">{{title}}</h2>
+      <div class="flex-col flex-container">
+        <input v-model="username" class="login-input" type="text" placeholder="Username" autocomplete="" required autofocus>
+        <input v-model="password" class="login-input" type="password" placeholder="Password" autocomplete="" required>
+        <div class="err-msg">{{errMsg}}</div>
+        <button v-on:click="login" class="main-button login-button" type="submit">Login</button>
+      </div>
     </section>
   </div>
 </template>
@@ -21,7 +20,28 @@ export default {
   name: 'Login',
   data () {
     return {
-      msg: 'EventDeer Dashboard'
+      title: 'EventDeer Dashboard',
+      username: '',
+      password: '',
+      errMsg: ''
+    }
+  },
+  methods: {
+    login (e) {
+      console.log('login starts')
+      e.preventDefault()
+      // LeanCloud SDK
+      let AV = this.$AV
+      AV.User.logIn(this.username, this.password)
+        .then((res) => {
+          console.log(res)
+          console.log(this.$route.params)
+          this.$router.push('/home')
+        })
+        .catch((res) => {
+          console.error()
+          this.errMsg = res.rawMessage
+        })
     }
   }
 }
@@ -62,7 +82,7 @@ export default {
   .flex-container {
     justify-content: space-around;
     align-items: center;
-    height: 160px;
+    height: 170px;
   }
 
   .login-input,
@@ -74,5 +94,11 @@ export default {
 
   .login-button {
     font-size: 16px;
+    margin-top: 8px;
+  }
+
+  .err-msg {
+    color: #f66;
+    font-size: 12px;
   }
 </style>

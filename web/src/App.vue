@@ -34,13 +34,13 @@ export default {
     border-radius: 5px;
     border: 1px solid #bfcbd9;
     color: #2c3e50;
+    outline: none;
   }
 
   input,
   select {
     height: 25px;
     font-size: 15px;
-    outline: none;
   }
 
   input:focus {
