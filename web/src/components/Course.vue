@@ -21,6 +21,7 @@
           <label class="form-label">Course Type</label>
           <div class="form-content">
             <select class="form-select" v-model="type">
+              <!-- <option disabled value="">choose</option> -->
               <option value="FTClass">FTClass</option>
               <option value="Extend">Extend</option>
               <option value="GroupChat">GroupChat</option>
@@ -111,22 +112,7 @@ export default {
       isVIP: '0',
       // table
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
-      // fake data
-      courses: [
-        {
-          date: 'Wed Jun 27',
-          time: '15:00',
-          type: 'FTClass',
-          description: 'Unit 60',
-          isVIP: true},
-        {
-          date: 'Thu Jun 28',
-          time: '19:00',
-          type: 'FTClass',
-          description: 'Unit 30',
-          isVIP: false
-        }
-      ],
+      courses: [],
       currentPage: '1',
       totalPage: '3'
     }
@@ -135,6 +121,9 @@ export default {
     ifShowUnit () {
       return this.type === 'FTClass'
     }
+  },
+  created () {
+    this.queryCourses()
   },
   methods: {
     createCourse () {
@@ -166,6 +155,45 @@ export default {
           this.courses.unshift(displayCourse)
         })
         .catch(console.error())
+    },
+    queryCourses () {
+      console.log('queryCourses starts')
+      let AV = this.$AV
+      let queryCourses = new AV.Query('Courses')
+      queryCourses.descending('time')
+        .find()
+        .then(courses => {
+          console.log(courses)
+          let newCourses = courses.map(item => {
+            // attributes 中是自定义属性
+            let course = item.attributes
+            let newCourse = {}
+            // match the order of colTitle
+            newCourse.date = this.displayDate(course.time) // add
+            newCourse.time = this.displayTime(course.time) // revise
+            newCourse.type = course.type
+            newCourse.description = course.description
+            newCourse.isVIP = course.isVIP ? 'Yes' : 'No' // revise
+            return newCourse
+          })
+          console.log(newCourses)
+          this.courses = newCourses
+        })
+        .catch(console.error())
+    },
+    displayTime (timeObj, duration) {
+      let hour = timeObj.getHours()
+      let time
+      if (duration === undefined) {
+        time = `${hour}:00`
+      } else {
+        time = `${hour}:00-${hour + duration}:00`
+      }
+      return time
+    },
+    displayDate (timeObj) {
+      let date = timeObj.toDateString()
+      return date
     }
   }
 }
