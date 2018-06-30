@@ -6,21 +6,21 @@
         <div class="form-row">
           <label class="form-label">Date</label>
           <div class="form-content">
-            <input class="calendar">
+            <input class="lg-input" v-model="date">
           </div>
         </div>
 
         <div class="form-row">
           <label class="form-label">Start Time</label>
           <div class="form-content">
-            <input class="short-input" maxlength="2"> : 00
+            <input class="short-input" maxlength="2" v-model="startTime"> : 00
           </div>
         </div>
 
         <div class="form-row">
           <label class="form-label">Course Type</label>
           <div class="form-content">
-            <select class="form-select">
+            <select class="form-select" v-model="type">
               <option value="FTClass">FTClass</option>
               <option value="Extend">Extend</option>
               <option value="GroupChat">GroupChat</option>
@@ -31,14 +31,14 @@
         <div class="form-row">
           <label class="form-label">Description</label>
           <div class="form-content">
-            <template v-if="false">
+            <template v-if="ifShowUnit">
               <label>Unit</label>
-              <input class="short-input" maxlength="2">
+              <input class="short-input" maxlength="2" v-model="unit">
             </template>
             <template v-else>
               <label>Level</label>
-              <input class="short-input" maxlength="2"> -
-              <input class="short-input" maxlength="2">
+              <input class="short-input" maxlength="2" v-model="lowerLevel"> -
+              <input class="short-input" maxlength="2" v-model="upperLevel">
             </template>
           </div>
         </div>
@@ -46,23 +46,22 @@
         <div class="form-row">
           <label class="form-label">VIP</label>
           <div class="form-content">
-            <select class="form-select" name="type" id="">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
+            <select class="form-select" v-model="isVIP">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
             </select>
           </div>
         </div>
 
         <div class="form-row button">
           <div class="form-content">
-            <button type="submit" class="main-button create-button">Create</button>
+            <button type="submit" class="main-button create-button" v-on:click="createCourse">Create</button>
           </div>
         </div>
       </form>
     </section>
 
     <section class="button-section">
-      <!-- <div class="section-title">已创建课程列表</div> -->
       <button class="primary-button small-button">Edit</button>
       <button class="danger-button small-button">Remove</button>
     </section>
@@ -102,6 +101,15 @@ export default {
   name: 'Course',
   data () {
     return {
+      // form
+      date: '',
+      startTime: '',
+      type: 'FTClass',
+      unit: '',
+      lowerLevel: '',
+      upperLevel: '',
+      isVIP: '0',
+      // table
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       // fake data
       courses: [
@@ -123,8 +131,42 @@ export default {
       totalPage: '3'
     }
   },
+  computed: {
+    ifShowUnit () {
+      return this.type === 'FTClass'
+    }
+  },
   methods: {
-
+    createCourse () {
+      // 处理数据格式
+      let time = new Date(`${this.date}, ${this.startTime}:00`)
+      console.log(time)
+      let description = (`Unit ${this.unit}` && this.unit) || `L${this.lowerLevel}-L${this.upperLevel}`
+      let isVIP = Boolean(Number(this.isVIP))
+      // 页面展示
+      let vipStr = isVIP ? 'Yes' : 'No'
+      let displayCourse = {
+        date: this.date,
+        time: `${this.startTime}:00`,
+        type: this.type,
+        description: description,
+        vip: vipStr
+      }
+      // 后端存储
+      let AV = this.$AV
+      let Courses = AV.Object.extend('Courses')
+      let course = new Courses()
+      course.set('time', time)
+      course.set('type', this.type)
+      course.set('description', description)
+      course.set('isVIP', isVIP)
+      course.save()
+        .then((course) => {
+          console.log('objectId is ' + course.id)
+          this.courses.unshift(displayCourse)
+        })
+        .catch(console.error())
+    }
   }
 }
 </script>
@@ -149,6 +191,7 @@ export default {
     width: 40%;
     border: 1px solid #bfcbd9;
     border-radius: 5px;
+    overflow: hidden;
   }
 
   #course-form {
@@ -191,6 +234,11 @@ export default {
     margin-right: 10px;
   }
 
+  .lg-input {
+    width: 150px;
+    padding: 5px 5px 6px;
+  }
+
   .short-input {
     text-align: center;
     width: 32px;
@@ -222,6 +270,7 @@ export default {
 
   .content-cell {
     font-weight: 300;
+    font-size: 15px;
     height: 35px;
   }
 
