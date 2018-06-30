@@ -64,7 +64,7 @@
 
     <section class="button-section">
       <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button">Remove</button>
+      <button class="danger-button small-button" v-on:click="removeCourse">Remove</button>
     </section>
 
     <section class="table-section">
@@ -81,9 +81,9 @@
         <tbody>
           <tr class="content-row" v-for="course in courses" v-bind:key="course.id">
             <td class="content-cell center-align">
-              <input type="checkbox">
+              <input type="checkbox" v-bind:value="course" v-model="checkedCourses">
             </td>
-            <td class="content-cell left-align" v-for="value in course" v-bind:key="value.id">{{value}}</td>
+            <td class="content-cell left-align" v-for="(value, key) in course" v-bind:key="value.id" v-if="!(key === 'id')">{{value}}</td>
           </tr>
         </tbody>
 
@@ -113,6 +113,7 @@ export default {
       // table
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
+      checkedCourses: [],
       currentPage: '1',
       totalPage: '3'
     }
@@ -174,12 +175,15 @@ export default {
             newCourse.type = course.type
             newCourse.description = course.description
             newCourse.isVIP = course.isVIP ? 'Yes' : 'No' // revise
+            newCourse.id = item.id // 存储对象时自动分配的 id
             return newCourse
           })
           console.log(newCourses)
           this.courses = newCourses
         })
         .catch(console.error())
+    },
+    removeCourse () {
     },
     displayTime (timeObj, duration) {
       let hour = timeObj.getHours()
