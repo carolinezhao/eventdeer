@@ -64,8 +64,10 @@
 
     <section class="button-section">
       <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button" v-on:click="removeCourse">Remove</button>
+      <button class="danger-button small-button" v-on:click="removeCourses">Remove</button>
     </section>
+
+    <div>{{checkedCourses}}</div>
 
     <section class="table-section">
       <table id="course-table">
@@ -79,9 +81,10 @@
         </thead>
 
         <tbody>
-          <tr class="content-row" v-for="course in courses" v-bind:key="course.id">
+          <tr class="content-row" v-for="(course, index) in courses" v-bind:key="course.id">
             <td class="content-cell center-align">
-              <input type="checkbox" v-bind:value="course" v-model="checkedCourses">
+              <!-- value 的作用：识别 input，绑定数据添加到 v-model 中 -->
+              <input type="checkbox" v-bind:value="{index: index, id: course.id}" v-model="checkedCourses">
             </td>
             <td class="content-cell left-align" v-for="(value, key) in course" v-bind:key="value.id" v-if="!(key === 'id')">{{value}}</td>
           </tr>
@@ -110,10 +113,11 @@ export default {
       lowerLevel: '',
       upperLevel: '',
       isVIP: '0',
-      // table
+      // display
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
-      checkedCourses: [],
+      // manipulate
+      checkedCourses: [], // 对象数组，对象来自 input 的 value 属性，对象属性是 index 和 id
       currentPage: '1',
       totalPage: '3'
     }
@@ -128,12 +132,12 @@ export default {
   },
   methods: {
     createCourse () {
-      // 处理数据格式
+      this.checkedCourses = [] // 清空上次未完成的操作
+      // prepare data for backend
       let time = new Date(`${this.date}, ${this.startTime}:00`)
-      // console.log(time)
       let description = (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
       let isVIP = Boolean(Number(this.isVIP))
-      // 页面展示
+      // prepare data for frontend
       let vipStr = isVIP ? 'Yes' : 'No'
       let displayCourse = {
         date: this.date,
@@ -142,7 +146,7 @@ export default {
         description: description,
         vip: vipStr
       }
-      // 后端存储
+      // backend
       let AV = this.$AV
       let Courses = AV.Object.extend('Courses')
       let course = new Courses()
@@ -152,8 +156,8 @@ export default {
       course.set('isVIP', isVIP)
       course.save()
         .then((course) => {
-          // 表格中数据直接展示，id 是存储成功后生成的
-          displayCourse.id = course.id
+          // frontend
+          displayCourse.id = course.id // id 是存储成功后生成的
           console.log('id is ' + displayCourse.id)
           this.courses.unshift(displayCourse)
         })
@@ -185,17 +189,22 @@ export default {
         })
         .catch(console.error())
     },
-    removeCourse () {
-      // remove data in backend
+    removeCourses () {
       let AV = this.$AV
+      let currentArr = this.courses
+      // data to be removed
       let targetArr = this.checkedCourses
       let len = targetArr.length
       if (len === 0) {
         alert("You haven't chosen any data.")
       } else if (len === 1) {
         // remove single object
-        let id = targetArr[0].id
-        let removeObj = AV.Object.createWithoutData('Courses', id)
+        let targetObj = targetArr[0]
+        // frontend
+        currentArr.splice(targetObj.index, 1)
+        this.checkedCourses = []
+        // backend
+        let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
         removeObj.destroy().then((res) => {
           console.log('removed ' + res.id)
         }).catch(console.error())
@@ -203,10 +212,14 @@ export default {
         // remove multiple objects
         let removeArr = []
         for (let targetObj of targetArr) {
+          // frontend
+          currentArr.splice(targetObj.index, 1)
+          this.checkedCourses = []
+          // backend
           let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
           removeArr.push(removeObj)
         }
-        console.log(removeArr)
+        // console.log(removeArr)
         AV.Object.destroyAll(removeArr).then(() => {
           console.log('removed')
         }).catch(console.error())
