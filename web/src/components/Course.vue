@@ -130,8 +130,8 @@ export default {
     createCourse () {
       // 处理数据格式
       let time = new Date(`${this.date}, ${this.startTime}:00`)
-      console.log(time)
-      let description = (`Unit ${this.unit}` && this.unit) || `L${this.lowerLevel}-L${this.upperLevel}`
+      // console.log(time)
+      let description = (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
       let isVIP = Boolean(Number(this.isVIP))
       // 页面展示
       let vipStr = isVIP ? 'Yes' : 'No'
@@ -152,7 +152,9 @@ export default {
       course.set('isVIP', isVIP)
       course.save()
         .then((course) => {
-          console.log('objectId is ' + course.id)
+          // 表格中数据直接展示，id 是存储成功后生成的
+          displayCourse.id = course.id
+          console.log('id is ' + displayCourse.id)
           this.courses.unshift(displayCourse)
         })
         .catch(console.error())
@@ -184,6 +186,31 @@ export default {
         .catch(console.error())
     },
     removeCourse () {
+      // remove data in backend
+      let AV = this.$AV
+      let targetArr = this.checkedCourses
+      let len = targetArr.length
+      if (len === 0) {
+        alert("You haven't chosen any data.")
+      } else if (len === 1) {
+        // remove single object
+        let id = targetArr[0].id
+        let removeObj = AV.Object.createWithoutData('Courses', id)
+        removeObj.destroy().then((res) => {
+          console.log('removed ' + res.id)
+        }).catch(console.error())
+      } else {
+        // remove multiple objects
+        let removeArr = []
+        for (let targetObj of targetArr) {
+          let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
+          removeArr.push(removeObj)
+        }
+        console.log(removeArr)
+        AV.Object.destroyAll(removeArr).then(() => {
+          console.log('removed')
+        }).catch(console.error())
+      }
     },
     displayTime (timeObj, duration) {
       let hour = timeObj.getHours()
