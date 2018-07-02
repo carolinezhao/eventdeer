@@ -5,19 +5,21 @@
         <img class="logo" src="../assets/eventdeer.png">
       </div>
       <h2 class="page-title">{{title}}</h2>
-      <div class="flex-col flex-container">
-        <input v-model="username" class="login-input" type="text" placeholder="Username" autocomplete="" required autofocus>
-        <input v-model="password" class="login-input" type="password" placeholder="Password" autocomplete="" required>
-        <div class="err-msg">{{errMsg}}</div>
-        <button v-on:click="login" class="main-button login-button" type="submit">Login</button>
-      </div>
+      <form>
+        <div class="flex-col flex-container">
+          <input v-model="username" class="login-input" type="text" placeholder="Username" autocomplete="" required autofocus>
+          <input v-model="password" class="login-input" type="password" placeholder="Password" autocomplete="" required>
+          <div class="err-msg">{{errMsg}}</div>
+          <button v-on:click="login" class="main-button login-button" type="submit">Login</button>
+        </div>
+      </form>
     </section>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Login',
+  name: 'login',
   data () {
     return {
       title: 'EventDeer Dashboard',
@@ -36,7 +38,7 @@ export default {
         .then((res) => {
           console.log(res)
           console.log(this.$route.params)
-          this.$router.push('/home')
+          this.$router.push('/home/dashboard')
         })
         .catch((res) => {
           console.error()
