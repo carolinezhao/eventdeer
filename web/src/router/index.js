@@ -19,28 +19,37 @@ const router = new Router({
       redirect: '/login'
     },
     {
-      path: '/Login',
+      path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      beforeEnter: (to, from, next) => { // 路由独享守卫
+        let currentUser = AV.User.current()
+        if (currentUser) { // 已登录后再去登录页，跳转至首页
+          console.log('已登录，不能跳转 login')
+          next('/home')
+        } else {
+          next()
+        }
+      }
     },
     {
       path: '/home',
-      name: 'home',
       component: Home,
       meta: {
         requiresAuth: true
       },
       children: [ // 嵌套路由
-        {
-          path: '/home/dashboard',
+        { // default child route
+          path: '',
+          name: 'dashboard',
           component: Dashboard
         },
         {
-          path: '/home/course',
+          path: 'course', // 相对路径
           component: Course
         },
         {
-          path: '/home/event',
+          path: 'event',
           component: Event
         }
       ]
@@ -57,7 +66,6 @@ export default router
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
   let currentUser = AV.User.current()
-  console.log(currentUser)
   // console.log(to)
   // console.log(from)
 
@@ -68,6 +76,9 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !currentUser) { // 要权限，未登录
     next('/login')
   } else {
+    if (currentUser) {
+      console.log('已登录: ' + currentUser.attributes.username)
+    }
     next()
   }
 })

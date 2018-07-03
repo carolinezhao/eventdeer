@@ -30,15 +30,13 @@ export default {
   },
   methods: {
     login (e) {
-      console.log('login starts')
       e.preventDefault()
       // LeanCloud SDK
       let AV = this.$AV
       AV.User.logIn(this.username, this.password)
         .then((res) => {
-          console.log(res)
-          console.log(this.$route.params)
-          this.$router.push('/home/dashboard')
+          console.log(res.attributes.username + ' 登录成功')
+          this.$router.push('/home')
         })
         .catch((res) => {
           console.error()

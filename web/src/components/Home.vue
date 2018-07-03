@@ -1,26 +1,21 @@
 <template>
   <div class="page-container flex">
     <section class="navbar-container">
-      <router-link to="/home">
+      <router-link :to="{name: 'dashboard'}">
         <div class="top-btn flex-center">Dashboard</div>
       </router-link>
       <div class="navbar flex-col">
         <template v-for="nav in navs">
           <!-- to='string' :to='js' -->
-          <router-link :to="'/home/' + nav.toLowerCase()" v-bind:key="nav.id">
+          <router-link :to="nav.toLowerCase()" v-bind:key="nav.id">
             <div class="nav-inner">{{nav}}</div>
           </router-link>
         </template>
       </div>
-
-      <!-- 路径 '/' 必须有 exact，否则永远是 active 状态 -->
-      <!-- <router-link to="/" exact> -->
       <div class="nav-logout" v-on:click="logout">Logout</div>
-      <!-- </router-link> -->
     </section>
 
-    <section class="home-content">
-      <!-- 渲染路由匹配到的组件 -->
+    <section class="content-container">
       <router-view></router-view>
     </section>
   </div>
@@ -28,7 +23,7 @@
 
 <script>
 export default {
-  name: 'Home',
+  name: 'home',
   data () {
     return {
       navs: ['Course', 'Event']
@@ -38,7 +33,8 @@ export default {
     logout () {
       let AV = this.$AV
       AV.User.logOut()
-      this.$router.push('/')
+      console.log('已登出')
+      this.$router.push('/login')
     }
   }
 }
@@ -50,7 +46,7 @@ export default {
     font-size: 16px;
   }
 
-  .home-content {
+  .content-container {
     width: 90%;
     padding: 20px;
   }
