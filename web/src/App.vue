@@ -95,4 +95,13 @@ export default {
     justify-content: center;
     align-items: center;
   }
+
+  /* common styles */
+
+  .card {
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #bfcbd9;
+    padding: 10px;
+  }
 </style>
