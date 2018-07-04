@@ -70,39 +70,18 @@
     <div>{{checkedCourses}}</div>
 
     <section class="table-section">
-      <table id="course-table">
-        <thead>
-          <tr>
-            <th class="title-cell center-align">
-              <input type="checkbox">
-            </th>
-            <th class="title-cell left-align" v-for="title in colTitles" v-bind:key="title">{{title}}</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr class="content-row" v-for="(course, index) in courses" v-bind:key="course.id">
-            <td class="content-cell center-align">
-              <!-- value 的作用：识别 input，绑定数据添加到 v-model 中 -->
-              <input type="checkbox" v-bind:value="{index: index, id: course.id}" v-model="checkedCourses">
-            </td>
-            <td class="content-cell left-align" v-for="(value, key) in course" v-bind:key="value.id" v-if="!(key === 'id')">{{value}}</td>
-          </tr>
-        </tbody>
-
-        <tfoot>
-          <tr>
-            <td class="content-cell center-align" colspan="6">Page {{currentPage}} of {{totalPage}}</td>
-          </tr>
-        </tfoot>
-      </table>
+      <course-table v-bind:colTitles="colTitles" v-bind:objsArray="courses" v-bind:checkedObjs="checkedCourses"></course-table>
     </section>
   </div>
 </template>
 
 <script>
+import Table from '@/components/Table'
 export default {
-  name: 'Course',
+  name: 'course',
+  components: {
+    courseTable: Table
+  },
   data () {
     return {
       // form
@@ -117,9 +96,7 @@ export default {
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
       // manipulate
-      checkedCourses: [], // 对象数组，对象来自 input 的 value 属性，对象属性是 index 和 id
-      currentPage: '1',
-      totalPage: '3'
+      checkedCourses: [] // 对象数组，对象来自 input 的 value 属性，对象属性是 index 和 id
     }
   },
   computed: {
@@ -127,7 +104,7 @@ export default {
       return this.type === 'FTClass'
     }
   },
-  created () {
+  mounted () {
     this.queryCourses()
   },
   methods: {
@@ -197,17 +174,6 @@ export default {
       let len = targetArr.length
       if (len === 0) {
         alert("You haven't chosen any data.")
-      } else if (len === 1) {
-        // remove single object
-        let targetObj = targetArr[0]
-        // frontend
-        currentArr.splice(targetObj.index, 1)
-        this.checkedCourses = []
-        // backend
-        let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
-        removeObj.destroy().then((res) => {
-          console.log('removed ' + res.id)
-        }).catch(console.error())
       } else {
         // remove multiple objects
         let removeArr = []
@@ -219,7 +185,7 @@ export default {
           let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
           removeArr.push(removeObj)
         }
-        // console.log(removeArr)
+        console.log(removeArr)
         AV.Object.destroyAll(removeArr).then(() => {
           console.log('removed')
         }).catch(console.error())
@@ -315,42 +281,5 @@ export default {
     text-align: center;
     width: 32px;
     padding: 5px 5px 6px;
-  }
-
-  /* 表格 */
-
-  #course-table {
-    border: 1px solid #bfcbd9;
-    width: 80%;
-    border-collapse: collapse;
-  }
-
-  /* table row
-  字体和高度对 thead 和 tr 无效，背景色有效 */
-
-  .content-row:nth-child(even) {
-    background-color: #f8f8f8;
-  }
-
-  /* table cell */
-
-  .title-cell {
-    background-color: #bfcbd9;
-    font-weight: normal;
-    height: 40px;
-  }
-
-  .content-cell {
-    font-weight: 300;
-    font-size: 15px;
-    height: 35px;
-  }
-
-  .center-align {
-    text-align: center;
-  }
-
-  .left-align {
-    text-align: left;
   }
 </style>
