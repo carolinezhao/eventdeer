@@ -64,13 +64,13 @@
 
     <section class="button-section">
       <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button" v-on:click="removeCourses">Remove</button>
+      <button class="danger-button small-button" v-on:click="confirmRemove">Remove</button>
     </section>
 
     <div>{{checkedCourses}}</div>
 
     <section class="table-section">
-      <course-table v-bind:colTitles="colTitles" v-bind:objsArray="courses" v-bind:checkedObjs="checkedCourses"></course-table>
+      <course-table :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
     </section>
   </div>
 </template>
@@ -92,11 +92,11 @@ export default {
       lowerLevel: '',
       upperLevel: '',
       isVIP: '0',
-      // display
+      // for table component
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
-      // manipulate
-      checkedCourses: [] // 对象数组，对象来自 input 的 value 属性，对象属性是 index 和 id
+      // from table component to manipulate
+      checkedCourses: []
     }
   },
   computed: {
@@ -166,6 +166,12 @@ export default {
         })
         .catch(console.error())
     },
+    confirmRemove () {
+      let result = window.confirm('Are you sure you want to remove checked data?')
+      if (result) {
+        this.removeCourses()
+      }
+    },
     removeCourses () {
       let AV = this.$AV
       let currentArr = this.courses
@@ -176,18 +182,23 @@ export default {
         alert("You haven't chosen any data.")
       } else {
         // remove multiple objects
-        let removeArr = []
+        let removeArrFront = []
+        let removeArrBack = []
         for (let targetObj of targetArr) {
           // frontend
-          currentArr.splice(targetObj.index, 1)
-          this.checkedCourses = []
+          removeArrFront.push(targetObj.index)
           // backend
-          let removeObj = AV.Object.createWithoutData('Courses', targetObj.id)
-          removeArr.push(removeObj)
+          let removeObjBack = AV.Object.createWithoutData('Courses', targetObj.id)
+          removeArrBack.push(removeObjBack)
         }
-        console.log(removeArr)
-        AV.Object.destroyAll(removeArr).then(() => {
+        console.log(removeArrBack)
+        AV.Object.destroyAll(removeArrBack).then(() => {
           console.log('removed')
+          // 后端执行成功后再操作前端
+          removeArrFront.forEach(item => {
+            currentArr.splice(item, 1)
+          })
+          this.checkedCourses = [] // 清空已操作的对象
         }).catch(console.error())
       }
     },
