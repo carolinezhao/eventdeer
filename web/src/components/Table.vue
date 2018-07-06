@@ -12,7 +12,6 @@
     <tbody>
       <tr class="content-row" v-for="(object, index) in objsArray" v-bind:key="object.id">
         <td class="content-cell center-align">
-          <!-- value 的作用：识别 input，绑定数据添加到 v-model 中 -->
           <input type="checkbox" v-bind:value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
         <td class="content-cell left-align" v-for="(value, key) in object" v-bind:key="value.id" v-if="!(key === 'id')">{{value}}</td>
@@ -36,10 +35,21 @@ export default {
   props: ['colTitles', 'objsArray'],
   data () {
     return {
-      checkedObjs: [],
+      checkedObjs: [], // 选中的对象，准备传给父组件
       // fake data
       currentPage: '1',
       totalPage: '3'
+    }
+  },
+  watch: {
+    checkedObjs (newValue, oldValue) {
+      console.log(newValue)
+      this.$emit('input', newValue) // 向父组件的 v-model 传值
+    }
+  },
+  methods: {
+    empty () { // 由父组件调用，清空选中的对象
+      this.checkedObjs = []
     }
   }
 }

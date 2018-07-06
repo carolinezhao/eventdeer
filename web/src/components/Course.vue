@@ -70,7 +70,7 @@
     <div>{{checkedCourses}}</div>
 
     <section class="table-section">
-      <course-table :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
+      <course-table ref="table" :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
     </section>
   </div>
 </template>
@@ -199,6 +199,7 @@ export default {
             currentArr.splice(item, 1)
           })
           this.checkedCourses = [] // 清空已操作的对象
+          this.$refs.table.empty() // 清空子组件选中的对象
         }).catch(console.error())
       }
     },
