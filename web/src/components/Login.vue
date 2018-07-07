@@ -96,9 +96,4 @@ export default {
     font-size: 16px;
     margin-top: 8px;
   }
-
-  .err-msg {
-    color: #f66;
-    font-size: 12px;
-  }
 </style>

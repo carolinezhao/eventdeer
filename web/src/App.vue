@@ -104,4 +104,15 @@ export default {
     border: 1px solid #bfcbd9;
     padding: 10px;
   }
+
+  .err-msg {
+    color: #f66;
+    font-size: 12px;
+  }
+
+  .operation-msg {
+    font-weight: 300;
+    font-size: 14px;
+    margin-top: 10px;
+  }
 </style>

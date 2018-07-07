@@ -7,15 +7,19 @@ import Course from '@/components/Course'
 import Event from '@/components/Event'
 
 const AV = require('leancloud-storage')
+// index.js 不能访问 main.js 的 AV，且不能在此处使用 AV
 
 Vue.use(Router)
+
+const Activity1 = {
+  template: `<div>This router is for test.</div>`
+} // test
 
 // 路由实例
 const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'root',
       redirect: '/login'
     },
     {
@@ -46,17 +50,24 @@ const router = new Router({
         },
         {
           path: 'course', // 相对路径
+          name: 'course',
           component: Course
         },
         {
           path: 'event',
+          name: 'event',
           component: Event
+        },
+        { // test
+          path: 'activity1',
+          name: 'activity1',
+          component: Activity1
         }
       ]
     },
     { // 找不到路径时跳转
       path: '*',
-      redirect: '/'
+      redirect: '/home'
     }
   ]
 })

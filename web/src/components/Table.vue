@@ -3,18 +3,18 @@
     <thead>
       <tr>
         <th class="title-cell center-align">
-          <input type="checkbox">
+          <!-- <input type="checkbox"> -->
         </th>
-        <th class="title-cell left-align" v-for="title in colTitles" v-bind:key="title">{{title}}</th>
+        <th class="title-cell left-align" v-for="title in colTitles" :key="title">{{title}}</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr class="content-row" v-for="(object, index) in objsArray" v-bind:key="object.id">
+      <tr class="content-row" v-for="(object, index) in objsArray" :key="object.id">
         <td class="content-cell center-align">
-          <input type="checkbox" v-bind:value="{index: index, id: object.id}" v-model="checkedObjs">
+          <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
-        <td class="content-cell left-align" v-for="(value, key) in object" v-bind:key="value.id" v-if="!(key === 'id')">{{value}}</td>
+        <td class="content-cell left-align" v-for="(value, key) in object" :key="value.id" v-if="!(key === 'id')">{{value}}</td>
       </tr>
     </tbody>
 

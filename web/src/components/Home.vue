@@ -7,7 +7,7 @@
       <div class="navbar flex-col">
         <template v-for="nav in navs">
           <!-- to='string' :to='js' -->
-          <router-link :to="nav.toLowerCase()" v-bind:key="nav.id">
+          <router-link :to="{name: nav.toLowerCase()}" v-bind:key="nav.id">
             <div class="nav-inner">{{nav}}</div>
           </router-link>
         </template>
@@ -16,7 +16,9 @@
     </section>
 
     <section class="content-container">
-      <router-view></router-view>
+      <transition name="slide-fade">
+        <router-view></router-view>
+      </transition>
     </section>
   </div>
 </template>
