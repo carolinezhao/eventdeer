@@ -13,18 +13,17 @@
         <div class="form-row">
           <label class="form-label">Start Time</label>
           <div class="form-content">
-            <input class="short-input" maxlength="2" v-model="startTime"> : 00
+            <select class="form-select" v-model="selectedTime">
+              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}</option>
+            </select>
           </div>
         </div>
 
         <div class="form-row">
           <label class="form-label">Course Type</label>
           <div class="form-content">
-            <select class="form-select" v-model="type">
-              <!-- <option disabled value="">choose</option> -->
-              <option value="FTClass">FTClass</option>
-              <option value="Extend">Extend</option>
-              <option value="GroupChat">GroupChat</option>
+            <select class="form-select" v-model="selectedType">
+              <option v-for="typeOption in typeOptions" :key="typeOption.id" :value="typeOption">{{typeOption}}</option>
             </select>
           </div>
         </div>
@@ -38,9 +37,10 @@
             </template>
             <template v-else>
               <label>Level</label>
-              <input class="short-input" maxlength="2" v-model="lowerLevel"> -
-              <input class="short-input" maxlength="2" v-model="upperLevel">
+              <input class="short-input" maxlength="2" v-model.number="lowerLevel"> -
+              <input class="short-input" maxlength="2" v-model.number="upperLevel">
             </template>
+            <div class="err-msg">{{checkLevel}}</div>
           </div>
         </div>
 
@@ -62,12 +62,14 @@
       </form>
     </section>
 
-    <section class="button-section">
+    <section class="operation-section">
       <button class="primary-button small-button">Edit</button>
       <button class="danger-button small-button" v-on:click="confirmRemove">Remove</button>
+      <div class="operation-msg">{{operationMsg('select')}}</div>
+      <div class="operation-msg">{{resultMsg}}</div>
+      <!-- for debug -->
+      <div class="operation-msg">test: {{checkedCourses}}</div>
     </section>
-
-    <div>{{checkedCourses}}</div>
 
     <section class="table-section">
       <course-table ref="table" :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
@@ -86,8 +88,9 @@ export default {
     return {
       // form
       date: '',
-      startTime: '',
-      type: 'FTClass',
+      selectedTime: '12:00',
+      selectedType: 'FTClass',
+      typeOptions: ['FTClass', 'Extend', 'GroupChat'],
       unit: '',
       lowerLevel: '',
       upperLevel: '',
@@ -96,30 +99,51 @@ export default {
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
       // from table component to manipulate
-      checkedCourses: []
+      checkedCourses: [],
+      // msg
+      resultMsg: ''
     }
   },
   computed: {
+    timeOptions () {
+      let optionArr = []
+      let option = 12
+      while (option <= 20) {
+        optionArr.push(`${option}:00`)
+        option++
+      }
+      return optionArr
+    },
     ifShowUnit () {
-      return this.type === 'FTClass'
+      return this.selectedType === 'FTClass'
+    },
+    checkLevel () {
+      if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
+        return 'Please enter lower level first'
+      }
     }
   },
   mounted () {
     this.queryCourses()
   },
   methods: {
+    emptySelected () {
+      // before creating; after removing
+      this.checkedCourses = [] // 本页面
+      this.$refs.table.empty() // 子组件
+    },
     createCourse () {
-      this.checkedCourses = [] // 清空上次未完成的操作
+      this.emptySelected()
       // prepare data for backend
-      let time = new Date(`${this.date}, ${this.startTime}:00`)
-      let description = (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
+      let time = new Date(`${this.date}, ${this.selectedTime}`)
+      let description = (this.selectedType === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
       let isVIP = Boolean(Number(this.isVIP))
       // prepare data for frontend
       let vipStr = isVIP ? 'Yes' : 'No'
       let displayCourse = {
         date: this.date,
-        time: `${this.startTime}:00`,
-        type: this.type,
+        time: this.selectedTime,
+        type: this.selectedType,
         description: description,
         vip: vipStr
       }
@@ -128,7 +152,7 @@ export default {
       let Courses = AV.Object.extend('Courses')
       let course = new Courses()
       course.set('time', time)
-      course.set('type', this.type)
+      course.set('type', this.selectedType)
       course.set('description', description)
       course.set('isVIP', isVIP)
       course.save()
@@ -136,6 +160,7 @@ export default {
           // frontend
           displayCourse.id = course.id // id 是存储成功后生成的
           console.log('id is ' + displayCourse.id)
+          this.operationMsg('create')
           this.courses.unshift(displayCourse)
         })
         .catch(console.error())
@@ -177,11 +202,10 @@ export default {
       let currentArr = this.courses
       // data to be removed
       let targetArr = this.checkedCourses
-      let len = targetArr.length
-      if (len === 0) {
+      let count = targetArr.length
+      if (count === 0) {
         alert("You haven't chosen any data.")
       } else {
-        // remove multiple objects
         let removeArrFront = []
         let removeArrBack = []
         for (let targetObj of targetArr) {
@@ -191,15 +215,14 @@ export default {
           let removeObjBack = AV.Object.createWithoutData('Courses', targetObj.id)
           removeArrBack.push(removeObjBack)
         }
-        console.log(removeArrBack)
+        // remove multiple objects
         AV.Object.destroyAll(removeArrBack).then(() => {
-          console.log('removed')
           // 后端执行成功后再操作前端
           removeArrFront.forEach(item => {
             currentArr.splice(item, 1)
           })
-          this.checkedCourses = [] // 清空已操作的对象
-          this.$refs.table.empty() // 清空子组件选中的对象
+          this.operationMsg('remove', count)
+          this.emptySelected()
         }).catch(console.error())
       }
     },
@@ -216,6 +239,32 @@ export default {
     displayDate (timeObj) {
       let date = timeObj.toDateString()
       return date
+    },
+    operationMsg (string, number) {
+      switch (string) {
+        case 'create':
+          this.resultMsg = 'Successfully created!'
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
+          break
+        case 'select':
+          let len = this.checkedCourses.length
+          if (len) {
+            let plural = (len === 1) ? 'item' : 'items'
+            return `Selected ${len} ${plural}`
+          }
+          break
+        case 'remove':
+          let plural = (number === 1) ? 'item' : 'items'
+          this.resultMsg = `Removed ${number} ${plural}`
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
+          break
+        default:
+          break
+      }
     }
   }
 }
@@ -223,7 +272,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .button-section,
+  .operation-section,
   .table-section {
     margin-top: 20px;
     overflow: hidden;
