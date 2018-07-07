@@ -31,6 +31,7 @@
         <div class="form-row">
           <label class="form-label">Description</label>
           <div class="form-content">
+            <!-- 没有标注 key 的元素会被复用，即输入的内容会被保留 -->
             <template v-if="ifShowUnit">
               <label>Unit</label>
               <input class="short-input" maxlength="2" v-model="unit">
@@ -63,8 +64,24 @@
     </section>
 
     <section class="operation-section">
+      <button class="primary-button small-button" v-on:click="refresh">Refresh</button>
+
+      <select class="form-select" v-model="selectedFilter">
+        <option v-for="filterOption in filterOptions" :key="filterOption.id" :value="filterOption">{{filterOption}}</option>
+      </select>
+      <template v-if="tempCourses.length">
+        <button class="primary-button small-button" v-on:click="filterCourses()">Cancel</button>
+      </template>
+      <template v-else-if="selectedFilter">
+        <button class="primary-button small-button" v-on:click="filterCourses(selectedFilter)">Filter</button>
+      </template>
+      <template v-else>
+        <button class="primary-button small-button">Filter</button>
+      </template>
+
       <button class="primary-button small-button">Edit</button>
       <button class="danger-button small-button" v-on:click="confirmRemove">Remove</button>
+
       <div class="operation-msg">{{operationMsg('select')}}</div>
       <div class="operation-msg">{{resultMsg}}</div>
       <!-- for debug -->
@@ -73,6 +90,8 @@
 
     <section class="table-section">
       <course-table ref="table" :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
+      <!-- for production -->
+      <!-- <div>Courses since today (00:00)</div> -->
     </section>
   </div>
 </template>
@@ -101,7 +120,11 @@ export default {
       // from table component to manipulate
       checkedCourses: [],
       // msg
-      resultMsg: ''
+      resultMsg: '',
+      // filter
+      selectedFilter: '',
+      filterOptions: ['VIP', 'FTClass'],
+      tempCourses: []
     }
   },
   computed: {
@@ -161,6 +184,7 @@ export default {
           displayCourse.id = course.id // id 是存储成功后生成的
           console.log('id is ' + displayCourse.id)
           this.operationMsg('create')
+          // 直接渲染吗？还是从数据库加载（排序过）？
           this.courses.unshift(displayCourse)
         })
         .catch(console.error())
@@ -169,7 +193,9 @@ export default {
       console.log('queryCourses starts')
       let AV = this.$AV
       let queryCourses = new AV.Query('Courses')
-      queryCourses.descending('time')
+      // for production
+      // queryCourses.greaterThanOrEqualTo('time', this.queryTime('today'))
+      queryCourses.ascending('time')
         .find()
         .then(courses => {
           console.log(courses)
@@ -226,6 +252,26 @@ export default {
         }).catch(console.error())
       }
     },
+    filterCourses (string) {
+      if (string) {
+        this.tempCourses = this.courses
+        this.courses = this.courses.filter((item) => {
+          switch (string) {
+            case 'VIP':
+              return item.isVIP === 'Yes'
+            default:
+              break
+          }
+        })
+      } else {
+        this.courses = this.tempCourses
+        this.tempCourses = []
+        this.selectedFilter = ''
+      }
+    },
+    refresh () {
+      this.queryCourses()
+    },
     displayTime (timeObj, duration) {
       let hour = timeObj.getHours()
       let time
@@ -239,6 +285,25 @@ export default {
     displayDate (timeObj) {
       let date = timeObj.toDateString()
       return date
+    },
+    queryTime (string) {
+      let currentYear = (new Date()).getFullYear()
+      let currentMonth = (new Date()).getMonth()
+      let currentDate = (new Date()).getDate()
+      let tmrDate = (new Date()).getDate() + 1
+      switch (string) {
+        case 'today':
+          // 当天零点
+          return new Date(currentYear, currentMonth, currentDate)
+        case 'tomorrow':
+          // 次日零点
+          return new Date(currentYear, currentMonth, tmrDate)
+        default:
+          // 点击日历选择的日期
+          // return new Date(Date.parse(string)); // iOS 不支持
+          return new Date(string)
+      }
+      // new Date() 创建的是 GMT 时间；后端存储是 GMT+8(CST)
     },
     operationMsg (string, number) {
       switch (string) {
