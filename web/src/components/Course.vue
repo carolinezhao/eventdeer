@@ -57,35 +57,43 @@
 
         <div class="form-row button">
           <div class="form-content">
-            <button type="submit" class="main-button create-button" v-on:click="createCourse">Create</button>
+            <button type="submit" class="main-button create-button" @click="createCourse">Create</button>
           </div>
         </div>
       </form>
     </section>
 
     <section class="operation-section">
-      <button class="primary-button small-button" v-on:click="refresh">Refresh</button>
-
-      <select class="form-select" v-model="selectedFilter">
-        <option v-for="filterOption in filterOptions" :key="filterOption.id" :value="filterOption">{{filterOption}}</option>
-      </select>
-      <template v-if="tempCourses.length">
-        <button class="primary-button small-button" v-on:click="filterCourses()">Cancel</button>
-      </template>
-      <template v-else-if="selectedFilter">
-        <button class="primary-button small-button" v-on:click="filterCourses(selectedFilter)">Filter</button>
-      </template>
-      <template v-else>
-        <button class="primary-button small-button">Filter</button>
-      </template>
-
+      <button class="primary-button small-button" @click="refresh">Refresh</button>
       <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button" v-on:click="confirmRemove">Remove</button>
+      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
 
       <div class="operation-msg">{{operationMsg('select')}}</div>
       <div class="operation-msg">{{resultMsg}}</div>
       <!-- for debug -->
       <div class="operation-msg">test: {{checkedCourses}}</div>
+    </section>
+
+    <section class="filter-section">
+      <div class="form-row card" v-for="filter in filters" :key="filter.id">
+        <label class="form-label">{{filter.name}}</label>
+        <div class="form-content">
+          <div v-for="option in filter.options" :key="option.id">
+            <input type="checkbox" :value="{prop: filter.prop, value: option}" v-model="selectedFilter">
+            <label>{{option}}</label>
+          </div>
+        </div>
+      </div>
+
+      <template v-if="tempCourses.length">
+        <button class="primary-button small-button" @click="filterCourses()">Cancel</button>
+      </template>
+      <template v-else-if="selectedFilter">
+        <button class="primary-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
+      </template>
+      <template v-else>
+        <button class="primary-button small-button">Filter</button>
+      </template>
     </section>
 
     <section class="table-section">
@@ -122,8 +130,7 @@ export default {
       // msg
       resultMsg: '',
       // filter
-      selectedFilter: '',
-      filterOptions: ['VIP', 'FTClass'],
+      selectedFilter: [],
       tempCourses: []
     }
   },
@@ -144,6 +151,18 @@ export default {
       if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
         return 'Please enter lower level first'
       }
+    },
+    filters () {
+      return [
+        {
+          name: 'VIP',
+          prop: 'isVIP',
+          options: ['Yes', 'No']
+        }, {
+          name: 'Course Type',
+          prop: 'type',
+          options: this.typeOptions
+        }]
     }
   },
   mounted () {
@@ -168,7 +187,7 @@ export default {
         time: this.selectedTime,
         type: this.selectedType,
         description: description,
-        vip: vipStr
+        isVIP: vipStr
       }
       // backend
       let AV = this.$AV
@@ -190,7 +209,7 @@ export default {
         .catch(console.error())
     },
     queryCourses () {
-      console.log('queryCourses starts')
+      // console.log('queryCourses starts')
       let AV = this.$AV
       let queryCourses = new AV.Query('Courses')
       // for production
@@ -198,7 +217,7 @@ export default {
       queryCourses.ascending('time')
         .find()
         .then(courses => {
-          console.log(courses)
+          // console.log(courses)
           let newCourses = courses.map(item => {
             // attributes 中是自定义属性
             let course = item.attributes
@@ -212,7 +231,7 @@ export default {
             newCourse.id = item.id // 存储对象时自动分配的 id
             return newCourse
           })
-          console.log(newCourses)
+          // console.log(newCourses)
           this.courses = newCourses
         })
         .catch(console.error())
@@ -252,21 +271,28 @@ export default {
         }).catch(console.error())
       }
     },
-    filterCourses (string) {
-      if (string) {
+    filterCourses (conditionArr) {
+      if (conditionArr) {
         this.tempCourses = this.courses
-        this.courses = this.courses.filter((item) => {
-          switch (string) {
-            case 'VIP':
-              return item.isVIP === 'Yes'
-            default:
-              break
-          }
-        })
+        let prop
+        let value
+        for (let item of conditionArr) {
+        // conditionArr.forEach(function (item) { // cannot get 'this'
+          console.log(this)
+          prop = item.prop
+          value = item.value
+          this.courses = this.courses.filter(function (targetObj) {
+            // typeof prop === 'string'
+            return targetObj[prop] === value
+          })
+          console.log(this.courses)
+        // })
+        }
+        console.log(this.courses.length)
       } else {
         this.courses = this.tempCourses
         this.tempCourses = []
-        this.selectedFilter = ''
+        conditionArr = ''
       }
     },
     refresh () {
@@ -338,6 +364,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .operation-section,
+  .filter-section,
   .table-section {
     margin-top: 20px;
     overflow: hidden;
@@ -391,21 +418,14 @@ export default {
     font-size: 16px;
   }
 
-  .small-button {
-    font-size: 14px;
-    width: 70px;
-    padding: 5px 0;
-    margin-right: 10px;
-  }
-
   .lg-input {
     width: 150px;
     padding: 5px 5px 6px;
   }
 
-  .short-input {
-    text-align: center;
-    width: 32px;
-    padding: 5px 5px 6px;
+  /*  */
+
+  .filter-section {
+    width: 80%;
   }
 </style>
