@@ -10,17 +10,30 @@
     </thead>
 
     <tbody>
-      <tr class="content-row" v-for="(object, index) in objsArray" :key="object.id">
+      <tr class="content-row" v-for="(object, index) in objsArray" :key="object.id" v-if="(indexMin <= index) && (index < indexMin + itemsPerPage)">
         <td class="content-cell center-align">
           <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
         <td class="content-cell left-align" v-for="(value, key) in object" :key="value.id" v-if="!(key === 'id')">{{value}}</td>
+        <!-- for debug -->
+        <!-- <td class="center-align" style="color: blue;">{{index}}</td> -->
       </tr>
     </tbody>
 
     <tfoot>
       <tr>
-        <td class="content-cell center-align" colspan="6">Page {{currentPage}} of {{totalPage}}</td>
+        <td class="content-cell center-align" colspan="6">
+          <div class="flex foot-button-row">
+            <div>
+              <input class="short-input" v-model.number="itemsPerPage"> items per page</div>
+            <div class="flex table-page-nav">
+              <button class="primary-button" :class="{disabled: currentPage == 1}" @click="pageNav('previous')">Previous</button>
+              <div>Page
+                <input class="short-input" v-model.number="currentPage"> of {{totalPage}}</div>
+              <button class="primary-button" :class="{disabled: currentPage == totalPage}" @click="pageNav('next')">Next</button>
+            </div>
+          </div>
+        </td>
       </tr>
       <tr>
         <!-- for debug -->
@@ -36,9 +49,20 @@ export default {
   data () {
     return {
       checkedObjs: [], // 选中的对象，准备传给父组件
-      // fake data
-      currentPage: '1',
-      totalPage: '3'
+      // table page
+      currentPage: 1,
+      itemsPerPage: 3
+    }
+  },
+  computed: {
+    indexMin () {
+      return (this.currentPage - 1) * this.itemsPerPage
+    },
+    totalPage () {
+      let count = this.objsArray.length
+      let quotient = Number.parseInt(count / this.itemsPerPage)
+      let remainder = count % this.itemsPerPage
+      return (remainder) ? (quotient + 1) : quotient
     }
   },
   watch: {
@@ -50,6 +74,18 @@ export default {
   methods: {
     empty () { // 由父组件调用，清空选中的对象
       this.checkedObjs = []
+    },
+    pageNav (string) {
+      switch (string) {
+        case 'previous':
+          if (this.currentPage > 1) this.currentPage -= 1
+          break
+        case 'next':
+          if (this.currentPage < this.totalPage) this.currentPage += 1
+          break
+        default:
+          break
+      }
     }
   }
 }
@@ -58,7 +94,7 @@ export default {
 <style scoped>
   #course-table {
     border: 1px solid #bfcbd9;
-    width: 80%;
+    width: 85%;
     border-collapse: collapse;
   }
 
@@ -89,5 +125,24 @@ export default {
 
   .left-align {
     text-align: left;
+  }
+
+  /* table foot */
+
+  .foot-button-row {
+    justify-content: space-between;
+    padding: 8px;
+    border-top: 1px solid #bfcbd9;
+  }
+
+  .table-page-nav>* {
+    margin-right: 5px;
+  }
+
+  /* button */
+
+  .disabled {
+    color: #bfcbd9;
+    border-color: #bfcbd9;
   }
 </style>
