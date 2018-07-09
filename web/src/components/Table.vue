@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th class="title-cell center-align">
-          <!-- <input type="checkbox"> -->
+          <input type="checkbox" v-model="checked" @change="changeCheckAll()">
         </th>
         <th class="title-cell left-align" v-for="title in colTitles" :key="title">{{title}}</th>
       </tr>
@@ -48,13 +48,25 @@ export default {
   props: ['colTitles', 'objsArray'],
   data () {
     return {
+      // check data
       checkedObjs: [], // 选中的对象，准备传给父组件
+      checked: false, // 是否全选
       // table page
       currentPage: 1,
       itemsPerPage: 3
     }
   },
   computed: {
+    checkedAllObjs () {
+      let allObjs = []
+      this.objsArray.forEach((item, index) => {
+        allObjs.push({
+          index: index,
+          id: item.id
+        })
+      })
+      return allObjs
+    },
     indexMin () {
       return (this.currentPage - 1) * this.itemsPerPage
     },
@@ -67,13 +79,17 @@ export default {
   },
   watch: {
     checkedObjs (newValue, oldValue) {
-      console.log(newValue)
+      // console.log(newValue)
       this.$emit('input', newValue) // 向父组件的 v-model 传值
+      this.checked = (newValue.length === this.checkedAllObjs.length) // 根据各条目的选中状态改变全选状态
     }
   },
   methods: {
     empty () { // 由父组件调用，清空选中的对象
       this.checkedObjs = []
+    },
+    changeCheckAll () {
+      this.checkedObjs = (this.checked) ? this.checkedAllObjs : []
     },
     pageNav (string) {
       switch (string) {
