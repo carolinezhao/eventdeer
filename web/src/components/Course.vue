@@ -63,24 +63,15 @@
       </form>
     </section>
 
-    <section class="operation-section">
-      <button class="primary-button small-button" @click="refresh">Refresh</button>
-      <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
-
-      <div class="operation-msg">{{operationMsg('select')}}</div>
-      <div class="operation-msg">{{resultMsg}}</div>
-      <!-- for debug -->
-      <div class="operation-msg">test: {{checkedCourses}}</div>
-    </section>
-
     <section class="filter-section">
-      <div class="form-row card" v-for="filter in filters" :key="filter.id">
-        <label class="form-label">{{filter.name}}</label>
-        <div class="form-content">
-          <div v-for="option in filter.options" :key="option.id">
-            <input type="checkbox" :value="{prop: filter.prop, value: option}" v-model="selectedFilter">
-            <label>{{option}}</label>
+      <div class="card">
+        <div class="form-row" v-for="filter in filters" :key="filter.id">
+          <label class="form-label filter-label">{{filter.name}}</label>
+          <div class="form-content filter-content">
+            <div class="form-content filter-option" v-for="option in filter.options" :key="option.id">
+              <input type="checkbox" :value="{prop: filter.prop, value: option}" v-model="selectedFilter">
+              <label>{{option}}</label>
+            </div>
           </div>
         </div>
       </div>
@@ -94,6 +85,17 @@
       <template v-else>
         <button class="primary-button small-button">Filter</button>
       </template>
+    </section>
+
+    <section class="operation-section">
+      <button class="primary-button small-button" @click="refresh">Refresh</button>
+      <button class="primary-button small-button">Edit</button>
+      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
+
+      <div class="operation-msg">{{operationMsg('select')}}</div>
+      <div class="operation-msg">{{resultMsg}}</div>
+      <!-- for debug -->
+      <div class="operation-msg">test: {{checkedCourses}}</div>
     </section>
 
     <section class="table-section">
@@ -278,14 +280,12 @@ export default {
         let value
         for (let item of conditionArr) {
         // conditionArr.forEach(function (item) { // cannot get 'this'
-          console.log(this)
           prop = item.prop
           value = item.value
           this.courses = this.courses.filter(function (targetObj) {
             // typeof prop === 'string'
             return targetObj[prop] === value
           })
-          console.log(this.courses)
         // })
         }
         console.log(this.courses.length)
@@ -389,24 +389,6 @@ export default {
     margin: 10px;
   }
 
-  .form-row {
-    display: table;
-    width: 100%;
-    height: 40px;
-  }
-
-  .form-label,
-  .form-content {
-    display: table-cell;
-    vertical-align: middle;
-  }
-
-  .form-label {
-    width: 40%;
-    text-align: right;
-    padding-right: 20px;
-  }
-
   .form-row.button {
     margin-top: 20px;
   }
@@ -423,9 +405,18 @@ export default {
     padding: 5px 5px 6px;
   }
 
-  /*  */
+  /* filter */
 
   .filter-section {
     width: 80%;
+  }
+
+  .form-label.filter-label {
+    width: 20%;
+  }
+
+  .form-content.filter-option {
+    width: 120px;
+    background-color: #bfcbd9;
   }
 </style>

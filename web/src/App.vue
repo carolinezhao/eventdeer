@@ -16,7 +16,6 @@ export default {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
-    width: 100vw;
   }
 
   body {
@@ -37,7 +36,7 @@ export default {
     outline: none;
   }
 
-  input,
+  input:not([type="checkbox"]),
   select {
     height: 25px;
     font-size: 15px;
@@ -45,6 +44,12 @@ export default {
 
   input:focus {
     border-color: #42b983;
+  }
+
+  .short-input {
+    text-align: center;
+    width: 32px;
+    padding: 5px 5px 6px;
   }
 
   /* button color */
@@ -79,6 +84,15 @@ export default {
     transition: all .5s;
   }
 
+  /* button size */
+
+  .small-button {
+    font-size: 14px;
+    width: 70px;
+    height: 25px;
+    margin-right: 10px;
+  }
+
   /* layout */
 
   .flex {
@@ -96,6 +110,26 @@ export default {
     align-items: center;
   }
 
+  /* form-row: form-label(left), form-content(right) */
+
+  .form-row {
+    display: table;
+    width: 100%;
+    height: 40px;
+  }
+
+  .form-label,
+  .form-content {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .form-label {
+    width: 40%;
+    text-align: right;
+    padding-right: 20px;
+  }
+
   /* common styles */
 
   .card {
@@ -104,6 +138,8 @@ export default {
     border: 1px solid #bfcbd9;
     padding: 10px;
   }
+
+  /* msg */
 
   .err-msg {
     color: #f66;

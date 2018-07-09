@@ -15,6 +15,8 @@
       <div class="nav-logout" v-on:click="logout">Logout</div>
     </section>
 
+    <section class="navbar-placeholder"></section>
+
     <section class="content-container">
       <transition name="slide-fade">
         <router-view></router-view>
@@ -50,7 +52,12 @@ export default {
 
   .content-container {
     width: 90%;
-    padding: 20px;
+    padding: 20px 25px;
+  }
+
+  .navbar-placeholder {
+    width: 10%;
+    min-width: 100px;
   }
 
   .navbar-container {
@@ -58,6 +65,7 @@ export default {
     min-width: 100px;
     background-color: #bfcbd9;
     height: 100vh;
+    position: fixed;
   }
 
   .top-btn {

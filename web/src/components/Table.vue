@@ -21,9 +21,9 @@
     </tbody>
 
     <tfoot>
-      <tr>
+      <tr class="foot-row">
         <td class="content-cell center-align" colspan="6">
-          <div class="flex foot-button-row">
+          <div class="flex foot-button-container">
             <div>
               <input class="short-input" v-model.number="itemsPerPage"> items per page</div>
             <div class="flex table-page-nav">
@@ -129,10 +129,13 @@ export default {
 
   /* table foot */
 
-  .foot-button-row {
+  .foot-row {
+    border-top: 1px solid #bfcbd9;
+  }
+
+  .foot-button-container {
     justify-content: space-between;
     padding: 8px;
-    border-top: 1px solid #bfcbd9;
   }
 
   .table-page-nav>* {
