@@ -14,7 +14,8 @@
         <td class="content-cell center-align">
           <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
-        <td class="content-cell left-align" v-for="(value, key) in object" :key="value.id" v-if="!(key === 'id')">{{value}}</td>
+        <!-- Event.vue 使用 table 组件时 :key="value.id" 报错，Course.vue 使用时不报错 -->
+        <td class="content-cell left-align" v-for="(value, key) in object" :key="key.id" v-if="!(key === 'id')">{{value}}</td>
         <!-- for debug -->
         <!-- <td class="center-align" style="color: blue;">{{index}}</td> -->
       </tr>
@@ -22,7 +23,7 @@
 
     <tfoot>
       <tr class="foot-row">
-        <td class="content-cell center-align" colspan="6">
+        <td class="content-cell center-align" :colspan="colNum">
           <div class="flex foot-button-container">
             <div>
               <input class="short-input" v-model.number="itemsPerPage"> items per page</div>
@@ -37,7 +38,7 @@
       </tr>
       <tr>
         <!-- for debug -->
-        <td class="content-cell center-align" colspan="6">{{checkedObjs}}</td>
+        <td class="content-cell center-align" :colspan="colNum">{{checkedObjs}}</td>
       </tr>
     </tfoot>
   </table>
@@ -69,6 +70,9 @@ export default {
     },
     indexMin () {
       return (this.currentPage - 1) * this.itemsPerPage
+    },
+    colNum () {
+      return this.colTitles.length + 1
     },
     totalPage () {
       let count = this.objsArray.length
