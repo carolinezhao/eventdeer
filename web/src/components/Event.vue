@@ -10,7 +10,7 @@
 
 <script>
 import {displayTime, displayDate} from '@/utils/util'
-// import {displayTime, displayDate, queryTime} from '@/utils/util'
+// import {displayTime, displayDate, formatTime} from '@/utils/util'
 import Table from '@/components/Table'
 export default {
   name: 'event',
@@ -35,7 +35,7 @@ export default {
       let AV = this.$AV
       let queryEvents = new AV.Query('Events')
       // for production
-      // queryCourses.greaterThanOrEqualTo('time', queryTime('today'))
+      // queryEvents.greaterThanOrEqualTo('time', formatTime('today'))
       queryEvents.ascending('time')
         .find()
         .then(events => {
@@ -46,7 +46,7 @@ export default {
             let newEvent = {}
             // match the order of colTitle
             newEvent.date = displayDate(eventObj.time) // add
-            newEvent.time = displayTime(eventObj.time) // revise
+            newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
             newEvent.title = eventObj.title
             newEvent.location = eventObj.location
             newEvent.teacher = eventObj.teacher

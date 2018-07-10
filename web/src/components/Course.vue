@@ -107,6 +107,8 @@
 </template>
 
 <script>
+import {displayTime, displayDate} from '@/utils/util'
+// import {displayTime, displayDate, formatTime} from '@/utils/util'
 import Table from '@/components/Table'
 export default {
   name: 'course',
@@ -215,7 +217,7 @@ export default {
       let AV = this.$AV
       let queryCourses = new AV.Query('Courses')
       // for production
-      // queryCourses.greaterThanOrEqualTo('time', this.queryTime('today'))
+      // queryCourses.greaterThanOrEqualTo('time', formatTime('today'))
       queryCourses.ascending('time')
         .find()
         .then(courses => {
@@ -225,8 +227,8 @@ export default {
             let course = item.attributes
             let newCourse = {}
             // match the order of colTitle
-            newCourse.date = this.displayDate(course.time) // add
-            newCourse.time = this.displayTime(course.time) // revise
+            newCourse.date = displayDate(course.time) // add
+            newCourse.time = displayTime(course.time) // revise
             newCourse.type = course.type
             newCourse.description = course.description
             newCourse.isVIP = course.isVIP ? 'Yes' : 'No' // revise
@@ -297,39 +299,6 @@ export default {
     },
     refresh () {
       this.queryCourses()
-    },
-    displayTime (timeObj, duration) {
-      let hour = timeObj.getHours()
-      let time
-      if (duration === undefined) {
-        time = `${hour}:00`
-      } else {
-        time = `${hour}:00-${hour + duration}:00`
-      }
-      return time
-    },
-    displayDate (timeObj) {
-      let date = timeObj.toDateString()
-      return date
-    },
-    queryTime (string) {
-      let currentYear = (new Date()).getFullYear()
-      let currentMonth = (new Date()).getMonth()
-      let currentDate = (new Date()).getDate()
-      let tmrDate = (new Date()).getDate() + 1
-      switch (string) {
-        case 'today':
-          // 当天零点
-          return new Date(currentYear, currentMonth, currentDate)
-        case 'tomorrow':
-          // 次日零点
-          return new Date(currentYear, currentMonth, tmrDate)
-        default:
-          // 点击日历选择的日期
-          // return new Date(Date.parse(string)); // iOS 不支持
-          return new Date(string)
-      }
-      // new Date() 创建的是 GMT 时间；后端存储是 GMT+8(CST)
     },
     operationMsg (string, number) {
       switch (string) {
