@@ -27,6 +27,7 @@ export default {
   }
 
   input,
+  textarea,
   select,
   button {
     box-sizing: border-box;
@@ -36,7 +37,10 @@ export default {
     outline: none;
   }
 
-  input:not([type="checkbox"]),
+  input[type="text"],
+  input[type="password"],
+  /* input[type="file"], */
+
   select {
     height: 25px;
     font-size: 15px;
@@ -46,10 +50,28 @@ export default {
     border-color: #42b983;
   }
 
+  textarea {
+    resize: none;
+    padding: 6px;
+    font-size: 15px;
+    margin-top: 3px;
+  }
+
+  .short-input, .input, .lg-input {
+    padding: 5px 5px 6px;
+  }
+
   .short-input {
     text-align: center;
     width: 32px;
-    padding: 5px 5px 6px;
+  }
+
+  .input {
+    width: 100px;
+  }
+
+  .lg-input {
+    width: 200px;
   }
 
   /* button color */
@@ -108,6 +130,20 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  /* form for Course and Event */
+
+  .form-section {
+    border: 1px solid #bfcbd9;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .form-title {
+    border-bottom: 1px solid #bfcbd9;
+    padding: 10px 0;
+    font-weight: 500;
   }
 
   /* form-row: form-label(left), form-content(right) */

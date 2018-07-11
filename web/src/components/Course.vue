@@ -1,19 +1,19 @@
 <template>
   <div>
     <section class="form-section flex-col">
-      <div class="section-title flex-center">New Course</div>
+      <div class="form-title flex-center">New Course</div>
       <form id="course-form">
         <div class="form-row">
           <label class="form-label">Date</label>
           <div class="form-content">
-            <input class="lg-input" v-model="date">
+            <input type="text" class="lg-input" v-model="date">
           </div>
         </div>
 
         <div class="form-row">
           <label class="form-label">Start Time</label>
           <div class="form-content">
-            <select class="form-select" v-model="selectedTime">
+            <select v-model="selectedTime">
               <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}</option>
             </select>
           </div>
@@ -22,7 +22,7 @@
         <div class="form-row">
           <label class="form-label">Course Type</label>
           <div class="form-content">
-            <select class="form-select" v-model="selectedType">
+            <select v-model="selectedType">
               <option v-for="typeOption in typeOptions" :key="typeOption.id" :value="typeOption">{{typeOption}}</option>
             </select>
           </div>
@@ -34,12 +34,12 @@
             <!-- 没有标注 key 的元素会被复用，即输入的内容会被保留 -->
             <template v-if="ifShowUnit">
               <label>Unit</label>
-              <input class="short-input" maxlength="2" v-model="unit">
+              <input type="text" class="short-input" maxlength="2" v-model="unit">
             </template>
             <template v-else>
               <label>Level</label>
-              <input class="short-input" maxlength="2" v-model.number="lowerLevel"> -
-              <input class="short-input" maxlength="2" v-model.number="upperLevel">
+              <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
+              <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
             </template>
             <div class="err-msg">{{checkLevel}}</div>
           </div>
@@ -48,7 +48,7 @@
         <div class="form-row">
           <label class="form-label">VIP</label>
           <div class="form-content">
-            <select class="form-select" v-model="isVIP">
+            <select v-model="isVIP">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
@@ -339,19 +339,14 @@ export default {
     overflow: hidden;
   }
 
-  .section-title {
-    border-bottom: 1px solid #bfcbd9;
-    padding: 10px 0;
-    font-weight: 500;
+  .table-section {
+    width: 80%;
   }
 
   /* 表单 */
 
   .form-section {
     width: 40%;
-    border: 1px solid #bfcbd9;
-    border-radius: 5px;
-    overflow: hidden;
   }
 
   #course-form {

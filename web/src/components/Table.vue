@@ -1,8 +1,8 @@
 <template>
-  <table id="course-table">
+  <table id="table">
     <thead>
       <tr>
-        <th class="title-cell center-align">
+        <th class="title-cell center-align check-col">
           <input type="checkbox" v-model="checked" @change="changeCheckAll()">
         </th>
         <th class="title-cell left-align" v-for="title in colTitles" :key="title">{{title}}</th>
@@ -11,7 +11,7 @@
 
     <tbody>
       <tr class="content-row" v-for="(object, index) in objsArray" :key="object.id" v-if="(indexMin <= index) && (index < indexMin + itemsPerPage)">
-        <td class="content-cell center-align">
+        <td class="content-cell center-align check-col">
           <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
         <!-- Event.vue 使用 table 组件时 :key="value.id" 报错，Course.vue 使用时不报错 -->
@@ -26,11 +26,11 @@
         <td class="content-cell center-align" :colspan="colNum">
           <div class="flex foot-button-container">
             <div>
-              <input class="short-input" v-model.number="itemsPerPage"> items per page</div>
+              <input type="text" class="short-input" v-model.number="itemsPerPage"> items per page</div>
             <div class="flex table-page-nav">
               <button class="primary-button" :class="{disabled: currentPage == 1}" @click="pageNav('previous')">Previous</button>
               <div>Page
-                <input class="short-input" v-model.number="currentPage"> of {{totalPage}}</div>
+                <input type="text" class="short-input" v-model.number="currentPage"> of {{totalPage}}</div>
               <button class="primary-button" :class="{disabled: currentPage == totalPage}" @click="pageNav('next')">Next</button>
             </div>
           </div>
@@ -112,9 +112,9 @@ export default {
 </script>
 
 <style scoped>
-  #course-table {
+  #table {
     border: 1px solid #bfcbd9;
-    width: 85%;
+    width: 100%;
     border-collapse: collapse;
   }
 
@@ -145,6 +145,11 @@ export default {
 
   .left-align {
     text-align: left;
+    padding-left: 5px;
+  }
+
+  .check-col {
+    width: 30px;
   }
 
   /* table foot */
