@@ -6,7 +6,7 @@
         <div class="form-row">
           <label class="form-label">Date</label>
           <div class="form-content">
-            <input type="text" class="lg-input" v-model="date">
+            <input type="text" v-model="date">
           </div>
         </div>
 
@@ -77,7 +77,7 @@
         <div class="form-row">
           <label class="form-label">Photo</label>
           <div class="form-content">
-            <input type="file">
+            <input type="file" @change="chooseFile">
           </div>
         </div>
 
@@ -138,7 +138,7 @@ export default {
       teacherTypes: [],
       teacherOptions: [],
       teacherType: 'FT',
-      photo: '',
+      photoUrl: '',
       intro: '',
       isParty: false,
       isVIP: '0',
@@ -186,7 +186,7 @@ export default {
       queryEvents.ascending('time')
         .find()
         .then(events => {
-          console.log(events)
+          // console.log(events)
           let eventsArr = events.map(item => {
             // attributes 中是自定义属性
             let eventObj = item.attributes
@@ -204,7 +204,7 @@ export default {
             newEvent.id = item.id // 存储对象时自动分配的 id
             return newEvent
           })
-          console.log(eventsArr)
+          // console.log(eventsArr)
           this.events = eventsArr
         })
         .catch(console.error())
@@ -214,7 +214,7 @@ export default {
       let queryTeachers = new AV.Query('Teachers')
       queryTeachers.find()
         .then(teachers => {
-          console.log(teachers)
+          // console.log(teachers)
           let typesArr = []
           let teachersArr = teachers.map(item => {
             let teacherObj = item.attributes
@@ -224,6 +224,23 @@ export default {
           this.teacherTypes = typesArr
           this.teacherOptions = teachersArr
         })
+    },
+    chooseFile (e) {
+      console.log('chooseFile works')
+      // console.log(e.target) // <input>
+      let file = e.target.files
+      // file 是对象，length 和 0 都是对象中的 key
+      if (file.length) {
+        this.uploadFile(file[0])
+      }
+    },
+    uploadFile (fileObj) {
+      let AV = this.$AV
+      let uploadFile = new AV.File(fileObj.name, fileObj)
+      uploadFile.save().then((file) => {
+        console.log(file.url())
+        this.photoUrl = file.url()
+      }).catch(console.error())
     }
   }
 }
@@ -242,7 +259,7 @@ export default {
   }
 
   .form-section {
-    width: 60%;
+    width: 70%;
   }
 
   #event-form {
@@ -254,6 +271,6 @@ export default {
   }
 
   .form-textarea {
-    height: 120px;
+    height: 140px;
   }
 </style>
