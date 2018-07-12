@@ -6,15 +6,24 @@
         <div class="form-row">
           <label class="form-label">Date</label>
           <div class="form-content">
-            <input type="text" v-model="date">
+            <input type="text" class="input" v-model="date">
           </div>
         </div>
 
         <div class="form-row">
           <label class="form-label">Start Time</label>
           <div class="form-content">
-            <select v-model="selectedTime">
+            <select v-model="startTime">
               <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Duration</label>
+          <div class="form-content">
+            <select v-model="duration">
+              <option v-for="num in 5" :key="num.id" :value="num">{{num}} hour</option>
             </select>
           </div>
         </div>
@@ -22,7 +31,7 @@
         <div class="form-row">
           <label class="form-label">Title</label>
           <div class="form-content">
-            <input type="text" class="lg-input" v-model="title">
+            <input type="text" class="lg-input" v-model.trim="title">
           </div>
         </div>
 
@@ -56,6 +65,16 @@
         </div>
 
         <div class="form-row">
+          <label class="form-label">VIP</label>
+          <div class="form-content">
+            <select v-model="isVIP">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
           <label class="form-label">Teacher</label>
           <div class="form-content">
             <select v-model="teacherType">
@@ -68,47 +87,39 @@
         </div>
 
         <div class="form-row">
-          <label class="form-label">Intro</label>
-          <div class="form-content form-textarea">
-            <textarea v-model="intro" rows="5" cols="40"></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Photo</label>
-          <div class="form-content">
-            <input type="file" @change="chooseFile">
-          </div>
-        </div>
-
-        <div class="form-row">
           <label class="form-label">Display in Discover</label>
           <div class="form-content">
-            <input type="checkbox" v-model="isParty">
-            <label>{{isParty}}</label>
+            <input type="checkbox" v-model="ifDiscover">
+            <label>{{ifDiscover}}</label>
           </div>
         </div>
 
-        <div class="form-row">
-          <label class="form-label">VIP</label>
-          <div class="form-content">
-            <select v-model="isVIP">
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </select>
+        <template v-if="ifDiscover === true">
+          <div class="form-row">
+            <label class="form-label">Introduction</label>
+            <div class="form-content form-textarea">
+              <textarea v-model="intro" rows="5" cols="40"></textarea>
+            </div>
           </div>
-        </div>
+
+          <div class="form-row">
+            <label class="form-label">Image</label>
+            <div class="form-content">
+              <input type="file" @change="chooseFile">
+            </div>
+          </div>
+        </template>
 
         <div class="form-row button">
           <div class="form-content">
-            <!-- <button type="submit" class="main-button create-button" @click="createCourse">Create</button> -->
+            <button type="submit" class="main-button create-button" @click="createEvent">Create</button>
           </div>
         </div>
       </form>
     </section>
 
     <section class="table-section">
-      <event-table :colTitles="colTitles" :objsArray="events" v-model="checkedEvents"></event-table>
+      <event-table ref="table" :colTitles="colTitles" :objsArray="events" v-model="checkedEvents"></event-table>
       <!-- for production -->
       <!-- <div>Events since today (00:00)</div> -->
     </section>
@@ -128,20 +139,21 @@ export default {
     return {
       // form
       date: '',
-      selectedTime: '12:00',
+      startTime: '12:00',
+      duration: 1,
       title: '',
       locationType: 'Center',
       location: '',
       levelType: 'unlimited',
       lowerLevel: '',
       upperLevel: '',
-      teacherTypes: [],
-      teacherOptions: [],
-      teacherType: 'FT',
-      photoUrl: '',
-      intro: '',
-      isParty: false,
       isVIP: '0',
+      teacherType: 'FT',
+      teacherTypes: [],
+      teacherOptions: [], // {type:'', name:''}
+      ifDiscover: false,
+      intro: '',
+      imgUrl: '',
       // for table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
       events: [],
@@ -177,6 +189,54 @@ export default {
     this.queryTeachers()
   },
   methods: {
+    emptySelected () {
+      // before creating; after removing
+      this.checkedEvents = [] // 本页面
+      this.$refs.table.empty() // 子组件
+    },
+    createEvent () {
+      this.emptySelected()
+      // prepare data for backend
+      let time = new Date(`${this.date}, ${this.selectedTime}`)
+      let location = (this.locationType === 'Center') ? 'Center' : this.location
+      let level = (this.levelType === 'unlimited') ? 'Unlimited' : `L${this.lowerLevel}-L${this.upperLevel}`
+      let isVIP = Boolean(Number(this.isVIP))
+      let teacher = `${this.teacherType} ${this.teacherName}`
+      // prepare data for frontend (match the order of colTitle)
+      let vipStr = isVIP ? 'Yes' : 'No'
+      // frontend (main)
+      let displayEvent = {
+        date: this.date,
+        time: this.selectedTime,
+        title: this.title,
+        isVIP: vipStr,
+        ifDiscover: this.ifDiscover,
+        detail: 'url'
+      }
+      // backend (all)
+      let AV = this.$AV
+      let Events = AV.Object.extend('Events')
+      let eventObj = new Events()
+      eventObj.set('time', time)
+      eventObj.set('duration', this.duration)
+      eventObj.set('title', this.title)
+      eventObj.set('location', location)
+      eventObj.set('level', level)
+      eventObj.set('isVIP', isVIP)
+      eventObj.set('teacher', teacher)
+      eventObj.set('ifDiscover', this.ifDiscover)
+      eventObj.set('intro', this.intro)
+      eventObj.set('img', this.imgUrl)
+      eventObj.save()
+        .then((eventObj) => {
+          // frontend
+          displayEvent.id = eventObj.id // id 是存储成功后生成的
+          console.log('id is ' + displayEvent.id)
+          // this.operationMsg('create')
+          this.events.unshift(displayEvent)
+        })
+        .catch(console.error())
+    },
     queryEvents () {
       // console.log('queryEvents starts')
       let AV = this.$AV
@@ -195,11 +255,8 @@ export default {
             newEvent.date = displayDate(eventObj.time) // add
             newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
             newEvent.title = eventObj.title
-            // newEvent.location = eventObj.location
-            // newEvent.teacher = eventObj.teacher
-            // newEvent.detail = eventObj.detail
             newEvent.isVIP = eventObj.isVIP ? 'Yes' : 'No' // revise
-            newEvent.isParty = eventObj.isParty
+            newEvent.ifDiscover = eventObj.ifDiscover
             newEvent.detail = 'URL'
             newEvent.id = item.id // 存储对象时自动分配的 id
             return newEvent
@@ -239,7 +296,7 @@ export default {
       let uploadFile = new AV.File(fileObj.name, fileObj)
       uploadFile.save().then((file) => {
         console.log(file.url())
-        this.photoUrl = file.url()
+        this.imgUrl = file.url()
       }).catch(console.error())
     }
   }
