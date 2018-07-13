@@ -11,20 +11,15 @@
         </div>
 
         <div class="form-row">
-          <label class="form-label">Start Time</label>
+          <label class="form-label">Time</label>
           <div class="form-content">
             <select v-model="startTime">
-              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}</option>
+              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+            </select> -
+            <select v-model="endTime">
+              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Duration</label>
-          <div class="form-content">
-            <select v-model="duration">
-              <option v-for="num in 5" :key="num.id" :value="num">{{num}} hour</option>
-            </select>
+            <div class="err-msg">{{checkTime}}</div>
           </div>
         </div>
 
@@ -150,8 +145,7 @@ export default {
     return {
       // form
       date: '',
-      startTime: '12:00',
-      duration: 1,
+      startTime: 11,
       title: '',
       locationType: 'Center',
       location: '',
@@ -177,24 +171,52 @@ export default {
   computed: {
     timeOptions () {
       let optionArr = []
-      let option = 12
+      let option = 11
       while (option <= 20) {
-        optionArr.push(`${option}:00`)
+        optionArr.push(option)
         option++
       }
       return optionArr
+    },
+    endTime: {
+      get: function () {
+        return this.startTime + 1
+      },
+      set: function (newValue) {
+        // newValue can't be sent to another computed
+        console.log(newValue)
+      }
+    },
+    checkTime () { // can't get updated this.endTime
+      if (this.startTime > this.endTime) {
+        return 'Please enter earlier time first'
+      } else {
+        console.log(this.startTime, this.endTime)
+        return 'ok'
+      }
     },
     checkLevel () {
       if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
         return 'Please enter lower level first'
       }
     },
-    teacherName () {
-      for (let option of this.teacherOptions) {
-        if (option.type === this.teacherType) {
-          return option.name
+    teacherName: {
+      get: function () {
+        for (let option of this.teacherOptions) {
+          if (option.type === this.teacherType) {
+            return option.name
+          }
         }
+      },
+      set: function (newValue) {
+        console.log(newValue)
       }
+    }
+  },
+  watch: {
+    endTime (newValue, oldValue) {
+      // only react to getter
+      console.log(newValue, oldValue)
     }
   },
   mounted () {
@@ -210,7 +232,8 @@ export default {
     createEvent () {
       this.emptySelected()
       // prepare data for backend
-      let time = new Date(`${this.date}, ${this.selectedTime}`)
+      let startTime = new Date(`${this.date}, ${this.startTime}:00`)
+      let endTime = new Date(`${this.date}, ${this.endTime}:00`)
       let location = (this.locationType === 'Center') ? 'Center' : this.location
       let level = (this.levelType === 'unlimited') ? 'Unlimited' : `L${this.lowerLevel}-L${this.upperLevel}`
       let isVIP = Boolean(Number(this.isVIP))
@@ -220,7 +243,7 @@ export default {
       // frontend (main)
       let displayEvent = {
         date: this.date,
-        time: this.selectedTime,
+        time: `${this.startTime}:00 - ${this.endTime}:00`,
         title: this.title,
         isVIP: vipStr,
         ifDiscover: this.ifDiscover,
@@ -230,7 +253,8 @@ export default {
       let AV = this.$AV
       let Events = AV.Object.extend('Events')
       let eventObj = new Events()
-      eventObj.set('time', time)
+      eventObj.set('startTime', startTime)
+      eventObj.set('endTime', endTime)
       eventObj.set('duration', this.duration)
       eventObj.set('title', this.title)
       eventObj.set('location', location)
@@ -266,8 +290,9 @@ export default {
             let newEvent = {}
             // match the order of colTitle
             // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-            newEvent.date = displayDate(eventObj.time) // add
-            newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
+            newEvent.date = displayDate(eventObj.startTime) // add
+            // newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
+            newEvent.time = `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`
             newEvent.title = eventObj.title
             newEvent.isVIP = eventObj.isVIP ? 'Yes' : 'No' // revise
             newEvent.ifDiscover = eventObj.ifDiscover
