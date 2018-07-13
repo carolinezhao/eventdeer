@@ -118,6 +118,17 @@
       </form>
     </section>
 
+    <section class="operation-section">
+      <button class="primary-button small-button" @click="refresh">Refresh</button>
+      <button class="primary-button small-button">Edit</button>
+      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
+
+      <div class="operation-msg">{{operationMsg('select')}}</div>
+      <div class="operation-msg">{{resultMsg}}</div>
+      <!-- for debug -->
+      <div class="operation-msg">test: {{checkedEvents}}</div>
+    </section>
+
     <section class="table-section">
       <event-table ref="table" :colTitles="colTitles" :objsArray="events" v-model="checkedEvents"></event-table>
       <!-- for production -->
@@ -158,7 +169,9 @@ export default {
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
       events: [],
       // from table component to manipulate
-      checkedEvents: []
+      checkedEvents: [],
+      // msg
+      resultMsg: ''
     }
   },
   computed: {
@@ -252,6 +265,7 @@ export default {
             let eventObj = item.attributes
             let newEvent = {}
             // match the order of colTitle
+            // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
             newEvent.date = displayDate(eventObj.time) // add
             newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
             newEvent.title = eventObj.title
@@ -298,6 +312,67 @@ export default {
         console.log(file.url())
         this.imgUrl = file.url()
       }).catch(console.error())
+    },
+    confirmRemove () {
+      if (!this.checkedEvents.length) {
+        alert("You haven't chosen any data.")
+      } else {
+        let result = window.confirm('Are you sure you want to remove checked data?')
+        if (result) {
+          this.removeEvents(this.events, this.checkedEvents, 'Events')
+        }
+      }
+    },
+    removeEvents (currentArr, targetArr, tableName) {
+      let AV = this.$AV
+      let removeArrFront = []
+      let removeArrBack = []
+      for (let targetObj of targetArr) {
+        // frontend
+        removeArrFront.push(targetObj.index)
+        // backend
+        // tableName 是 leancloud 中数据表的名称 (string)
+        let removeObjBack = AV.Object.createWithoutData(tableName, targetObj.id)
+        removeArrBack.push(removeObjBack)
+      }
+      // remove multiple objects
+      AV.Object.destroyAll(removeArrBack).then(() => {
+        // 后端执行成功后再操作前端
+        removeArrFront.forEach(item => {
+          currentArr.splice(item, 1)
+        })
+        this.operationMsg('remove', targetArr.length)
+        this.emptySelected()
+      }).catch(console.error())
+    },
+    refresh () {
+      this.queryEvents()
+    },
+    operationMsg (string, number) {
+      switch (string) {
+        case 'create':
+          this.resultMsg = 'Successfully created!'
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
+          break
+        case 'select':
+          let len = this.checkedEvents.length
+          if (len) {
+            let plural = (len === 1) ? 'item' : 'items'
+            return `Selected ${len} ${plural}`
+          }
+          break
+        case 'remove':
+          let plural = (number === 1) ? 'item' : 'items'
+          this.resultMsg = `Removed ${number} ${plural}`
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
+          break
+        default:
+          break
+      }
     }
   }
 }
@@ -312,11 +387,11 @@ export default {
   }
 
   .table-section {
-    width: 90%;
+    width: 80%;
   }
 
   .form-section {
-    width: 70%;
+    width: 60%;
   }
 
   #event-form {
@@ -324,7 +399,7 @@ export default {
   }
 
   .form-label {
-    width: 30%;
+    width: 35%;
   }
 
   .form-textarea {

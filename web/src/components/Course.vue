@@ -6,7 +6,7 @@
         <div class="form-row">
           <label class="form-label">Date</label>
           <div class="form-content">
-            <input type="text" class="lg-input" v-model="date">
+            <input type="text" class="input" v-model="date">
           </div>
         </div>
 
@@ -207,7 +207,6 @@ export default {
           displayCourse.id = course.id // id 是存储成功后生成的
           console.log('id is ' + displayCourse.id)
           this.operationMsg('create')
-          // 直接渲染吗？还是从数据库加载（排序过）？
           this.courses.unshift(displayCourse)
         })
         .catch(console.error())
@@ -241,39 +240,36 @@ export default {
         .catch(console.error())
     },
     confirmRemove () {
-      let result = window.confirm('Are you sure you want to remove checked data?')
-      if (result) {
-        this.removeCourses()
-      }
-    },
-    removeCourses () {
-      let AV = this.$AV
-      let currentArr = this.courses
-      // data to be removed
-      let targetArr = this.checkedCourses
-      let count = targetArr.length
-      if (count === 0) {
+      if (!this.checkedCourses.length) {
         alert("You haven't chosen any data.")
       } else {
-        let removeArrFront = []
-        let removeArrBack = []
-        for (let targetObj of targetArr) {
-          // frontend
-          removeArrFront.push(targetObj.index)
-          // backend
-          let removeObjBack = AV.Object.createWithoutData('Courses', targetObj.id)
-          removeArrBack.push(removeObjBack)
+        let result = window.confirm('Are you sure you want to remove checked data?')
+        if (result) {
+          this.removeCourses(this.courses, this.checkedCourses, 'Courses')
         }
-        // remove multiple objects
-        AV.Object.destroyAll(removeArrBack).then(() => {
-          // 后端执行成功后再操作前端
-          removeArrFront.forEach(item => {
-            currentArr.splice(item, 1)
-          })
-          this.operationMsg('remove', count)
-          this.emptySelected()
-        }).catch(console.error())
       }
+    },
+    removeCourses (currentArr, targetArr, tableName) {
+      let AV = this.$AV
+      let removeArrFront = []
+      let removeArrBack = []
+      for (let targetObj of targetArr) {
+        // frontend
+        removeArrFront.push(targetObj.index)
+        // backend
+        // tableName 是 leancloud 中数据表的名称 (string)
+        let removeObjBack = AV.Object.createWithoutData(tableName, targetObj.id)
+        removeArrBack.push(removeObjBack)
+      }
+      // remove multiple objects
+      AV.Object.destroyAll(removeArrBack).then(() => {
+        // 后端执行成功后再操作前端
+        removeArrFront.forEach(item => {
+          currentArr.splice(item, 1)
+        })
+        this.operationMsg('remove', targetArr.length)
+        this.emptySelected()
+      }).catch(console.error())
     },
     filterCourses (conditionArr) {
       if (conditionArr) {
@@ -362,11 +358,6 @@ export default {
     height: 30px;
     width: 100px;
     font-size: 16px;
-  }
-
-  .lg-input {
-    width: 150px;
-    padding: 5px 5px 6px;
   }
 
   /* filter */
