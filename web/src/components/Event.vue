@@ -104,13 +104,12 @@
             </div>
           </div>
         </template>
-
-        <div class="form-row button">
-          <div class="form-content">
-            <button type="submit" class="main-button create-button" @click="createEvent">Create</button>
-          </div>
-        </div>
       </form>
+
+      <div class="form-button flex">
+        <div class="err-msg">{{confirmMsg}}</div>
+        <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -165,6 +164,7 @@ export default {
       // from table component to manipulate
       checkedEvents: [],
       // msg
+      confirmMsg: '',
       resultMsg: ''
     }
   },
@@ -228,6 +228,14 @@ export default {
       // before creating; after removing
       this.checkedEvents = [] // 本页面
       this.$refs.table.empty() // 子组件
+    },
+    confirmCreate () {
+      if (this.checkLevel) {
+        this.confirmMsg = "Please correct the data that don't meet requirements"
+      } else {
+        this.confirmMsg = ''
+        this.createEvent()
+      }
     },
     createEvent () {
       this.emptySelected()
@@ -376,7 +384,7 @@ export default {
     operationMsg (string, number) {
       switch (string) {
         case 'create':
-          this.resultMsg = 'Successfully created!'
+          this.resultMsg = 'Created Successfully!'
           setTimeout(() => {
             this.resultMsg = ''
           }, 1000)
@@ -417,6 +425,8 @@ export default {
 
   .form-section {
     width: 60%;
+    min-width: 550px;
+    max-width: 650px;
   }
 
   #event-form {
@@ -424,7 +434,7 @@ export default {
   }
 
   .form-label {
-    width: 35%;
+    width: 32%;
   }
 
   .form-textarea {

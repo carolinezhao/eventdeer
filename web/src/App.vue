@@ -26,7 +26,7 @@ export default {
     text-decoration: none;
   }
 
-  input,
+  input:not([type="file"]),
   textarea,
   select,
   button {
@@ -37,33 +37,41 @@ export default {
     outline: none;
   }
 
+  input[type="file"] {
+    font-size: 13px;
+    outline: none;
+  }
+
   input[type="text"],
   input[type="password"],
-  /* input[type="file"], */
-
   select {
-    height: 25px;
+    height: 27px;
     font-size: 15px;
   }
 
-  input:focus {
+  input:focus,
+  textarea:focus {
     border-color: #42b983;
   }
 
   textarea {
     resize: none;
-    padding: 6px;
+    padding: 8px;
     font-size: 15px;
     margin-top: 3px;
-  }
-
-  .short-input, .input, .lg-input {
-    padding: 5px 5px 6px;
+    line-height: 20px;
+    box-shadow: 0 0 2px 2px #dedede75 inset;
   }
 
   .short-input {
     text-align: center;
     width: 32px;
+    padding: 5px 5px 6px;
+  }
+
+  .input,
+  .lg-input {
+    padding: 7px 7px 8px;
   }
 
   .input {
@@ -71,7 +79,7 @@ export default {
   }
 
   .lg-input {
-    width: 200px;
+    width: 240px;
   }
 
   /* button color */
@@ -111,8 +119,8 @@ export default {
   .small-button {
     font-size: 14px;
     width: 70px;
-    height: 25px;
-    margin-right: 10px;
+    height: 27px;
+    margin-right: 12px;
   }
 
   /* layout */
@@ -142,8 +150,16 @@ export default {
 
   .form-title {
     border-bottom: 1px solid #bfcbd9;
-    padding: 10px 0;
+    height: 45px;
     font-weight: 500;
+  }
+
+  .form-button {
+    border-top: 1px solid #bfcbd9;
+    height: 50px;
+    padding-left: 10px;
+    align-items: center;
+    justify-content: space-between;
   }
 
   /* form-row: form-label(left), form-content(right) */

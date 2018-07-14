@@ -54,13 +54,12 @@
             </select>
           </div>
         </div>
-
-        <div class="form-row button">
-          <div class="form-content">
-            <button type="submit" class="main-button create-button" @click="createCourse">Create</button>
-          </div>
-        </div>
       </form>
+
+      <div class="form-button flex">
+        <div class="err-msg">{{confirmMsg}}</div>
+        <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
+      </div>
     </section>
 
     <section class="filter-section">
@@ -118,7 +117,7 @@ export default {
   data () {
     return {
       // form
-      date: '',
+      date: 'Jul 15 2018', // test
       selectedTime: '12:00',
       selectedType: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
@@ -132,6 +131,7 @@ export default {
       // from table component to manipulate
       checkedCourses: [],
       // msg
+      confirmMsg: '',
       resultMsg: '',
       // filter
       selectedFilter: [],
@@ -177,6 +177,14 @@ export default {
       // before creating; after removing
       this.checkedCourses = [] // 本页面
       this.$refs.table.empty() // 子组件
+    },
+    confirmCreate () {
+      if (this.checkLevel) {
+        this.confirmMsg = "Please correct the data that don't meet requirements"
+      } else {
+        this.confirmMsg = ''
+        this.createCourse()
+      }
     },
     createCourse () {
       this.emptySelected()
@@ -299,7 +307,7 @@ export default {
     operationMsg (string, number) {
       switch (string) {
         case 'create':
-          this.resultMsg = 'Successfully created!'
+          this.resultMsg = 'Created Successfully!'
           setTimeout(() => {
             this.resultMsg = ''
           }, 1000)
@@ -343,21 +351,12 @@ export default {
 
   .form-section {
     width: 40%;
+    min-width: 400px;
+    max-width: 500px;
   }
 
   #course-form {
     margin: 10px;
-  }
-
-  .form-row.button {
-    margin-top: 20px;
-  }
-
-  .create-button {
-    margin-left: 40%; /* same with the width of label */
-    height: 30px;
-    width: 100px;
-    font-size: 16px;
   }
 
   /* filter */
