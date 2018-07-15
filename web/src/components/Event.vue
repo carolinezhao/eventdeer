@@ -14,10 +14,10 @@
           <label class="form-label">Time</label>
           <div class="form-content">
             <select v-model="startTime">
-              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+              <option v-for="timeOption in startTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select> -
             <select v-model="endTime">
-              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+              <option v-for="timeOption in endTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select>
             <div class="err-msg">{{checkTime}}</div>
           </div>
@@ -132,8 +132,8 @@
 </template>
 
 <script>
-import {displayTime, displayDate} from '@/utils/util'
-// import {displayTime, displayDate, formatTime} from '@/utils/util'
+import {displayTime, displayDate, continuousNum} from '@/utils/util'
+// import {displayTime, displayDate, formatTime, continuousNum} from '@/utils/util'
 import Table from '@/components/Table'
 export default {
   name: 'event',
@@ -143,8 +143,9 @@ export default {
   data () {
     return {
       // form
-      date: '',
+      date: 'Jul 15 2018', // test
       startTime: 11,
+      endTime: 12,
       title: '',
       locationType: 'Center',
       location: '',
@@ -169,30 +170,15 @@ export default {
     }
   },
   computed: {
-    timeOptions () {
-      let optionArr = []
-      let option = 11
-      while (option <= 20) {
-        optionArr.push(option)
-        option++
-      }
-      return optionArr
+    startTimeOptions () {
+      return continuousNum(11, 20)
     },
-    endTime: {
-      get: function () {
-        return this.startTime + 1
-      },
-      set: function (newValue) {
-        // newValue can't be sent to another computed
-        console.log(newValue)
-      }
+    endTimeOptions () {
+      return continuousNum(12, 21)
     },
-    checkTime () { // can't get updated this.endTime
-      if (this.startTime > this.endTime) {
+    checkTime () {
+      if (this.endTime - this.startTime < 1) {
         return 'Please enter earlier time first'
-      } else {
-        console.log(this.startTime, this.endTime)
-        return 'ok'
       }
     },
     checkLevel () {
@@ -214,9 +200,8 @@ export default {
     }
   },
   watch: {
-    endTime (newValue, oldValue) {
-      // only react to getter
-      console.log(newValue, oldValue)
+    startTime (newValue, oldValue) {
+      this.endTime = newValue + 1
     }
   },
   mounted () {
@@ -319,12 +304,13 @@ export default {
       queryTeachers.find()
         .then(teachers => {
           // console.log(teachers)
-          let typesArr = []
+          let typesSet = new Set()
           let teachersArr = teachers.map(item => {
             let teacherObj = item.attributes
-            typesArr.push(teacherObj.type)
+            typesSet.add(teacherObj.type) // 不添加重复元素
             return teacherObj
           })
+          let typesArr = [...typesSet]
           this.teacherTypes = typesArr
           this.teacherOptions = teachersArr
         })
