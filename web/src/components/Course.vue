@@ -14,7 +14,7 @@
           <label class="form-label">Start Time</label>
           <div class="form-content">
             <select v-model="selectedTime">
-              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}</option>
+              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select>
           </div>
         </div>
@@ -34,14 +34,15 @@
             <!-- 没有标注 key 的元素会被复用，即输入的内容会被保留 -->
             <template v-if="ifShowUnit">
               <label>Unit</label>
-              <input type="text" class="short-input" maxlength="2" v-model="unit">
+              <input type="text" class="short-input" maxlength="2" v-model.number="unit">
+              <div class="err-msg">{{checkUnit()}}</div>
             </template>
             <template v-else>
               <label>Level</label>
               <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
               <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
+              <div class="err-msg">{{checkLevel()}}</div>
             </template>
-            <div class="err-msg">{{checkLevel}}</div>
           </div>
         </div>
 
@@ -106,8 +107,8 @@
 </template>
 
 <script>
-import {displayTime, displayDate} from '@/utils/util'
-// import {displayTime, displayDate, formatTime} from '@/utils/util'
+import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
+// import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
 export default {
   name: 'course',
@@ -118,7 +119,7 @@ export default {
     return {
       // form
       date: 'Jul 15 2018', // test
-      selectedTime: '12:00',
+      selectedTime: 11,
       selectedType: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
       unit: '',
@@ -140,21 +141,10 @@ export default {
   },
   computed: {
     timeOptions () {
-      let optionArr = []
-      let option = 12
-      while (option <= 20) {
-        optionArr.push(`${option}:00`)
-        option++
-      }
-      return optionArr
+      return continuousNum(11, 20)
     },
     ifShowUnit () {
       return this.selectedType === 'FTClass'
-    },
-    checkLevel () {
-      if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
-        return 'Please enter lower level first'
-      }
     },
     filters () {
       return [
@@ -178,9 +168,23 @@ export default {
       this.checkedCourses = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
+    checkUnit () {
+      return checkNumber(this.unit)
+    },
+    checkLevel () {
+      let msg1 = checkNumber(this.lowerLevel)
+      let msg2 = checkNumber(this.upperLevel)
+      let msg3
+      if (this.upperLevel && (this.upperLevel - this.lowerLevel < 1)) {
+        msg3 = 'Please enter lower level first'
+      }
+      return msg1 || msg2 || msg3
+    },
     confirmCreate () {
-      if (this.checkLevel) {
+      if (this.checkLevel || this.checkUnit) {
         this.confirmMsg = "Please correct the data that don't meet requirements"
+      } else if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
+        this.confirmMsg = 'Please fill in all the blank items'
       } else {
         this.confirmMsg = ''
         this.createCourse()
@@ -189,14 +193,14 @@ export default {
     createCourse () {
       this.emptySelected()
       // prepare data for backend
-      let time = new Date(`${this.date}, ${this.selectedTime}`)
+      let time = new Date(`${this.date}, ${this.selectedTime}:00`)
       let description = (this.selectedType === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
       let isVIP = Boolean(Number(this.isVIP))
       // prepare data for frontend
       let vipStr = isVIP ? 'Yes' : 'No'
       let displayCourse = {
         date: this.date,
-        time: this.selectedTime,
+        time: `${this.selectedTime}:00`,
         type: this.selectedType,
         description: description,
         isVIP: vipStr

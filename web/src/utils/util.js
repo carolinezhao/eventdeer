@@ -26,3 +26,18 @@ export function formatTime (string) {
   }
   // new Date() 创建的是 GMT 时间；后端存储是 GMT+8(CST)
 }
+
+export function continuousNum (start, end) {
+  let numsArr = []
+  while (start <= end) {
+    numsArr.push(start)
+    start++
+  }
+  return numsArr
+}
+
+export function checkNumber (value) {
+  if (value && (typeof value !== 'number')) {
+    return 'Please enter number'
+  }
+}

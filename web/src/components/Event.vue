@@ -14,12 +14,14 @@
           <label class="form-label">Time</label>
           <div class="form-content">
             <select v-model="startTime">
+              <!-- <option disabled value="">Start</option> -->
               <option v-for="timeOption in startTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select> -
             <select v-model="endTime">
+              <!-- <option disabled value="">End</option> -->
               <option v-for="timeOption in endTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
             </select>
-            <div class="err-msg">{{checkTime}}</div>
+            <div class="err-msg">{{checkTime()}}</div>
           </div>
         </div>
 
@@ -55,7 +57,7 @@
               <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
               <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
             </template>
-            <div class="err-msg">{{checkLevel}}</div>
+            <div class="err-msg">{{checkLevel()}}</div>
           </div>
         </div>
 
@@ -142,8 +144,8 @@
 </template>
 
 <script>
-import {displayTime, displayDate, continuousNum} from '@/utils/util'
-// import {displayTime, displayDate, formatTime, continuousNum} from '@/utils/util'
+import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
+// import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
 export default {
   name: 'event',
@@ -187,16 +189,6 @@ export default {
     },
     endTimeOptions () {
       return continuousNum(12, 21)
-    },
-    checkTime () {
-      if (this.endTime - this.startTime < 1) {
-        return 'Please enter earlier time first'
-      }
-    },
-    checkLevel () {
-      if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
-        return 'Please enter lower level first'
-      }
     }
   },
   watch: {
@@ -221,9 +213,25 @@ export default {
       this.checkedEvents = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
+    checkTime () {
+      if (this.endTime && (this.endTime - this.startTime < 1)) {
+        return 'Please enter earlier time first'
+      }
+    },
+    checkLevel () {
+      let msg1 = checkNumber(this.lowerLevel)
+      let msg2 = checkNumber(this.upperLevel)
+      let msg3
+      if (this.upperLevel && (this.upperLevel - this.lowerLevel < 1)) {
+        msg3 = 'Please enter lower level first'
+      }
+      return msg1 || msg2 || msg3
+    },
     confirmCreate () {
       if (this.checkTime || this.checkLevel) {
         this.confirmMsg = "Please correct the data that don't meet requirements"
+      } else if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.ifDiscover && !this.intro)) {
+        this.confirmMsg = 'Please fill in all the blank items'
       } else {
         this.confirmMsg = ''
         this.createEvent()
