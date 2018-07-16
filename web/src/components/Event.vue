@@ -38,7 +38,7 @@
               <option value="Outing">Outing</option>
             </select>
             <template v-if="locationType === 'Outing'">
-              <input type="text" class="lg-input" v-model="location">
+              <input type="text" class="lg-input" v-model.trim="location">
             </template>
           </div>
         </div>
@@ -75,8 +75,8 @@
             <select v-model="teacherType">
               <option v-for="type in teacherTypes" :key="type.id" :value="type">{{type}}</option>
             </select>
-            <select v-model="teacherName">
-              <option v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType" :value="option.name">{{option.name}}</option>
+            <select v-model="teacherName" v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType">
+              <option v-for="name in option.names" :key="name.id" :value="name">{{name}}</option>
             </select>
           </div>
         </div>
@@ -101,6 +101,16 @@
             <label class="form-label">Image</label>
             <div class="form-content">
               <input type="file" @change="chooseFile">
+              <p class="img-tip">{{imgTip}}</p>
+            </div>
+          </div>
+
+          <div class="form-row" v-if="imgUrl">
+            <label class="form-label">Preview</label>
+            <div class="form-content">
+              <div class="img-container">
+                <img class="img" :src="imgUrl">
+              </div>
             </div>
           </div>
         </template>
@@ -155,10 +165,12 @@ export default {
       isVIP: '0',
       teacherType: 'FT',
       teacherTypes: [],
-      teacherOptions: [], // {type:'', name:''}
+      teacherOptions: [],
+      teacherName: 'John',
       ifDiscover: false,
       intro: '',
       imgUrl: '',
+      imgTip: 'Optimal ratio of length to width: 5:3',
       // for table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
       events: [],
@@ -185,23 +197,18 @@ export default {
       if (this.upperLevel && (this.lowerLevel > this.upperLevel)) {
         return 'Please enter lower level first'
       }
-    },
-    teacherName: {
-      get: function () {
-        for (let option of this.teacherOptions) {
-          if (option.type === this.teacherType) {
-            return option.name
-          }
-        }
-      },
-      set: function (newValue) {
-        console.log(newValue)
-      }
     }
   },
   watch: {
     startTime (newValue, oldValue) {
       this.endTime = newValue + 1
+    },
+    teacherType (newValue, oldValue) {
+      for (let option of this.teacherOptions) {
+        if (option.type === newValue) {
+          this.teacherName = option.names[0]
+        }
+      }
     }
   },
   mounted () {
@@ -215,7 +222,7 @@ export default {
       this.$refs.table.empty() // 子组件
     },
     confirmCreate () {
-      if (this.checkLevel) {
+      if (this.checkTime || this.checkLevel) {
         this.confirmMsg = "Please correct the data that don't meet requirements"
       } else {
         this.confirmMsg = ''
@@ -304,14 +311,41 @@ export default {
       queryTeachers.find()
         .then(teachers => {
           // console.log(teachers)
-          let typesSet = new Set()
-          let teachersArr = teachers.map(item => {
+          let type1 = 'FT'
+          let type2 = 'CT'
+          let type3 = 'Manager'
+          let namesArr1 = []
+          let namesArr2 = []
+          let namesArr3 = []
+          for (let item of teachers) {
             let teacherObj = item.attributes
-            typesSet.add(teacherObj.type) // 不添加重复元素
-            return teacherObj
-          })
-          let typesArr = [...typesSet]
-          this.teacherTypes = typesArr
+            let type = teacherObj.type
+            let name = teacherObj.name
+            switch (type) {
+              case type1:
+                namesArr1.push(name)
+                break
+              case type2:
+                namesArr2.push(name)
+                break
+              case type3:
+                namesArr3.push(name)
+                break
+              default:
+                break
+            }
+          }
+          let teachersArr = [{
+            type: type1,
+            names: namesArr1
+          }, {
+            type: type2,
+            names: namesArr2
+          }, {
+            type: type3,
+            names: namesArr3
+          }]
+          this.teacherTypes = [type1, type2, type3]
           this.teacherOptions = teachersArr
         })
     },
@@ -425,5 +459,21 @@ export default {
 
   .form-textarea {
     height: 140px;
+  }
+
+  .img-tip {
+    font-size: 11px;
+    margin: 2px;
+  }
+
+  .img-container {
+    padding: 10px 0;
+    height: 120px;
+    width: 200px;
+  }
+
+  .img {
+    width: 100%;
+    height: 100%;
   }
 </style>
