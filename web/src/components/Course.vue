@@ -77,14 +77,12 @@
       </div>
 
       <template v-if="tempCourses.length">
-        <button class="primary-button small-button" @click="filterCourses()">Cancel</button>
-      </template>
-      <template v-else-if="selectedFilter">
-        <button class="primary-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
+        <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
       </template>
       <template v-else>
-        <button class="primary-button small-button">Filter</button>
+        <button class="main-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
       </template>
+      <div class="operation-msg">{{filterMsg}}</div>
     </section>
 
     <section class="operation-section">
@@ -136,7 +134,8 @@ export default {
       resultMsg: '',
       // filter
       selectedFilter: [],
-      tempCourses: []
+      tempCourses: [],
+      filterMsg: ''
     }
   },
   computed: {
@@ -284,7 +283,9 @@ export default {
       }).catch(console.error())
     },
     filterCourses (conditionArr) {
-      if (conditionArr) {
+      if (!conditionArr.length) {
+        alert("You haven't chosen any filters.")
+      } else {
         this.tempCourses = this.courses
         let prop
         let value
@@ -296,34 +297,41 @@ export default {
             // typeof prop === 'string'
             return targetObj[prop] === value
           })
-        // })
         }
-        console.log(this.courses.length)
-      } else {
-        this.courses = this.tempCourses
-        this.tempCourses = []
-        conditionArr = ''
+        let count = this.courses.length
+        if (count) {
+          let plural = (count === 1) ? 'item' : 'items'
+          this.filterMsg = `${count} ${plural} meeting the condition`
+        } else {
+          this.filterMsg = 'No results'
+        }
       }
+    },
+    cancelFilter () {
+      this.selectedFilter = []
+      this.filterMsg = ''
+      this.courses = this.tempCourses
+      this.tempCourses = []
     },
     refresh () {
       this.queryCourses()
     },
     operationMsg (string, number) {
       switch (string) {
-        case 'create':
+        case 'create': // 异步操作后，没有后续
           this.resultMsg = 'Created Successfully!'
           setTimeout(() => {
             this.resultMsg = ''
           }, 1000)
           break
-        case 'select':
+        case 'select': // 点击操作时，有后续操作
           let len = this.checkedCourses.length
           if (len) {
             let plural = (len === 1) ? 'item' : 'items'
             return `Selected ${len} ${plural}`
           }
           break
-        case 'remove':
+        case 'remove': // 异步操作后，没有后续
           let plural = (number === 1) ? 'item' : 'items'
           this.resultMsg = `Removed ${number} ${plural}`
           setTimeout(() => {
