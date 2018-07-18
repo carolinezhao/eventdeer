@@ -84,6 +84,10 @@ export default {
 
   /* button color */
 
+  .primary-button {
+    background-color: #fff;
+  }
+
   .primary-button:hover {
     border-color: #42b983;
     color: #42b983;
@@ -114,6 +118,16 @@ export default {
     transition: all .5s;
   }
 
+  .disabled {
+    color: #bfcbd9;
+    border-color: #bfcbd9;
+  }
+
+  .disabled:hover {
+    color: #bfcbd9;
+    border-color: #bfcbd9;
+  }
+
   /* button size */
 
   .small-button {
@@ -142,9 +156,21 @@ export default {
 
   /* form for Course and Event */
 
+  .form-container {
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(66, 66, 66, 0.7);
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+    padding-bottom: 10%;
+  }
+
   .form-section {
-    border: 1px solid #bfcbd9;
+    border: 2px solid #bfcbd9;
     border-radius: 5px;
+    background-color: #fff;
     overflow: hidden;
   }
 
@@ -154,12 +180,12 @@ export default {
     font-weight: 500;
   }
 
-  .form-button {
+  .form-footer {
     border-top: 1px solid #bfcbd9;
     height: 50px;
     padding-left: 10px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   /* form-row: form-label(left), form-content(right) */
@@ -191,7 +217,7 @@ export default {
     padding: 10px;
   }
 
-  /* msg */
+  /* msg: err-msg for form; operation-msg for table */
 
   .err-msg {
     color: #f66;
@@ -201,6 +227,5 @@ export default {
   .operation-msg {
     font-weight: 300;
     font-size: 14px;
-    margin-top: 10px;
   }
 </style>

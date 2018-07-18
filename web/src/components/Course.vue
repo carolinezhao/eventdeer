@@ -1,71 +1,73 @@
 <template>
   <div>
-    <section class="form-section flex-col">
-      <div class="form-title flex-center">New Course</div>
-      <form id="course-form">
-        <div class="form-row">
-          <label class="form-label">Date</label>
-          <div class="form-content">
-            <input type="text" class="input" v-model="date">
+    <section class="form-container flex-center" v-if="ifShowForm">
+      <section class="form-section flex-col">
+        <div class="form-title flex-center">New Course</div>
+        <form id="course-form">
+          <div class="form-row">
+            <label class="form-label">Date</label>
+            <div class="form-content">
+              <input type="text" class="input" v-model="date">
+            </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <label class="form-label">Start Time</label>
-          <div class="form-content">
-            <select v-model="selectedTime">
-              <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
-            </select>
+          <div class="form-row">
+            <label class="form-label">Start Time</label>
+            <div class="form-content">
+              <select v-model="selectedTime">
+                <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <label class="form-label">Course Type</label>
-          <div class="form-content">
-            <select v-model="selectedType">
-              <option v-for="typeOption in typeOptions" :key="typeOption.id" :value="typeOption">{{typeOption}}</option>
-            </select>
+          <div class="form-row">
+            <label class="form-label">Course Type</label>
+            <div class="form-content">
+              <select v-model="selectedType">
+                <option v-for="typeOption in typeOptions" :key="typeOption.id" :value="typeOption">{{typeOption}}</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <label class="form-label">Description</label>
-          <div class="form-content">
-            <!-- 没有标注 key 的元素会被复用，即输入的内容会被保留 -->
-            <template v-if="ifShowUnit">
-              <label>Unit</label>
-              <input type="text" class="short-input" maxlength="2" v-model.number="unit">
-              <div class="err-msg">{{checkUnit()}}</div>
-            </template>
-            <template v-else>
-              <label>Level</label>
-              <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
-              <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
-              <div class="err-msg">{{checkLevel()}}</div>
-            </template>
+          <div class="form-row">
+            <label class="form-label">Description</label>
+            <div class="form-content">
+              <!-- 没有标注 key 的元素会被复用，即输入的内容会被保留 -->
+              <template v-if="ifShowUnit">
+                <label>Unit</label>
+                <input type="text" class="short-input" maxlength="2" v-model.number="unit">
+                <div class="err-msg">{{checkUnit()}}</div>
+              </template>
+              <template v-else>
+                <label>Level</label>
+                <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
+                <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
+                <div class="err-msg">{{checkLevel()}}</div>
+              </template>
+            </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <label class="form-label">VIP</label>
-          <div class="form-content">
-            <select v-model="isVIP">
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </select>
+          <div class="form-row">
+            <label class="form-label">VIP</label>
+            <div class="form-content">
+              <select v-model="isVIP">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <div class="form-button flex">
-        <div class="err-msg">{{confirmMsg}}</div>
-        <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
-      </div>
+        <div class="form-footer flex">
+          <button class="primary-button small-button" @click="closeForm">Cancel</button>
+          <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
+        </div>
+      </section>
     </section>
 
     <section class="filter-section">
       <course-filter ref="filter" :filters="filters" v-model="selectedFilter"></course-filter>
-      <div class="filter-result card flex">
+      <div class="filter-footer card flex">
         <template v-if="tempCourses.length">
           <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
         </template>
@@ -77,6 +79,7 @@
     </section>
 
     <section class="operation-section">
+      <button class="primary-button small-button" @click="openForm">Create</button>
       <button class="primary-button small-button" @click="refresh">Refresh</button>
       <button class="primary-button small-button">Edit</button>
       <button class="danger-button small-button" @click="confirmRemove">Remove</button>
@@ -109,6 +112,7 @@ export default {
   data () {
     return {
       // form
+      ifShowForm: false,
       date: 'Jul 15 2018', // test
       selectedTime: 11,
       selectedType: 'FTClass',
@@ -142,11 +146,11 @@ export default {
       return [
         {
           name: 'VIP',
-          prop: 'isVIP',
+          key: 'isVIP',
           options: ['Yes', 'No']
         }, {
           name: 'Course Type',
-          prop: 'type',
+          key: 'type',
           options: this.typeOptions
         }]
     }
@@ -159,6 +163,13 @@ export default {
       // before creating; after removing
       this.checkedCourses = [] // 本页面
       this.$refs.table.empty() // 子组件
+    },
+    openForm () {
+      this.ifShowForm = true
+      this.confirmMsg = ''
+    },
+    closeForm () {
+      this.ifShowForm = false
     },
     checkUnit () {
       return checkNumber(this.unit)
@@ -280,15 +291,15 @@ export default {
         alert("You haven't chosen any filters.")
       } else {
         this.tempCourses = this.courses
-        let prop
+        let key
         let value
         for (let item of conditionArr) {
         // conditionArr.forEach(function (item) { // cannot get 'this'
-          prop = item.prop
+          key = item.key
           value = item.value
           this.courses = this.courses.filter(function (targetObj) {
-            // typeof prop === 'string'
-            return targetObj[prop] === value
+            // typeof key === 'string'
+            return targetObj[key] === value
           })
         }
         let count = this.courses.length
@@ -343,7 +354,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .operation-section,
-  .filter-section,
   .table-section {
     margin-top: 20px;
     overflow: hidden;
@@ -363,7 +373,7 @@ export default {
     width: 80%;
   }
 
-  .filter-result {
+  .filter-footer {
     border-radius: 0 0 5px 5px ;
     border-top: none;
     align-items: center;
