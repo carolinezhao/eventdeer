@@ -37,6 +37,16 @@ export default {
     outline: none;
   }
 
+  button {
+    cursor: pointer;
+  }
+
+  button[disabled] {
+    opacity: .5; /* 会导致穿透 modal window */
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
   input[type="file"] {
     font-size: 13px;
     outline: none;
@@ -116,16 +126,6 @@ export default {
     background-color: #e04e4e;
     border-color: #e04e4e;
     transition: all .5s;
-  }
-
-  .disabled {
-    color: #bfcbd9;
-    border-color: #bfcbd9;
-  }
-
-  .disabled:hover {
-    color: #bfcbd9;
-    border-color: #bfcbd9;
   }
 
   /* button size */

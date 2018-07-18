@@ -59,8 +59,8 @@
         </form>
 
         <div class="form-footer flex">
-          <button class="primary-button small-button" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
+          <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
+          <button type="submit" class="main-button small-button" :disabled="disabledCreate" @click="createCourse">Create</button>
         </div>
       </section>
     </section>
@@ -142,6 +142,15 @@ export default {
     ifShowUnit () {
       return this.selectedType === 'FTClass'
     },
+    disabledCreate () {
+      if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
+        return true
+      } else if (this.checkLevel() || this.checkUnit()) {
+        return true
+      } else {
+        return false
+      }
+    },
     filters () {
       return [
         {
@@ -170,6 +179,16 @@ export default {
     },
     closeForm () {
       this.ifShowForm = false
+      this.resetForm()
+    },
+    resetForm () {
+      // need to revise
+      this.selectedTime = 11
+      this.selectedType = 'FTClass'
+      this.unit = ''
+      this.lowerLevel = ''
+      this.upperLevel = ''
+      this.isVIP = '0'
     },
     checkUnit () {
       return checkNumber(this.unit)
@@ -182,16 +201,6 @@ export default {
         msg3 = 'Please enter lower level first'
       }
       return msg1 || msg2 || msg3
-    },
-    confirmCreate () {
-      if (this.checkLevel || this.checkUnit) {
-        this.confirmMsg = "Please correct the data that don't meet requirements"
-      } else if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
-        this.confirmMsg = 'Please fill in all the blank items'
-      } else {
-        this.confirmMsg = ''
-        this.createCourse()
-      }
     },
     createCourse () {
       this.emptySelected()
@@ -219,10 +228,12 @@ export default {
       course.save()
         .then((course) => {
           // frontend
+          this.ifShowForm = false
           displayCourse.id = course.id // id 是存储成功后生成的
           console.log('id is ' + displayCourse.id)
           this.operationMsg('create')
           this.courses.unshift(displayCourse)
+          this.resetForm()
         })
         .catch(console.error())
     },
