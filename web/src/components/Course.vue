@@ -64,25 +64,16 @@
     </section>
 
     <section class="filter-section">
-      <div class="card">
-        <div class="form-row" v-for="filter in filters" :key="filter.id">
-          <label class="form-label filter-label">{{filter.name}}</label>
-          <div class="form-content filter-content">
-            <div class="form-content filter-option" v-for="option in filter.options" :key="option.id">
-              <input type="checkbox" :value="{prop: filter.prop, value: option}" v-model="selectedFilter">
-              <label>{{option}}</label>
-            </div>
-          </div>
-        </div>
+      <course-filter ref="filter" :filters="filters" v-model="selectedFilter"></course-filter>
+      <div class="filter-result card flex">
+        <template v-if="tempCourses.length">
+          <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
+        </template>
+        <template v-else>
+          <button class="main-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
+        </template>
+        <div class="operation-msg">{{filterMsg}}</div>
       </div>
-
-      <template v-if="tempCourses.length">
-        <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
-      </template>
-      <template v-else>
-        <button class="main-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
-      </template>
-      <div class="operation-msg">{{filterMsg}}</div>
     </section>
 
     <section class="operation-section">
@@ -108,10 +99,12 @@
 import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
 // import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
+import Filter from '@/components/Filter'
 export default {
   name: 'course',
   components: {
-    courseTable: Table
+    courseTable: Table,
+    courseFilter: Filter
   },
   data () {
     return {
@@ -300,14 +293,15 @@ export default {
         }
         let count = this.courses.length
         if (count) {
-          let plural = (count === 1) ? 'item' : 'items'
-          this.filterMsg = `${count} ${plural} meeting the condition`
+          let plural = (count === 1) ? 'result' : 'results'
+          this.filterMsg = `${count} ${plural}`
         } else {
           this.filterMsg = 'No results'
         }
       }
     },
     cancelFilter () {
+      this.$refs.filter.empty() // 子组件
       this.selectedFilter = []
       this.filterMsg = ''
       this.courses = this.tempCourses
@@ -355,12 +349,6 @@ export default {
     overflow: hidden;
   }
 
-  .table-section {
-    width: 80%;
-  }
-
-  /* 表单 */
-
   .form-section {
     width: 40%;
     min-width: 400px;
@@ -371,18 +359,17 @@ export default {
     margin: 10px;
   }
 
-  /* filter */
-
   .filter-section {
     width: 80%;
   }
 
-  .form-label.filter-label {
-    width: 20%;
+  .filter-result {
+    border-radius: 0 0 5px 5px ;
+    border-top: none;
+    align-items: center;
   }
 
-  .form-content.filter-option {
-    width: 120px;
-    background-color: #bfcbd9;
+  .table-section {
+    width: 80%;
   }
 </style>
