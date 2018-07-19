@@ -1,130 +1,146 @@
 <template>
   <div>
-    <section class="form-section flex-col">
-      <div class="form-title flex-center">New Event</div>
-      <form id="event-form">
-        <div class="form-row">
-          <label class="form-label">Date</label>
-          <div class="form-content">
-            <input type="text" class="input" v-model="date">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Time</label>
-          <div class="form-content">
-            <select v-model="startTime">
-              <!-- <option disabled value="">Start</option> -->
-              <option v-for="timeOption in startTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
-            </select> -
-            <select v-model="endTime">
-              <!-- <option disabled value="">End</option> -->
-              <option v-for="timeOption in endTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
-            </select>
-            <div class="err-msg">{{checkTime()}}</div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Title</label>
-          <div class="form-content">
-            <input type="text" class="lg-input" v-model.trim="title">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Location</label>
-          <div class="form-content">
-            <select v-model="locationType">
-              <option value="Center">Center</option>
-              <option value="Outing">Outing</option>
-            </select>
-            <template v-if="locationType === 'Outing'">
-              <input type="text" class="lg-input" v-model.trim="location">
-            </template>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Level</label>
-          <div class="form-content">
-            <select v-model="levelType">
-              <option value="unlimited">Unlimited</option>
-              <option value="limited">Limited</option>
-            </select>
-            <template v-if="levelType === 'limited'">
-              <label>Level</label>
-              <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
-              <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
-            </template>
-            <div class="err-msg">{{checkLevel()}}</div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">VIP</label>
-          <div class="form-content">
-            <select v-model="isVIP">
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Teacher</label>
-          <div class="form-content">
-            <select v-model="teacherType">
-              <option v-for="type in teacherTypes" :key="type.id" :value="type">{{type}}</option>
-            </select>
-            <select v-model="teacherName" v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType">
-              <option v-for="name in option.names" :key="name.id" :value="name">{{name}}</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Display in Discover</label>
-          <div class="form-content">
-            <input type="checkbox" v-model="ifDiscover">
-            <label>{{ifDiscover}}</label>
-          </div>
-        </div>
-
-        <template v-if="ifDiscover === true">
+    <section class="form-container flex-center" v-if="ifShowForm">
+      <section class="form-section flex-col">
+        <div class="form-title flex-center">New Event</div>
+        <form id="event-form">
           <div class="form-row">
-            <label class="form-label">Introduction</label>
-            <div class="form-content form-textarea">
-              <textarea v-model="intro" rows="5" cols="40"></textarea>
+            <label class="form-label">Date</label>
+            <div class="form-content">
+              <input type="text" class="input" v-model="date">
             </div>
           </div>
 
           <div class="form-row">
-            <label class="form-label">Image</label>
+            <label class="form-label">Time</label>
             <div class="form-content">
-              <input type="file" @change="chooseFile">
-              <p class="img-tip">{{imgTip}}</p>
+              <select v-model="startTime">
+                <!-- <option disabled value="">Start</option> -->
+                <option v-for="timeOption in startTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+              </select> -
+              <select v-model="endTime">
+                <!-- <option disabled value="">End</option> -->
+                <option v-for="timeOption in endTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
+              </select>
+              <div class="err-msg">{{checkTime()}}</div>
             </div>
           </div>
 
-          <div class="form-row" v-if="imgUrl">
-            <label class="form-label">Preview</label>
+          <div class="form-row">
+            <label class="form-label">Title</label>
             <div class="form-content">
-              <div class="img-container">
-                <img class="img" :src="imgUrl">
+              <input type="text" class="lg-input" v-model.trim="title">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Location</label>
+            <div class="form-content">
+              <select v-model="locationType">
+                <option value="Center">Center</option>
+                <option value="Outing">Outing</option>
+              </select>
+              <template v-if="locationType === 'Outing'">
+                <input type="text" class="lg-input" v-model.trim="location">
+              </template>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Level</label>
+            <div class="form-content">
+              <select v-model="levelType">
+                <option value="unlimited">Unlimited</option>
+                <option value="limited">Limited</option>
+              </select>
+              <template v-if="levelType === 'limited'">
+                <label>Level</label>
+                <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
+                <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
+              </template>
+              <div class="err-msg">{{checkLevel()}}</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">VIP</label>
+            <div class="form-content">
+              <select v-model="isVIP">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Teacher</label>
+            <div class="form-content">
+              <select v-model="teacherType">
+                <option v-for="type in teacherTypes" :key="type.id" :value="type">{{type}}</option>
+              </select>
+              <select v-model="teacherName" v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType">
+                <option v-for="name in option.names" :key="name.id" :value="name">{{name}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Display in Discover</label>
+            <div class="form-content">
+              <input type="checkbox" v-model="ifDiscover">
+              <label>{{ifDiscover}}</label>
+            </div>
+          </div>
+
+          <template v-if="ifDiscover === true">
+            <div class="form-row">
+              <label class="form-label">Introduction</label>
+              <div class="form-content form-textarea">
+                <textarea v-model="intro" rows="5" cols="40"></textarea>
               </div>
             </div>
-          </div>
-        </template>
-      </form>
 
-      <div class="form-button flex">
-        <div class="err-msg">{{confirmMsg}}</div>
-        <button type="submit" class="main-button small-button" @click="confirmCreate">Create</button>
+            <div class="form-row">
+              <label class="form-label">Image</label>
+              <div class="form-content">
+                <input type="file" @change="chooseFile">
+                <p class="img-tip">{{imgTip}}</p>
+              </div>
+            </div>
+
+            <div class="form-row" v-if="imgUrl">
+              <label class="form-label">Preview</label>
+              <div class="form-content">
+                <div class="img-container">
+                  <img class="img" :src="imgUrl">
+                </div>
+              </div>
+            </div>
+          </template>
+        </form>
+
+        <div class="form-footer flex">
+          <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
+          <button type="submit" class="main-button small-button" :disabled="disabledCreate" @click="createEvent">Create</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="filter-section">
+      <event-filter ref="filter" :filters="filters" v-model="selectedFilter"></event-filter>
+      <div class="filter-footer card flex">
+        <template v-if="tempEvents.length">
+          <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
+        </template>
+        <template v-else>
+          <button class="main-button small-button" @click="filterEvents(selectedFilter)">Filter</button>
+        </template>
+        <div class="operation-msg">{{filterMsg}}</div>
       </div>
     </section>
 
     <section class="operation-section">
+      <button class="primary-button small-button" @click="openForm">Create</button>
       <button class="primary-button small-button" @click="refresh">Refresh</button>
       <button class="primary-button small-button">Edit</button>
       <button class="danger-button small-button" @click="confirmRemove">Remove</button>
@@ -147,14 +163,17 @@
 import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
 // import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
+import Filter from '@/components/Filter'
 export default {
   name: 'event',
   components: {
-    eventTable: Table
+    eventTable: Table,
+    eventFilter: Filter
   },
   data () {
     return {
       // form
+      ifShowForm: false,
       date: 'Jul 15 2018', // test
       startTime: 11,
       endTime: 12,
@@ -179,8 +198,11 @@ export default {
       // from table component to manipulate
       checkedEvents: [],
       // msg
-      confirmMsg: '',
-      resultMsg: ''
+      resultMsg: '',
+      // filter
+      selectedFilter: [],
+      tempEvents: [],
+      filterMsg: ''
     }
   },
   computed: {
@@ -189,6 +211,27 @@ export default {
     },
     endTimeOptions () {
       return continuousNum(12, 21)
+    },
+    disabledCreate () {
+      if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.ifDiscover && !this.intro)) {
+        return true
+      } else if (this.checkLevel() || this.checkTime()) {
+        return true
+      } else {
+        return false
+      }
+    },
+    filters () {
+      return [
+        {
+          name: 'VIP',
+          key: 'isVIP',
+          options: ['Yes', 'No']
+        }, {
+          name: 'Display in Discover',
+          key: 'ifDiscover',
+          options: [true, false]
+        }]
     }
   },
   watch: {
@@ -213,6 +256,13 @@ export default {
       this.checkedEvents = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
+    openForm () {
+      this.ifShowForm = true
+    },
+    closeForm () {
+      this.ifShowForm = false
+      this.resetForm()
+    },
     checkTime () {
       if (this.endTime && (this.endTime - this.startTime < 1)) {
         return 'Please enter earlier time first'
@@ -226,16 +276,6 @@ export default {
         msg3 = 'Please enter lower level first'
       }
       return msg1 || msg2 || msg3
-    },
-    confirmCreate () {
-      if (this.checkTime || this.checkLevel) {
-        this.confirmMsg = "Please correct the data that don't meet requirements"
-      } else if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.ifDiscover && !this.intro)) {
-        this.confirmMsg = 'Please fill in all the blank items'
-      } else {
-        this.confirmMsg = ''
-        this.createEvent()
-      }
     },
     createEvent () {
       this.emptySelected()
@@ -370,7 +410,7 @@ export default {
       let AV = this.$AV
       let uploadFile = new AV.File(fileObj.name, fileObj)
       uploadFile.save().then((file) => {
-        console.log(file.url())
+        // console.log(file.url())
         this.imgUrl = file.url()
       }).catch(console.error())
     },
@@ -406,6 +446,36 @@ export default {
         this.emptySelected()
       }).catch(console.error())
     },
+    filterEvents (conditionArr) {
+      if (!conditionArr.length) {
+        alert("You haven't chosen any filters.")
+      } else {
+        this.tempEvents = this.events
+        let key
+        let value
+        for (let item of conditionArr) {
+          key = item.key
+          value = item.value
+          this.events = this.events.filter(function (targetObj) {
+            return targetObj[key] === value
+          })
+        }
+        let count = this.events.length
+        if (count) {
+          let plural = (count === 1) ? 'result' : 'results'
+          this.filterMsg = `${count} ${plural}`
+        } else {
+          this.filterMsg = 'No results'
+        }
+      }
+    },
+    cancelFilter () {
+      this.$refs.filter.empty() // 子组件
+      this.selectedFilter = []
+      this.filterMsg = ''
+      this.events = this.tempEvents
+      this.tempEvents = []
+    },
     refresh () {
       this.queryEvents()
     },
@@ -434,23 +504,28 @@ export default {
         default:
           break
       }
+    },
+    resetForm () {
+      this.startTime = 11
+      this.endTime = 12
+      this.title = ''
+      this.locationType = 'Center'
+      this.location = ''
+      this.levelType = 'unlimited'
+      this.lowerLevel = ''
+      this.upperLevel = ''
+      this.isVIP = '0'
+      this.teacherType = 'FT'
+      this.teacherName = 'John'
+      this.ifDiscover = false
+      this.intro = ''
+      this.imgUrl = ''
     }
   }
 }
 </script>
 
 <style scoped>
-  .operation-section,
-  .filter-section,
-  .table-section {
-    margin-top: 20px;
-    overflow: hidden;
-  }
-
-  .table-section {
-    width: 80%;
-  }
-
   .form-section {
     width: 60%;
     min-width: 550px;
@@ -483,5 +558,25 @@ export default {
   .img {
     width: 100%;
     height: 100%;
+  }
+
+  .filter-section {
+    width: 80%;
+  }
+
+  /* 深度作用选择器：影响子组件样式 */
+
+  .filter-section >>> .filter-label {
+    width: 30%;
+  }
+
+  .filter-footer {
+    border-radius: 0 0 5px 5px ;
+    border-top: none;
+    align-items: center;
+  }
+
+  .table-section {
+    width: 80%;
   }
 </style>
