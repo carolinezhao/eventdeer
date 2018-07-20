@@ -50,17 +50,18 @@
           <div class="form-row">
             <label class="form-label">VIP</label>
             <div class="form-content">
-              <select v-model="isVIP">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-              </select>
+              <input type="radio" :value="false" v-model="isVIP" id="false">
+              <label class="radio-label" for="false">No</label>
+              <input type="radio" :value="true" v-model="isVIP" id="true">
+              <label class="radio-label" for="true">Yes</label>
             </div>
           </div>
         </form>
 
         <div class="form-footer flex">
           <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-button small-button" :disabled="disabledCreate" @click="createCourse">Create</button>
+          <button type="submit" class="main-button small-button" v-if="ifNewForm" :disabled="disabledCreate" @click="createCourse">Create</button>
+          <button type="submit" class="main-button small-button" v-if="!ifNewForm" :disabled="disabledSave" @click="updateCourse">Save</button>
         </div>
       </section>
     </section>
@@ -79,9 +80,9 @@
     </section>
 
     <section class="operation-section">
-      <button class="primary-button small-button" @click="openForm">Create</button>
+      <button class="main-button small-button" @click="openForm">Create</button>
       <button class="primary-button small-button" @click="refresh">Refresh</button>
-      <button class="primary-button small-button">Edit</button>
+      <button class="primary-button small-button"  @click="editForm">Edit</button>
       <button class="danger-button small-button" @click="confirmRemove">Remove</button>
 
       <div class="operation-msg">{{operationMsg('select')}}</div>
@@ -111,23 +112,29 @@ export default {
   },
   data () {
     return {
-      // form
-      ifShowForm: false,
-      date: 'Jul 15 2018', // test
+      // form content
+      date: 'Sun Jul 15 2018', // test
       selectedTime: 11,
       selectedType: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
-      unit: '',
-      lowerLevel: '',
-      upperLevel: '',
-      isVIP: '0',
+      unit: '', // num
+      lowerLevel: '', // num
+      upperLevel: '', // num
+      isVIP: false,
+      formKey: ['date', 'selectedTime', 'selectedType', 'unit', 'lowerLevel', 'upperLevel', 'isVIP'],
+      origin: ['Sun Jul 15 2018', 11, 'FTClass', '', '', '', false], // 初始值，用于在编辑状态下比较
+      editing: [], // 打开编辑框时的值
+      changedObj: {}, // 更改的 key-value
+      // form status
+      ifShowForm: false,
+      ifNewForm: true,
+      disabledSave: true,
       // for table component
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
       // from table component to manipulate
       checkedCourses: [],
       // msg
-      confirmMsg: '',
       resultMsg: '',
       // filter
       selectedFilter: [],
@@ -136,12 +143,17 @@ export default {
     }
   },
   computed: {
+    // form content
     timeOptions () {
       return continuousNum(11, 20)
     },
     ifShowUnit () {
       return this.selectedType === 'FTClass'
     },
+    vipStr () {
+      return (this.isVIP) ? 'Yes' : 'No'
+    },
+    // form status
     disabledCreate () {
       if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
         return true
@@ -151,6 +163,10 @@ export default {
         return false
       }
     },
+    editingForm () {
+      return [this.date, this.selectedTime, this.selectedType, this.unit, this.lowerLevel, this.upperLevel, this.isVIP]
+    },
+    // filter
     filters () {
       return [
         {
@@ -164,31 +180,76 @@ export default {
         }]
     }
   },
+  watch: {
+    editingForm: {
+      // 编辑时有三种状态：
+      // old初始值，new已有值(打开时)-->不激活save；old已有值，new修改值-->激活save；old修改值，new已有值-->不激活save
+      handler (newValue, oldValue) {
+        // 两者不能直接用 == 比较，因为 this.数据中有个 observer (不可迭代)
+        let oldIfOrigin = this.ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
+        console.log(oldIfOrigin)
+        if (oldIfOrigin) { // 打开表格的瞬间执行
+          this.editing = newValue // 已有值
+        }
+        console.log(this.editing)
+        console.log(newValue)
+
+        let newIfExisted = this.ifSameArray(newValue, this.editing)
+        console.log(newIfExisted)
+        if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
+          this.disabledSave = this.disabledCreate // 如果通过了检查，则为 false，激活 save
+          this.changedObj = this.diff(this.editing, newValue)
+          console.log(this.changedObj)
+        } else {
+          this.disabledSave = true
+        }
+      }
+    }
+  },
   mounted () {
     this.queryCourses()
   },
   methods: {
+    // common
     emptySelected () {
       // before creating; after removing
       this.checkedCourses = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
+    ifSameArray (arr1, arr2) {
+      return arr1.every((item1, index1) => { // 有一个不符合就返回 false
+        return item1 === arr2[index1]
+      })
+    },
+    diff (editing, edited) {
+      let keys = this.formKey
+      let obj = {}
+      edited.forEach((item, index) => {
+        if (item !== editing[index]) {
+          let key = keys[index]
+          obj[key] = item
+        }
+      })
+      return obj
+    },
+    // form --> create
     openForm () {
       this.ifShowForm = true
-      this.confirmMsg = ''
+      this.ifNewForm = true
     },
     closeForm () {
       this.ifShowForm = false
       this.resetForm()
+      this.emptySelected()
     },
     resetForm () {
-      // need to revise
+      this.date = 'Sun Jul 15 2018' // test
       this.selectedTime = 11
       this.selectedType = 'FTClass'
       this.unit = ''
       this.lowerLevel = ''
       this.upperLevel = ''
-      this.isVIP = '0'
+      this.isVIP = false
     },
     checkUnit () {
       return checkNumber(this.unit)
@@ -206,16 +267,25 @@ export default {
       this.emptySelected()
       // prepare data for backend
       let time = new Date(`${this.date}, ${this.selectedTime}:00`)
-      let description = (this.selectedType === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel}-L${this.upperLevel}`
-      let isVIP = Boolean(Number(this.isVIP))
+      let unit
+      let lowerLevel
+      let upperLevel
+      if (this.selectedType === 'FTClass') {
+        unit = this.unit
+        lowerLevel = 0
+        upperLevel = 0
+      } else {
+        unit = 0
+        lowerLevel = this.lowerLevel
+        upperLevel = this.upperLevel
+      }
       // prepare data for frontend
-      let vipStr = isVIP ? 'Yes' : 'No'
       let displayCourse = {
         date: this.date,
         time: `${this.selectedTime}:00`,
         type: this.selectedType,
-        description: description,
-        isVIP: vipStr
+        description: (this.selectedType === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
+        isVIP: this.vipStr
       }
       // backend
       let AV = this.$AV
@@ -223,8 +293,10 @@ export default {
       let course = new Courses()
       course.set('time', time)
       course.set('type', this.selectedType)
-      course.set('description', description)
-      course.set('isVIP', isVIP)
+      course.set('unit', unit)
+      course.set('lowerLevel', lowerLevel)
+      course.set('upperLevel', upperLevel)
+      course.set('isVIP', this.isVIP)
       course.save()
         .then((course) => {
           // frontend
@@ -237,6 +309,60 @@ export default {
         })
         .catch(console.error())
     },
+    // form --> edit
+    editForm () {
+      if (this.checkedCourses.length !== 1) {
+        alert('Please select one item to edit')
+      } else {
+        this.ifNewForm = false
+        let index = this.checkedCourses[0].index
+        let obj = this.courses[index] // 前端展示的
+        // console.log(obj)
+        this.setFormContent(obj)
+      }
+    },
+    setFormContent (obj) {
+      this.ifShowForm = true
+      // 转换为表单的数据格式
+      this.date = obj.date
+      this.selectedTime = Number.parseInt(obj.time)
+      this.selectedType = obj.type
+      if (obj.type === 'FTClass') {
+        this.unit = this.getNum(obj.description)
+      } else {
+        this.lowerLevel = this.levelNum(obj.description)[0]
+        this.upperLevel = this.levelNum(obj.description)[1]
+      }
+      this.isVIP = (obj.isVIP === 'Yes')
+    },
+    getNum (string) {
+      return Number.parseInt(string.match(/\d/g).join(''))
+    },
+    levelNum (string) {
+      let arr = string.split(' - ')
+      // map 和 forEach 都拿不到 this？？
+      arr[0] = this.getNum(arr[0])
+      arr[1] = this.getNum(arr[1])
+      console.log(arr)
+      return arr
+    },
+    updateCourse () {
+      // let editingCourse = this.checkedCourses[0]
+      // let index = editingCourse.index // 用于修改前端数据
+      // let id = editingCourse.id // 用于修改后端数据
+      // let obj = this.courses[index] // 前端数据
+
+      // backend
+      // let AV = this.$AV
+      // var course = AV.Object.createWithoutData('Courses', id)
+      // course.set(key, newValue)
+      // course.save()
+      //  .then((course) => {
+      //    frontend
+      //    this.courses[index] = newObj
+      //  })
+    },
+    // table
     queryCourses () {
       // console.log('queryCourses starts')
       let AV = this.$AV
@@ -255,7 +381,7 @@ export default {
             newCourse.date = displayDate(course.time) // add
             newCourse.time = displayTime(course.time) // revise
             newCourse.type = course.type
-            newCourse.description = course.description
+            newCourse.description = (course.type === 'FTClass') ? `Unit ${course.unit}` : `L${course.lowerLevel} - L${course.upperLevel}` // add
             newCourse.isVIP = course.isVIP ? 'Yes' : 'No' // revise
             newCourse.id = item.id // 存储对象时自动分配的 id
             return newCourse
@@ -297,6 +423,10 @@ export default {
         this.emptySelected()
       }).catch(console.error())
     },
+    refresh () {
+      this.queryCourses()
+    },
+    // filter
     filterCourses (conditionArr) {
       if (!conditionArr.length) {
         alert("You haven't chosen any filters.")
@@ -329,9 +459,7 @@ export default {
       this.courses = this.tempCourses
       this.tempCourses = []
     },
-    refresh () {
-      this.queryCourses()
-    },
+    // common
     operationMsg (string, number) {
       switch (string) {
         case 'create': // 异步操作后，没有后续
@@ -364,12 +492,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .operation-section,
-  .table-section {
-    margin-top: 20px;
-    overflow: hidden;
-  }
-
   .form-section {
     width: 40%;
     min-width: 400px;
@@ -377,11 +499,15 @@ export default {
   }
 
   #course-form {
-    margin: 10px;
+    margin: 15px 10px;
   }
 
   .filter-section {
     width: 80%;
+  }
+
+  .radio-label {
+    margin-right: 10px;
   }
 
   .filter-footer {
