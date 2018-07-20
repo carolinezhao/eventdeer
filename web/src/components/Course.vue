@@ -14,7 +14,7 @@
           <div class="form-row">
             <label class="form-label">Start Time</label>
             <div class="form-content">
-              <select v-model="selectedTime">
+              <select v-model="time">
                 <option v-for="timeOption in timeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
               </select>
             </div>
@@ -23,7 +23,7 @@
           <div class="form-row">
             <label class="form-label">Course Type</label>
             <div class="form-content">
-              <select v-model="selectedType">
+              <select v-model="type">
                 <option v-for="typeOption in typeOptions" :key="typeOption.id" :value="typeOption">{{typeOption}}</option>
               </select>
             </div>
@@ -114,14 +114,14 @@ export default {
     return {
       // form content
       date: 'Sun Jul 15 2018', // test
-      selectedTime: 11,
-      selectedType: 'FTClass',
+      time: 11,
+      type: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
       unit: '', // num
       lowerLevel: '', // num
       upperLevel: '', // num
       isVIP: false,
-      formKey: ['date', 'selectedTime', 'selectedType', 'unit', 'lowerLevel', 'upperLevel', 'isVIP'],
+      formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'isVIP'],
       origin: ['Sun Jul 15 2018', 11, 'FTClass', '', '', '', false], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
@@ -148,7 +148,7 @@ export default {
       return continuousNum(11, 20)
     },
     ifShowUnit () {
-      return this.selectedType === 'FTClass'
+      return this.type === 'FTClass'
     },
     vipStr () {
       return (this.isVIP) ? 'Yes' : 'No'
@@ -164,7 +164,7 @@ export default {
       }
     },
     editingForm () {
-      return [this.date, this.selectedTime, this.selectedType, this.unit, this.lowerLevel, this.upperLevel, this.isVIP]
+      return [this.date, this.time, this.type, this.unit, this.lowerLevel, this.upperLevel, this.isVIP]
     },
     // filter
     filters () {
@@ -199,7 +199,6 @@ export default {
         if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
           this.disabledSave = this.disabledCreate // 如果通过了检查，则为 false，激活 save
           this.changedObj = this.diff(this.editing, newValue)
-          console.log(this.changedObj)
         } else {
           this.disabledSave = true
         }
@@ -244,8 +243,8 @@ export default {
     },
     resetForm () {
       this.date = 'Sun Jul 15 2018' // test
-      this.selectedTime = 11
-      this.selectedType = 'FTClass'
+      this.time = 11
+      this.type = 'FTClass'
       this.unit = ''
       this.lowerLevel = ''
       this.upperLevel = ''
@@ -266,11 +265,11 @@ export default {
     createCourse () {
       this.emptySelected()
       // prepare data for backend
-      let time = new Date(`${this.date}, ${this.selectedTime}:00`)
+      let time = new Date(`${this.date}, ${this.time}:00`)
       let unit
       let lowerLevel
       let upperLevel
-      if (this.selectedType === 'FTClass') {
+      if (this.type === 'FTClass') {
         unit = this.unit
         lowerLevel = 0
         upperLevel = 0
@@ -282,9 +281,9 @@ export default {
       // prepare data for frontend
       let displayCourse = {
         date: this.date,
-        time: `${this.selectedTime}:00`,
-        type: this.selectedType,
-        description: (this.selectedType === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
+        time: `${this.time}:00`,
+        type: this.type,
+        description: (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
         isVIP: this.vipStr
       }
       // backend
@@ -292,7 +291,7 @@ export default {
       let Courses = AV.Object.extend('Courses')
       let course = new Courses()
       course.set('time', time)
-      course.set('type', this.selectedType)
+      course.set('type', this.type)
       course.set('unit', unit)
       course.set('lowerLevel', lowerLevel)
       course.set('upperLevel', upperLevel)
@@ -325,8 +324,8 @@ export default {
       this.ifShowForm = true
       // 转换为表单的数据格式
       this.date = obj.date
-      this.selectedTime = Number.parseInt(obj.time)
-      this.selectedType = obj.type
+      this.time = Number.parseInt(obj.time)
+      this.type = obj.type
       if (obj.type === 'FTClass') {
         this.unit = this.getNum(obj.description)
       } else {
@@ -347,20 +346,73 @@ export default {
       return arr
     },
     updateCourse () {
-      // let editingCourse = this.checkedCourses[0]
-      // let index = editingCourse.index // 用于修改前端数据
-      // let id = editingCourse.id // 用于修改后端数据
-      // let obj = this.courses[index] // 前端数据
+      console.log(this.changedObj)
+      let newObj = this.changedObj // 包含改动项目和新值的对象
 
-      // backend
-      // let AV = this.$AV
-      // var course = AV.Object.createWithoutData('Courses', id)
-      // course.set(key, newValue)
-      // course.save()
-      //  .then((course) => {
-      //    frontend
-      //    this.courses[index] = newObj
-      //  })
+      let editingCourse = this.checkedCourses[0]
+      let index = editingCourse.index // 用于修改前端数据
+      let id = editingCourse.id // 用于修改后端数据
+      let obj = this.courses[index]
+
+      let AV = this.$AV
+      var course = AV.Object.createWithoutData('Courses', id)
+
+      for (let key in newObj) {
+        if (obj.hasOwnProperty(key)) {
+          console.log(key)
+          // frontend: date, time, type, description, isVIP
+          // backend: time, type, isVIP
+          switch (key) {
+            case 'date':
+              obj.date = newObj.date
+              if (!newObj.time) {
+                // console.log(newObj.date, obj.time)
+                course.set('time', new Date(`${newObj.date}, ${obj.time}:00`))
+              }
+              break
+            case 'time':
+              obj.time = `${newObj.time}:00`
+              let date = (newObj.date) ? newObj.date : obj.date
+              // console.log(date, newObj.time)
+              course.set('time', new Date(`${date}, ${newObj.time}:00`))
+              break
+            case 'type':
+              obj.type = newObj.type
+              course.set('type', newObj.type)
+              // backend: unit, lowerLevel, upperLevel 直接设置，不经过循环
+              if (newObj.type === 'FTClass') {
+                obj.description = `Unit ${newObj.unit}`
+                course.set('unit', newObj.unit)
+                course.set('lowerLevel', 0)
+                course.set('upperLevel', 0)
+              } else {
+                obj.description = `L${newObj.lowerLevel} - L${newObj.upperLevel}`
+                course.set('unit', 0)
+                course.set('lowerLevel', newObj.lowerLevel)
+                course.set('upperLevel', newObj.upperLevel)
+              }
+              break
+            case 'isVIP':
+              obj.isVIP = (newObj.isVIP) ? 'Yes' : 'No'
+              course.set('isVIP', newObj.isVIP)
+              break
+            default:
+              break
+          }
+        }
+      }
+      console.log(obj)
+
+      course.save()
+        .then((course) => {
+          console.log('updated id = ' + course.id)
+          // frontend
+          this.ifShowForm = false
+          this.courses[index] = obj // 前端展示
+          this.operationMsg('save')
+          this.emptySelected()
+          this.resetForm()
+        })
     },
     // table
     queryCourses () {
@@ -474,6 +526,18 @@ export default {
             let plural = (len === 1) ? 'item' : 'items'
             return `Selected ${len} ${plural}`
           }
+          break
+        case 'refresh': // 异步操作后，没有后续
+          this.resultMsg = `Refreshed Successfully!`
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
+          break
+        case 'save': // 异步操作后，没有后续
+          this.resultMsg = `The change has been saved`
+          setTimeout(() => {
+            this.resultMsg = ''
+          }, 1000)
           break
         case 'remove': // 异步操作后，没有后续
           let plural = (number === 1) ? 'item' : 'items'
