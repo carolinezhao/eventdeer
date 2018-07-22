@@ -40,6 +40,7 @@
               </template>
               <template v-else>
                 <label>Level</label>
+                <!-- .lazy 回车后生效：内容检查体验较好，激活按钮体验变差 -->
                 <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
                 <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
                 <div class="err-msg">{{checkLevel()}}</div>
@@ -100,8 +101,8 @@
 </template>
 
 <script>
-import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
-// import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
+// import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
+import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 export default {
@@ -121,8 +122,8 @@ export default {
       lowerLevel: '', // num
       upperLevel: '', // num
       isVIP: false,
-      formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'isVIP'],
-      origin: ['Sun Jul 15 2018', 11, 'FTClass', '', '', '', false], // 初始值，用于在编辑状态下比较
+      formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'description', 'isVIP'],
+      origin: ['Sun Jul 15 2018', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -150,9 +151,6 @@ export default {
     ifShowUnit () {
       return this.type === 'FTClass'
     },
-    vipStr () {
-      return (this.isVIP) ? 'Yes' : 'No'
-    },
     // form status
     disabledCreate () {
       if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
@@ -164,7 +162,10 @@ export default {
       }
     },
     editingForm () {
-      return [this.date, this.time, this.type, this.unit, this.lowerLevel, this.upperLevel, this.isVIP]
+      return [this.date, this.time, this.type, this.unit, this.lowerLevel, this.upperLevel, this.description, this.isVIP]
+    }, // form items and a combined property(description)
+    description () {
+      return (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`
     },
     // filter
     filters () {
@@ -182,25 +183,25 @@ export default {
   },
   watch: {
     editingForm: {
-      // 编辑时有三种状态：
-      // old初始值，new已有值(打开时)-->不激活save；old已有值，new修改值-->激活save；old修改值，new已有值-->不激活save
       handler (newValue, oldValue) {
-        // 两者不能直接用 == 比较，因为 this.数据中有个 observer (不可迭代)
-        let oldIfOrigin = this.ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
-        console.log(oldIfOrigin)
-        if (oldIfOrigin) { // 打开表格的瞬间执行
-          this.editing = newValue // 已有值
-        }
-        console.log(this.editing)
-        console.log(newValue)
+        // 编辑时有三种状态：
+        // old初始值，new已有值(打开时)-->不激活save；old已有值，new修改值-->激活save；old修改值，new已有值-->不激活save
+        if (!this.ifNewForm) {
+          // 两者不能直接用 == 比较，因为 this.数据中有个 observer (不可迭代)
+          let oldIfOrigin = this.ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
+          if (oldIfOrigin) { // 打开表格的瞬间执行
+            this.editing = newValue // 记录已有值
+          }
+          console.log(newValue)
 
-        let newIfExisted = this.ifSameArray(newValue, this.editing)
-        console.log(newIfExisted)
-        if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
-          this.disabledSave = this.disabledCreate // 如果通过了检查，则为 false，激活 save
-          this.changedObj = this.diff(this.editing, newValue)
-        } else {
-          this.disabledSave = true
+          let newIfExisted = this.ifSameArray(newValue, this.editing)
+          if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
+            this.disabledSave = this.disabledCreate // 如果通过了检查，则为 false，激活 save
+            this.changedObj = this.diff(this.editing, newValue)
+            console.log(this.changedObj)
+          } else {
+            this.disabledSave = true
+          }
         }
       }
     }
@@ -231,25 +232,7 @@ export default {
       })
       return obj
     },
-    // form --> create
-    openForm () {
-      this.ifShowForm = true
-      this.ifNewForm = true
-    },
-    closeForm () {
-      this.ifShowForm = false
-      this.resetForm()
-      this.emptySelected()
-    },
-    resetForm () {
-      this.date = 'Sun Jul 15 2018' // test
-      this.time = 11
-      this.type = 'FTClass'
-      this.unit = ''
-      this.lowerLevel = ''
-      this.upperLevel = ''
-      this.isVIP = false
-    },
+    // check status for 'disabledCreate'
     checkUnit () {
       return checkNumber(this.unit)
     },
@@ -262,40 +245,37 @@ export default {
       }
       return msg1 || msg2 || msg3
     },
+    // form --> create
+    openForm () {
+      this.ifShowForm = true
+      this.ifNewForm = true
+    },
+    closeForm () {
+      this.ifShowForm = false
+      this.resetForm()
+      this.emptySelected()
+    },
+    resetForm () { // <-- create / edit / cancel
+      this.date = 'Sun Jul 15 2018' // test
+      this.time = 11
+      this.type = 'FTClass'
+      this.unit = ''
+      this.lowerLevel = ''
+      this.upperLevel = ''
+      this.isVIP = false
+    },
     createCourse () {
       this.emptySelected()
-      // prepare data for backend
-      let time = new Date(`${this.date}, ${this.time}:00`)
-      let unit
-      let lowerLevel
-      let upperLevel
-      if (this.type === 'FTClass') {
-        unit = this.unit
-        lowerLevel = 0
-        upperLevel = 0
-      } else {
-        unit = 0
-        lowerLevel = this.lowerLevel
-        upperLevel = this.upperLevel
-      }
-      // prepare data for frontend
-      let displayCourse = {
-        date: this.date,
-        time: `${this.time}:00`,
-        type: this.type,
-        description: (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
-        isVIP: this.vipStr
-      }
+      let displayCourse = this.formToTable() // data for table
+      let saveCourse = this.formToBackend() // data for backend
+      // console.log(saveCourse)
       // backend
       let AV = this.$AV
       let Courses = AV.Object.extend('Courses')
       let course = new Courses()
-      course.set('time', time)
-      course.set('type', this.type)
-      course.set('unit', unit)
-      course.set('lowerLevel', lowerLevel)
-      course.set('upperLevel', upperLevel)
-      course.set('isVIP', this.isVIP)
+      for (let key in saveCourse) {
+        course.set(key, saveCourse[key])
+      }
       course.save()
         .then((course) => {
           // frontend
@@ -308,21 +288,50 @@ export default {
         })
         .catch(console.error())
     },
+    formToTable () {
+      return {
+        date: this.date,
+        time: `${this.time}:00`,
+        type: this.type,
+        description: (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
+        isVIP: (this.isVIP) ? 'Yes' : 'No'
+      }
+    },
+    formToBackend () {
+      let unit
+      let lowerLevel
+      let upperLevel
+      if (this.type === 'FTClass') {
+        unit = this.unit
+        lowerLevel = 0
+        upperLevel = 0
+      } else {
+        unit = 0
+        lowerLevel = this.lowerLevel
+        upperLevel = this.upperLevel
+      }
+      return {
+        time: new Date(`${this.date}, ${this.time}:00`),
+        type: this.type,
+        unit: unit,
+        lowerLevel: lowerLevel,
+        upperLevel: upperLevel,
+        isVIP: this.isVIP
+      }
+    },
     // form --> edit
     editForm () {
       if (this.checkedCourses.length !== 1) {
         alert('Please select one item to edit')
       } else {
+        this.ifShowForm = true
         this.ifNewForm = false
         let index = this.checkedCourses[0].index
-        let obj = this.courses[index] // 前端展示的
-        // console.log(obj)
-        this.setFormContent(obj)
+        let tableObj = this.courses[index]
+        this.tableToForm(tableObj)
       }
     },
-    setFormContent (obj) {
-      this.ifShowForm = true
-      // 转换为表单的数据格式
+    tableToForm (obj) {
       this.date = obj.date
       this.time = Number.parseInt(obj.time)
       this.type = obj.type
@@ -339,80 +348,76 @@ export default {
     },
     levelNum (string) {
       let arr = string.split(' - ')
-      // map 和 forEach 都拿不到 this？？
-      arr[0] = this.getNum(arr[0])
-      arr[1] = this.getNum(arr[1])
-      console.log(arr)
-      return arr
+      return [this.getNum(arr[0]), this.getNum(arr[1])]
     },
     updateCourse () {
-      console.log(this.changedObj)
-      let newObj = this.changedObj // 包含改动项目和新值的对象
-
-      let editingCourse = this.checkedCourses[0]
-      let index = editingCourse.index // 用于修改前端数据
-      let id = editingCourse.id // 用于修改后端数据
-      let obj = this.courses[index]
+      let courseInfo = this.checkedCourses[0]
+      let id = courseInfo.id // for backend data
+      let index = courseInfo.index // for table data
+      let tableObj = this.courses[index]
 
       let AV = this.$AV
-      var course = AV.Object.createWithoutData('Courses', id)
+      let course = AV.Object.createWithoutData('Courses', id)
 
-      for (let key in newObj) {
-        if (obj.hasOwnProperty(key)) {
-          console.log(key)
-          // frontend: date, time, type, description, isVIP
-          // backend: time, type, isVIP
-          switch (key) {
-            case 'date':
-              obj.date = newObj.date
-              if (!newObj.time) {
-                // console.log(newObj.date, obj.time)
-                course.set('time', new Date(`${newObj.date}, ${obj.time}:00`))
-              }
-              break
-            case 'time':
-              obj.time = `${newObj.time}:00`
-              let date = (newObj.date) ? newObj.date : obj.date
-              // console.log(date, newObj.time)
-              course.set('time', new Date(`${date}, ${newObj.time}:00`))
-              break
-            case 'type':
-              obj.type = newObj.type
-              course.set('type', newObj.type)
-              // backend: unit, lowerLevel, upperLevel 直接设置，不经过循环
-              if (newObj.type === 'FTClass') {
-                obj.description = `Unit ${newObj.unit}`
-                course.set('unit', newObj.unit)
-                course.set('lowerLevel', 0)
-                course.set('upperLevel', 0)
-              } else {
-                obj.description = `L${newObj.lowerLevel} - L${newObj.upperLevel}`
-                course.set('unit', 0)
-                course.set('lowerLevel', newObj.lowerLevel)
-                course.set('upperLevel', newObj.upperLevel)
-              }
-              break
-            case 'isVIP':
-              obj.isVIP = (newObj.isVIP) ? 'Yes' : 'No'
-              course.set('isVIP', newObj.isVIP)
-              break
-            default:
-              break
-          }
-        }
-      }
-      console.log(obj)
+      // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
+      this.updateEditedKeys(this.changedObj, tableObj, course)
+      console.log(tableObj)
 
       course.save()
         .then((course) => {
           console.log('updated id = ' + course.id)
           // frontend
           this.ifShowForm = false
-          this.courses[index] = obj // 前端展示
+          this.courses[index] = tableObj
           this.operationMsg('save')
           this.emptySelected()
           this.resetForm()
         })
+    },
+    updateEditedKeys (changedObj, tableObj, backObj) {
+      for (let key in changedObj) {
+        if (!tableObj.hasOwnProperty(key)) { // unit, lowerLevel, upperLevel
+          console.log(key)
+          backObj.set(key, changedObj[key])
+        } else { // date, time, type, description, isVIP
+          console.log(key)
+          switch (key) {
+            case 'date':
+              tableObj.date = changedObj.date
+              if (!changedObj.time) {
+                // console.log(changedObj.date, obj.time)
+                backObj.set('time', new Date(`${changedObj.date}, ${tableObj.time}:00`))
+              }
+              break
+            case 'time':
+              tableObj.time = `${changedObj.time}:00`
+              let date = (changedObj.date) ? changedObj.date : tableObj.date
+              // console.log(date, changedObj.time)
+              backObj.set('time', new Date(`${date}, ${changedObj.time}:00`))
+              break
+            case 'type':
+              tableObj.type = changedObj.type
+              backObj.set('type', changedObj.type)
+              // type 变化一定会带动 unit / lowerLevel & upperLevel 变，反之不成立
+              if (changedObj.type === 'FTClass') {
+                backObj.set('lowerLevel', 0)
+                backObj.set('upperLevel', 0)
+              } else {
+                backObj.set('unit', 0)
+              }
+              break
+            case 'description': // only for table
+              tableObj.description = changedObj.description
+              break
+            case 'isVIP':
+              tableObj.isVIP = (changedObj.isVIP) ? 'Yes' : 'No'
+              backObj.set('isVIP', changedObj.isVIP)
+              break
+            default:
+              break
+          }
+        }
+      }
     },
     // table
     queryCourses () {
@@ -420,28 +425,30 @@ export default {
       let AV = this.$AV
       let queryCourses = new AV.Query('Courses')
       // for production
-      // queryCourses.greaterThanOrEqualTo('time', formatTime('today'))
+      queryCourses.greaterThanOrEqualTo('time', formatTime('today'))
       queryCourses.ascending('time')
         .find()
         .then(courses => {
           // console.log(courses)
-          let newCourses = courses.map(item => {
-            // attributes 中是自定义属性
-            let course = item.attributes
-            let newCourse = {}
-            // match the order of colTitle
-            newCourse.date = displayDate(course.time) // add
-            newCourse.time = displayTime(course.time) // revise
-            newCourse.type = course.type
-            newCourse.description = (course.type === 'FTClass') ? `Unit ${course.unit}` : `L${course.lowerLevel} - L${course.upperLevel}` // add
-            newCourse.isVIP = course.isVIP ? 'Yes' : 'No' // revise
-            newCourse.id = item.id // 存储对象时自动分配的 id
-            return newCourse
-          })
-          // console.log(newCourses)
-          this.courses = newCourses
+          // console.log(this.backendToTable(courses))
+          this.courses = this.backendToTable(courses)
         })
         .catch(console.error())
+    },
+    backendToTable (objsArray) {
+      return objsArray.map(item => {
+        // attributes 中是自定义属性
+        let course = item.attributes
+        // match the order of colTitle <-- need to be revised
+        return {
+          date: displayDate(course.time),
+          time: displayTime(course.time),
+          type: course.type,
+          description: (course.type === 'FTClass') ? `Unit ${course.unit}` : `L${course.lowerLevel} - L${course.upperLevel}`,
+          isVIP: course.isVIP ? 'Yes' : 'No',
+          id: item.id // 存储对象时自动分配的 id
+        }
+      })
     },
     confirmRemove () {
       if (!this.checkedCourses.length) {
@@ -486,15 +493,15 @@ export default {
         this.tempCourses = this.courses
         let key
         let value
-        for (let item of conditionArr) {
-        // conditionArr.forEach(function (item) { // cannot get 'this'
+        // for (let item of conditionArr) { // work
+        conditionArr.forEach(item => { // function cannot get outer 'this'
           key = item.key
           value = item.value
           this.courses = this.courses.filter(function (targetObj) {
             // typeof key === 'string'
             return targetObj[key] === value
           })
-        }
+        })
         let count = this.courses.length
         if (count) {
           let plural = (count === 1) ? 'result' : 'results'
