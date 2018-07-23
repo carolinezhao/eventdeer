@@ -42,9 +42,10 @@ export default {
   }
 
   button[disabled] {
-    opacity: .5; /* 会导致穿透 modal window */
+    opacity: .5;
     pointer-events: none;
-    cursor: not-allowed;
+    /* cursor: not-allowed; */
+    cursor: default;
   }
 
   input[type="file"] {
@@ -154,18 +155,21 @@ export default {
     align-items: center;
   }
 
-  /* form for Course and Event */
+  /* modal window for form and msg */
 
-  .form-container {
+  .modal-container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-color: rgba(66, 66, 66, 0.7);
     position: absolute;
     left: 0;
     top: 0;
+    z-index: 100;
     box-sizing: border-box;
-    padding-bottom: 10%;
+    padding: 3% 0 4%;
   }
+
+  /* form for Course and Event */
 
   .form-section {
     border: 2px solid #bfcbd9;
@@ -176,13 +180,14 @@ export default {
 
   .form-title {
     border-bottom: 1px solid #bfcbd9;
-    height: 45px;
+    height: 50px;
     font-weight: 500;
+    font-size: 17px;
   }
 
   .form-footer {
     border-top: 1px solid #bfcbd9;
-    height: 50px;
+    height: 55px;
     padding-left: 10px;
     align-items: center;
     justify-content: flex-end;
@@ -217,7 +222,32 @@ export default {
     padding: 10px;
   }
 
-  /* msg: err-msg for form; operation-msg for table */
+  /* common sections */
+
+  .operation-section {
+    margin-top: 30px;
+    overflow: hidden;
+  }
+
+  .modal-container.light {
+    background-color: initial;
+    padding-bottom: 25%;
+  }
+
+  .msg-section {
+    height: 50px;
+    width: 400px;
+    justify-content: space-around;
+    align-items: center;
+    border-color: #a5dc86;
+    background-color: #e7f5e0;
+    box-shadow: 0 0 2px 2px #bfcbd962;
+  }
+
+  /* msg:
+     err-msg for form;
+     operation-msg for filter, table select;
+     modal-msg for create, edit, remove */
 
   .err-msg {
     color: #f66;
@@ -227,5 +257,14 @@ export default {
   .operation-msg {
     font-weight: 300;
     font-size: 14px;
+  }
+
+  .select-msg {
+    height: 20px;
+    margin-top: 10px;
+  }
+
+  .modal-msg {
+    font-size: 16px;
   }
 </style>

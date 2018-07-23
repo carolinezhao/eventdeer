@@ -1,6 +1,6 @@
 <template>
   <div>
-    <section class="form-container flex-center" v-if="ifShowForm">
+    <section class="modal-container flex-center" v-if="ifShowForm">
       <section class="form-section flex-col">
         <div class="form-title flex-center">New Course</div>
         <form id="course-form">
@@ -61,7 +61,7 @@
 
         <div class="form-footer flex">
           <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-button small-button" v-if="ifNewForm" :disabled="disabledCreate" @click="createCourse">Create</button>
+          <button type="submit" class="main-button small-button" v-if="ifNewForm" :disabled="ifDisabled" @click="createCourse">Create</button>
           <button type="submit" class="main-button small-button" v-if="!ifNewForm" :disabled="disabledSave" @click="updateCourse">Save</button>
         </div>
       </section>
@@ -85,11 +85,15 @@
       <button class="primary-button small-button" @click="refresh">Refresh</button>
       <button class="primary-button small-button"  @click="editForm">Edit</button>
       <button class="danger-button small-button" @click="confirmRemove">Remove</button>
-
-      <div class="operation-msg">{{operationMsg('select')}}</div>
-      <div class="operation-msg">{{resultMsg}}</div>
+      <div class="operation-msg select-msg">{{selectMsg}}</div>
       <!-- for debug -->
-      <div class="operation-msg">test: {{checkedCourses}}</div>
+      <!-- <div class="operation-msg">test: {{checkedCourses}}</div> -->
+    </section>
+
+    <section class="modal-container light flex-center" v-if="resultMsg">
+      <section class="msg-section card flex-col">
+        <div class="modal-msg">{{resultMsg}}</div>
+      </section>
     </section>
 
     <section class="table-section">
@@ -152,7 +156,7 @@ export default {
       return this.type === 'FTClass'
     },
     // form status
-    disabledCreate () {
+    ifDisabled () {
       if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
         return true
       } else if (this.checkLevel() || this.checkUnit()) {
@@ -166,6 +170,14 @@ export default {
     }, // form items and a combined property(description)
     description () {
       return (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`
+    },
+    // table select
+    selectMsg () {
+      let len = this.checkedCourses.length
+      if (len) {
+        let plural = (len === 1) ? 'item' : 'items'
+        return `Selected ${len} ${plural}`
+      }
     },
     // filter
     filters () {
@@ -196,7 +208,7 @@ export default {
 
           let newIfExisted = this.ifSameArray(newValue, this.editing)
           if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
-            this.disabledSave = this.disabledCreate // 如果通过了检查，则为 false，激活 save
+            this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
             this.changedObj = this.diff(this.editing, newValue)
             console.log(this.changedObj)
           } else {
@@ -232,7 +244,7 @@ export default {
       })
       return obj
     },
-    // check status for 'disabledCreate'
+    // check status for 'ifDisabled'
     checkUnit () {
       return checkNumber(this.unit)
     },
@@ -519,43 +531,30 @@ export default {
       this.tempCourses = []
     },
     // common
-    operationMsg (string, number) {
+    operationMsg (string, number) { // 均在异步操作后调用
       switch (string) {
-        case 'create': // 异步操作后，没有后续
+        case 'create':
           this.resultMsg = 'Created Successfully!'
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
           break
-        case 'select': // 点击操作时，有后续操作
-          let len = this.checkedCourses.length
-          if (len) {
-            let plural = (len === 1) ? 'item' : 'items'
-            return `Selected ${len} ${plural}`
-          }
+        // case 'refresh':
+        //   this.resultMsg = `Refreshed Successfully!`
+        //   break
+        case 'save':
+          this.resultMsg = `The change has been saved.`
           break
-        case 'refresh': // 异步操作后，没有后续
-          this.resultMsg = `Refreshed Successfully!`
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
-          break
-        case 'save': // 异步操作后，没有后续
-          this.resultMsg = `The change has been saved`
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
-          break
-        case 'remove': // 异步操作后，没有后续
+        case 'remove':
           let plural = (number === 1) ? 'item' : 'items'
-          this.resultMsg = `Removed ${number} ${plural}`
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
+          this.resultMsg = `Removed ${number} ${plural}.`
+          break
+        case 'fail':
+          this.resultMsg = 'The operation failed. Please try again later.'
           break
         default:
           break
       }
+      setTimeout(() => {
+        this.resultMsg = ''
+      }, 2000)
     }
   }
 }
@@ -589,5 +588,7 @@ export default {
 
   .table-section {
     width: 80%;
+    margin-top: 10px;
+    overflow: hidden;
   }
 </style>
