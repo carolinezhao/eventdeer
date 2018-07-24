@@ -95,35 +95,35 @@ export default {
 
   /* button color */
 
-  .primary-button {
+  .primary-btn {
     background-color: #fff;
   }
 
-  .primary-button:hover {
+  .primary-btn:hover {
     border-color: #42b983;
     color: #42b983;
     transition: all .5s;
   }
 
-  .main-button {
+  .main-btn {
     background-color: #42b983;
     border-color: #42b983;
     color: #fff;
   }
 
-  .main-button:hover {
+  .main-btn:hover {
     background-color: #309c6b;
     border-color: #309c6b;
     transition: all .5s;
   }
 
-  .danger-button {
+  .danger-btn {
     background-color: #f66;
     border-color: #f66;
     color: #fff;
   }
 
-  .danger-button:hover {
+  .danger-btn:hover {
     background-color: #e04e4e;
     border-color: #e04e4e;
     transition: all .5s;
@@ -131,7 +131,7 @@ export default {
 
   /* button size */
 
-  .small-button {
+  .small-btn {
     font-size: 14px;
     width: 70px;
     height: 27px;
@@ -237,8 +237,6 @@ export default {
   .msg-section {
     height: 50px;
     width: 400px;
-    justify-content: space-around;
-    align-items: center;
     border-color: #a5dc86;
     background-color: #e7f5e0;
     box-shadow: 0 0 2px 2px #bfcbd962;
@@ -246,8 +244,7 @@ export default {
 
   /* msg:
      err-msg for form;
-     operation-msg for filter, table select;
-     modal-msg for create, edit, remove */
+     operation-msg for filter, table select */
 
   .err-msg {
     color: #f66;
@@ -262,9 +259,5 @@ export default {
   .select-msg {
     height: 20px;
     margin-top: 10px;
-  }
-
-  .modal-msg {
-    font-size: 16px;
   }
 </style>

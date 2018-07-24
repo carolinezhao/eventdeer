@@ -60,9 +60,9 @@
         </form>
 
         <div class="form-footer flex">
-          <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-button small-button" v-if="ifNewForm" :disabled="ifDisabled" @click="createCourse">Create</button>
-          <button type="submit" class="main-button small-button" v-if="!ifNewForm" :disabled="disabledSave" @click="updateCourse">Save</button>
+          <button type="button" class="primary-btn small-btn" @click="closeForm">Cancel</button>
+          <button type="submit" class="main-btn small-btn" v-if="ifNewForm" :disabled="ifDisabled" @click="createCourse">Create</button>
+          <button type="submit" class="main-btn small-btn" v-if="!ifNewForm" :disabled="disabledSave" @click="updateCourse">Save</button>
         </div>
       </section>
     </section>
@@ -71,29 +71,23 @@
       <course-filter ref="filter" :filters="filters" v-model="selectedFilter"></course-filter>
       <div class="filter-footer card flex">
         <template v-if="tempCourses.length">
-          <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
+          <button class="primary-btn small-btn" @click="cancelFilter">Cancel</button>
         </template>
         <template v-else>
-          <button class="main-button small-button" @click="filterCourses(selectedFilter)">Filter</button>
+          <button class="main-btn small-btn" @click="filterCourses(selectedFilter)">Filter</button>
         </template>
         <div class="operation-msg">{{filterMsg}}</div>
       </div>
     </section>
 
     <section class="operation-section">
-      <button class="main-button small-button" @click="openForm">Create</button>
-      <button class="primary-button small-button" @click="refresh">Refresh</button>
-      <button class="primary-button small-button"  @click="editForm">Edit</button>
-      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
+      <button class="main-btn small-btn" @click="openForm">Create</button>
+      <button class="primary-btn small-btn" @click="refresh">Refresh</button>
+      <button class="primary-btn small-btn"  @click="editForm">Edit</button>
+      <button class="danger-btn small-btn" @click="confirmRemove">Remove</button>
       <div class="operation-msg select-msg">{{selectMsg}}</div>
       <!-- for debug -->
       <!-- <div class="operation-msg">test: {{checkedCourses}}</div> -->
-    </section>
-
-    <section class="modal-container light flex-center" v-if="resultMsg">
-      <section class="msg-section card flex-col">
-        <div class="modal-msg">{{resultMsg}}</div>
-      </section>
     </section>
 
     <section class="table-section">
@@ -101,6 +95,14 @@
       <!-- for production -->
       <!-- <div>Courses since today (00:00)</div> -->
     </section>
+
+    <section class="modal-container light flex-center" v-if="resultMsg">
+      <section class="msg-section card flex-center">
+        <div class="modal-msg">{{resultMsg}}</div>
+      </section>
+    </section>
+
+    <modal :confirmMsg="confirmMsg" :isAlert="isAlert" @close="closeAlert" @confirm="execute"></modal>
   </div>
 </template>
 
@@ -109,16 +111,18 @@
 import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
+import Modal from '@/components/Modal'
 export default {
   name: 'course',
   components: {
     courseTable: Table,
-    courseFilter: Filter
+    courseFilter: Filter,
+    modal: Modal
   },
   data () {
     return {
       // form content
-      date: 'Sun Jul 15 2018', // test
+      date: 'Wed Aug 1 2018', // test
       time: 11,
       type: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
@@ -127,7 +131,7 @@ export default {
       upperLevel: '', // num
       isVIP: false,
       formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'description', 'isVIP'],
-      origin: ['Sun Jul 15 2018', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
+      origin: ['Wed Aug 1 2018', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -141,6 +145,9 @@ export default {
       checkedCourses: [],
       // msg
       resultMsg: '',
+      confirmMsg: '',
+      isAlert: false,
+      // confirmResult: false,
       // filter
       selectedFilter: [],
       tempCourses: [],
@@ -204,13 +211,13 @@ export default {
           if (oldIfOrigin) { // 打开表格的瞬间执行
             this.editing = newValue // 记录已有值
           }
-          console.log(newValue)
+          // console.log(newValue)
 
           let newIfExisted = this.ifSameArray(newValue, this.editing)
           if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
             this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
             this.changedObj = this.diff(this.editing, newValue)
-            console.log(this.changedObj)
+            // console.log(this.changedObj)
           } else {
             this.disabledSave = true
           }
@@ -268,7 +275,7 @@ export default {
       this.emptySelected()
     },
     resetForm () { // <-- create / edit / cancel
-      this.date = 'Sun Jul 15 2018' // test
+      this.date = 'Wed Aug 1 2018' // test
       this.time = 11
       this.type = 'FTClass'
       this.unit = ''
@@ -334,7 +341,7 @@ export default {
     // form --> edit
     editForm () {
       if (this.checkedCourses.length !== 1) {
-        alert('Please select one item to edit')
+        this.alert('Please select one item to edit.')
       } else {
         this.ifShowForm = true
         this.ifNewForm = false
@@ -464,13 +471,15 @@ export default {
     },
     confirmRemove () {
       if (!this.checkedCourses.length) {
-        alert("You haven't chosen any data.")
+        this.alert("You haven't chosen any data.")
       } else {
-        let result = window.confirm('Are you sure you want to remove checked data?')
-        if (result) {
-          this.removeCourses(this.courses, this.checkedCourses, 'Courses')
-        }
+        // this.confirm('Are you sure you want to remove checked data?')
+        this.confirmMsg = 'Are you sure you want to remove checked data?'
       }
+    },
+    execute () { // temp
+      this.confirmMsg = ''
+      this.removeCourses(this.courses, this.checkedCourses, 'Courses')
     },
     removeCourses (currentArr, targetArr, tableName) {
       let AV = this.$AV
@@ -500,7 +509,7 @@ export default {
     // filter
     filterCourses (conditionArr) {
       if (!conditionArr.length) {
-        alert("You haven't chosen any filters.")
+        this.alert("You haven't chosen any filters.")
       } else {
         this.tempCourses = this.courses
         let key
@@ -531,10 +540,18 @@ export default {
       this.tempCourses = []
     },
     // common
+    alert (msg) {
+      this.confirmMsg = msg
+      this.isAlert = true
+    },
+    closeAlert () {
+      this.confirmMsg = ''
+      this.isAlert = false
+    },
     operationMsg (string, number) { // 均在异步操作后调用
       switch (string) {
         case 'create':
-          this.resultMsg = 'Created Successfully!'
+          this.resultMsg = 'Created successfully!'
           break
         // case 'refresh':
         //   this.resultMsg = `Refreshed Successfully!`
@@ -544,7 +561,7 @@ export default {
           break
         case 'remove':
           let plural = (number === 1) ? 'item' : 'items'
-          this.resultMsg = `Removed ${number} ${plural}.`
+          this.resultMsg = `Removed ${number} ${plural} successfully.`
           break
         case 'fail':
           this.resultMsg = 'The operation failed. Please try again later.'
