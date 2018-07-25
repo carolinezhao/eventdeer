@@ -213,6 +213,11 @@ export default {
     padding-right: 20px;
   }
 
+  .form-msg {
+    color: #f66;
+    font-size: 12px;
+  }
+
   /* common styles */
 
   .card {
@@ -229,29 +234,10 @@ export default {
     overflow: hidden;
   }
 
-  .modal-container.light {
-    background-color: initial;
-    padding-bottom: 25%;
-  }
+  /* msg */
 
-  .msg-section {
-    height: 50px;
-    width: 400px;
-    border-color: #a5dc86;
-    background-color: #e7f5e0;
-    box-shadow: 0 0 2px 2px #bfcbd962;
-  }
-
-  /* msg:
-     err-msg for form;
-     operation-msg for filter, table select */
-
-  .err-msg {
-    color: #f66;
-    font-size: 12px;
-  }
-
-  .operation-msg {
+  .filter-msg,
+  .select-msg {
     font-weight: 300;
     font-size: 14px;
   }
