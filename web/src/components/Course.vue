@@ -36,14 +36,14 @@
               <template v-if="ifShowUnit">
                 <label>Unit</label>
                 <input type="text" class="short-input" maxlength="2" v-model.number="unit">
-                <div class="err-msg">{{checkUnit()}}</div>
+                <div class="form-msg">{{checkUnit()}}</div>
               </template>
               <template v-else>
                 <label>Level</label>
                 <!-- .lazy 回车后生效：内容检查体验较好，激活按钮体验变差 -->
                 <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
                 <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
-                <div class="err-msg">{{checkLevel()}}</div>
+                <div class="form-msg">{{checkLevel()}}</div>
               </template>
             </div>
           </div>
@@ -76,7 +76,7 @@
         <template v-else>
           <button class="main-btn small-btn" @click="filterCourses(selectedFilter)">Filter</button>
         </template>
-        <div class="operation-msg">{{filterMsg}}</div>
+        <div class="filter-msg">{{filterMsg}}</div>
       </div>
     </section>
 
@@ -85,9 +85,9 @@
       <button class="primary-btn small-btn" @click="refresh">Refresh</button>
       <button class="primary-btn small-btn"  @click="editForm">Edit</button>
       <button class="danger-btn small-btn" @click="confirmRemove">Remove</button>
-      <div class="operation-msg select-msg">{{selectMsg}}</div>
+      <div class="select-msg">{{selectMsg}}</div>
       <!-- for debug -->
-      <!-- <div class="operation-msg">test: {{checkedCourses}}</div> -->
+      <!-- <div>test: {{checkedCourses}}</div> -->
     </section>
 
     <section class="table-section">
@@ -96,13 +96,9 @@
       <!-- <div>Courses since today (00:00)</div> -->
     </section>
 
-    <section class="modal-container light flex-center" v-if="resultMsg">
-      <section class="msg-section card flex-center">
-        <div class="modal-msg">{{resultMsg}}</div>
-      </section>
-    </section>
+    <course-dialog :dialog="dialogMsg" :isAlert="isAlert" @confirm="execute" @close="closeAlert"></course-dialog>
 
-    <modal :confirmMsg="confirmMsg" :isAlert="isAlert" @close="closeAlert" @confirm="execute"></modal>
+    <course-message :message="resultMsg"></course-message>
   </div>
 </template>
 
@@ -111,13 +107,15 @@
 import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
-import Modal from '@/components/Modal'
+import Dialog from '@/components/Dialog'
+import Message from '@/components/Message'
 export default {
   name: 'course',
   components: {
     courseTable: Table,
     courseFilter: Filter,
-    modal: Modal
+    courseDialog: Dialog,
+    courseMessage: Message
   },
   data () {
     return {
@@ -138,16 +136,16 @@ export default {
       ifShowForm: false,
       ifNewForm: true,
       disabledSave: true,
-      // for table component
+      // table component
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
       courses: [],
       // from table component to manipulate
       checkedCourses: [],
-      // msg
+      // msg component
       resultMsg: '',
-      confirmMsg: '',
+      // dialog component
+      dialogMsg: '',
       isAlert: false,
-      // confirmResult: false,
       // filter
       selectedFilter: [],
       tempCourses: [],
@@ -300,12 +298,15 @@ export default {
           // frontend
           this.ifShowForm = false
           displayCourse.id = course.id // id 是存储成功后生成的
-          console.log('id is ' + displayCourse.id)
+          // console.log('id is ' + displayCourse.id)
           this.operationMsg('create')
           this.courses.unshift(displayCourse)
           this.resetForm()
         })
-        .catch(console.error())
+        .catch(() => {
+          this.operationMsg('fail')
+          console.error()
+        })
     },
     formToTable () {
       return {
@@ -380,17 +381,20 @@ export default {
 
       // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
       this.updateEditedKeys(this.changedObj, tableObj, course)
-      console.log(tableObj)
+      // console.log(tableObj)
 
       course.save()
         .then((course) => {
-          console.log('updated id = ' + course.id)
+          // console.log('updated id = ' + course.id)
           // frontend
           this.ifShowForm = false
           this.courses[index] = tableObj
           this.operationMsg('save')
           this.emptySelected()
           this.resetForm()
+        }).catch(() => {
+          this.operationMsg('fail')
+          console.error()
         })
     },
     updateEditedKeys (changedObj, tableObj, backObj) {
@@ -399,7 +403,7 @@ export default {
           console.log(key)
           backObj.set(key, changedObj[key])
         } else { // date, time, type, description, isVIP
-          console.log(key)
+          // console.log(key)
           switch (key) {
             case 'date':
               tableObj.date = changedObj.date
@@ -438,7 +442,7 @@ export default {
         }
       }
     },
-    // table
+    // table --> get
     queryCourses () {
       // console.log('queryCourses starts')
       let AV = this.$AV
@@ -469,17 +473,25 @@ export default {
         }
       })
     },
+    // table --> remove
     confirmRemove () {
       if (!this.checkedCourses.length) {
         this.alert("You haven't chosen any data.")
       } else {
-        // this.confirm('Are you sure you want to remove checked data?')
-        this.confirmMsg = 'Are you sure you want to remove checked data?'
+        this.dialogMsg = 'Are you sure you want to remove checked data?'
+        this.$dialog.confirm({})
+          .then((value) => {
+            console.log(value)
+            this.dialogMsg = ''
+            this.removeCourses(this.courses, this.checkedCourses, 'Courses')
+          }).catch((value) => {
+            console.log(value)
+          })
       }
     },
-    execute () { // temp
-      this.confirmMsg = ''
-      this.removeCourses(this.courses, this.checkedCourses, 'Courses')
+    execute () {
+      // promise resolve() main.js
+      this.$dialog.util.promiseResolver('run')
     },
     removeCourses (currentArr, targetArr, tableName) {
       let AV = this.$AV
@@ -501,7 +513,10 @@ export default {
         })
         this.operationMsg('remove', targetArr.length)
         this.emptySelected()
-      }).catch(console.error())
+      }).catch(() => {
+        this.operationMsg('fail')
+        console.error()
+      })
     },
     refresh () {
       this.queryCourses()
@@ -541,30 +556,42 @@ export default {
     },
     // common
     alert (msg) {
-      this.confirmMsg = msg
+      this.dialogMsg = msg
       this.isAlert = true
     },
     closeAlert () {
-      this.confirmMsg = ''
+      this.dialogMsg = ''
       this.isAlert = false
     },
     operationMsg (string, number) { // 均在异步操作后调用
       switch (string) {
         case 'create':
-          this.resultMsg = 'Created successfully!'
+          this.resultMsg = {
+            text: 'Created successfully!',
+            type: 'success'
+          }
           break
         // case 'refresh':
         //   this.resultMsg = `Refreshed Successfully!`
         //   break
         case 'save':
-          this.resultMsg = `The change has been saved.`
+          this.resultMsg = {
+            text: 'The change has been saved.',
+            type: 'success'
+          }
           break
         case 'remove':
           let plural = (number === 1) ? 'item' : 'items'
-          this.resultMsg = `Removed ${number} ${plural} successfully.`
+          this.resultMsg = {
+            text: `Removed ${number} ${plural} successfully.`,
+            type: 'success'
+          }
           break
         case 'fail':
-          this.resultMsg = 'The operation failed. Please try again later.'
+          this.resultMsg = {
+            text: 'The operation failed. Please try again later.',
+            type: 'fail'
+          }
           break
         default:
           break

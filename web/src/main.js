@@ -17,9 +17,36 @@ AV.init({
   appKey: APP_KEY
 })
 
-Vue.config.productionTip = false
 // 全局
 Vue.prototype.$AV = AV
+
+// dialog
+class Dialog {
+  constructor () {
+    this.util = {}
+  }
+  confirm (util = {}) {
+    return new Promise((resolve, reject) => {
+      // util.id = 'dialog.' + Date.now()
+      util.promiseResolver = resolve
+      util.promiseRejecter = reject
+      this.util = util
+      // console.log(util)
+    })
+  }
+}
+
+Vue.dialog = new Dialog(Vue, {})
+
+Object.defineProperties(Vue.prototype, {
+  $dialog: {
+    get () {
+      return Vue.dialog
+    }
+  }
+})
+
+Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({

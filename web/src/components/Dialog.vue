@@ -1,12 +1,12 @@
 <template>
-  <div class="modal-container light flex-center" v-if="confirmMsg">
+  <div class="modal-container light flex-center" v-if="dialog">
     <transition>
-    <section class="modal-section card flex-col">
-      <div class="modal-content flex-center modal-msg">{{confirmMsg}}</div>
-      <div class="modal-footer flex">
+    <section class="dialog-section card flex-col">
+      <div class="dialog-content dialog-msg flex-center">{{dialog}}</div>
+      <div class="dialog-footer flex">
+        <button class="main-btn small-btn" v-if="isAlert" @click="$emit('close')">OK</button>
         <button class="primary-btn small-btn" v-if="!isAlert" @click="$emit('close')">Cancel</button>
         <button class="main-btn small-btn" v-if="!isAlert" @click="$emit('confirm')">Confirm</button>
-        <button class="main-btn small-btn" v-if="isAlert" @click="$emit('close')">OK</button>
       </div>
     </section>
     </transition>
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  props: ['confirmMsg', 'isAlert'],
+  props: ['dialog', 'isAlert'],
   data () {
     return {
     }
@@ -24,24 +24,29 @@ export default {
 </script>
 
 <style scoped>
-  .modal-section {
+  .modal-container.light {
+    background-color: initial;
+    padding-bottom: 25%;
+  }
+
+  .dialog-section {
     height: 200px;
     width: 450px;
     background-color: #fff;
     box-shadow: 0 0 2px 2px #bfcbd962;
   }
 
-  .modal-content {
+  .dialog-content {
     height: 145px;
   }
 
-  .modal-footer {
+  .dialog-footer {
     height: 55px;
     align-items: center;
     justify-content: flex-end;
   }
 
-  .modal-msg {
+  .dialog-msg {
     font-size: 16px;
   }
 </style>
