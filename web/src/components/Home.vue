@@ -7,12 +7,12 @@
       <div class="navbar flex-col">
         <template v-for="nav in navs">
           <!-- to='string' :to='js' -->
-          <router-link :to="{name: nav.toLowerCase()}" v-bind:key="nav.id">
+          <router-link :to="{name: nav.toLowerCase()}" :key="nav.id">
             <div class="nav-inner">{{nav}}</div>
           </router-link>
         </template>
       </div>
-      <div class="nav-logout" v-on:click="logout">Logout</div>
+      <div class="nav-logout" @click="logout">Logout</div>
     </section>
 
     <section class="navbar-placeholder"></section>
@@ -22,23 +22,43 @@
         <router-view></router-view>
       </transition>
     </section>
+
+    <home-dialog :dialog="dialogMsg" :isAlert="isAlert" @confirm="execute" @close="close"></home-dialog>
   </div>
 </template>
 
 <script>
+import Dialog from '@/components/Dialog'
 export default {
   name: 'home',
+  components: {
+    homeDialog: Dialog
+  },
   data () {
     return {
-      navs: ['Course', 'Event']
+      navs: ['Course', 'Event'],
+      dialogMsg: '',
+      isAlert: false
     }
   },
   methods: {
     logout () {
-      let AV = this.$AV
-      AV.User.logOut()
-      console.log('已登出')
-      this.$router.push('/login')
+      this.dialogMsg = 'Are you sure you want to logout?'
+      this.$dialog.confirm({})
+        .then((value) => {
+          console.log(value)
+          this.dialogMsg = ''
+          let AV = this.$AV
+          AV.User.logOut()
+          // console.log('已登出')
+          this.$router.push('/login')
+        }).catch()
+    },
+    execute () {
+      this.$dialog.util.promiseResolver()
+    },
+    close () {
+      this.dialogMsg = ''
     }
   }
 }
@@ -95,6 +115,7 @@ export default {
   .nav-logout {
     background-color: #f66;
     color: #fff;
+    cursor: pointer;
   }
 
   .nav-logout:hover {
