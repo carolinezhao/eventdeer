@@ -121,7 +121,7 @@
 
         <div class="form-footer flex">
           <button type="button" class="primary-btn small-btn" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-btn small-btn" :disabled="disabledCreate" @click="createEvent">Create</button>
+          <button type="submit" class="main-btn small-btn" :disabled="ifDisabled" @click="createEvent">Create</button>
         </div>
       </section>
     </section>
@@ -196,8 +196,15 @@ export default {
       intro: '',
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
+      // form editing
+      // formKey: ['date', 'startTime', 'endTime', 'title', 'locationType', 'location', 'levelType', 'lowerLevel', 'upperLevel', 'isVIP', 'teacherType', 'teacherName', 'ifDiscover', 'intro', 'imgUrl'],
+      // origin: ['Wed Aug 1 2018', 11, 12, '', 'Center', '', 'unlimited', '', '', false, 'FT', 'John', false, '', ''], // 初始值，用于在编辑状态下比较
+      // editing: [], // 打开编辑框时的值
+      // changedObj: {}, // 更改的 key-value
       // form status
       ifShowForm: false,
+      ifNewForm: true,
+      disabledSave: true,
       // table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
       events: [],
@@ -222,7 +229,8 @@ export default {
     endTimeOptions () {
       return continuousNum(12, 21)
     },
-    disabledCreate () {
+    // form status
+    ifDisabled () {
       if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.ifDiscover && !this.intro)) {
         return true
       } else if (this.checkLevel() || this.checkTime()) {
@@ -278,18 +286,13 @@ export default {
     this.queryTeachers()
   },
   methods: {
+    // common
     emptySelected () {
       // before creating; after removing
       this.checkedEvents = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
-    openForm () {
-      this.ifShowForm = true
-    },
-    closeForm () {
-      this.ifShowForm = false
-      this.resetForm()
-    },
+    // for 'ifDisabled'
     checkTime () {
       if (this.endTime && (this.endTime - this.startTime < 1)) {
         return 'Please enter earlier time first'
@@ -304,85 +307,7 @@ export default {
       }
       return msg1 || msg2 || msg3
     },
-    createEvent () {
-      this.emptySelected()
-      // prepare data for backend
-      let startTime = new Date(`${this.date}, ${this.startTime}:00`)
-      let endTime = new Date(`${this.date}, ${this.endTime}:00`)
-      let location = (this.locationType === 'Center') ? 'Center' : this.location
-      let level = (this.levelType === 'unlimited') ? 'Unlimited' : `L${this.lowerLevel}-L${this.upperLevel}`
-      let isVIP = Boolean(Number(this.isVIP))
-      let teacher = `${this.teacherType} ${this.teacherName}`
-      // prepare data for frontend (match the order of colTitle)
-      let vipStr = isVIP ? 'Yes' : 'No'
-      // frontend (main)
-      let displayEvent = {
-        date: this.date,
-        time: `${this.startTime}:00 - ${this.endTime}:00`,
-        title: this.title,
-        isVIP: vipStr,
-        ifDiscover: this.ifDiscover,
-        detail: 'url'
-      }
-      // backend (all)
-      let AV = this.$AV
-      let Events = AV.Object.extend('Events')
-      let eventObj = new Events()
-      eventObj.set('startTime', startTime)
-      eventObj.set('endTime', endTime)
-      eventObj.set('duration', this.duration)
-      eventObj.set('title', this.title)
-      eventObj.set('location', location)
-      eventObj.set('level', level)
-      eventObj.set('isVIP', isVIP)
-      eventObj.set('teacher', teacher)
-      eventObj.set('ifDiscover', this.ifDiscover)
-      eventObj.set('intro', this.intro)
-      eventObj.set('img', this.imgUrl)
-      eventObj.save()
-        .then((eventObj) => {
-          // frontend
-          displayEvent.id = eventObj.id // id 是存储成功后生成的
-          console.log('id is ' + displayEvent.id)
-          this.resultMsg = operationMsg('create')
-          this.events.unshift(displayEvent)
-        })
-        .catch(() => {
-          this.resultMsg = operationMsg('fail')
-          console.error()
-        })
-    },
-    queryEvents () {
-      // console.log('queryEvents starts')
-      let AV = this.$AV
-      let queryEvents = new AV.Query('Events')
-      // for production
-      queryEvents.greaterThanOrEqualTo('startTime', formatTime('today'))
-      queryEvents.ascending('startTime')
-        .find()
-        .then(events => {
-          // console.log(events)
-          let eventsArr = events.map(item => {
-            // attributes 中是自定义属性
-            let eventObj = item.attributes
-            let newEvent = {}
-            // match the order of colTitle
-            // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-            newEvent.date = displayDate(eventObj.startTime) // add
-            // newEvent.time = displayTime(eventObj.time, eventObj.duration) // revise
-            newEvent.time = `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`
-            newEvent.title = eventObj.title
-            newEvent.isVIP = eventObj.isVIP ? 'Yes' : 'No' // revise
-            newEvent.ifDiscover = eventObj.ifDiscover
-            newEvent.detail = 'URL'
-            newEvent.id = item.id // 存储对象时自动分配的 id
-            return newEvent
-          })
-          // console.log(eventsArr)
-          this.events = eventsArr
-        })
-        .catch(console.error())
-    },
+    // form content
     queryTeachers () {
       let AV = this.$AV
       let queryTeachers = new AV.Query('Teachers')
@@ -444,6 +369,128 @@ export default {
         this.imgUrl = file.url()
       }).catch(console.error())
     },
+    // form --> create
+    openForm () {
+      this.ifShowForm = true
+      this.ifNewForm = true
+    },
+    closeForm () {
+      this.ifShowForm = false
+      this.resetForm()
+      this.emptySelected()
+    },
+    resetForm () {
+      this.date = 'Wed Aug 1 2018' // test
+      this.startTime = 11
+      this.endTime = 12
+      this.title = ''
+      this.locationType = 'Center'
+      this.location = ''
+      this.levelType = 'unlimited'
+      this.lowerLevel = ''
+      this.upperLevel = ''
+      this.isVIP = false
+      this.teacherType = 'FT'
+      this.teacherName = 'John'
+      this.ifDiscover = false
+      this.intro = ''
+      this.imgUrl = ''
+    },
+    createEvent () {
+      this.emptySelected()
+      let displayEvent = this.formToTable() // data for table (main)
+      let saveEvent = this.formToBackend() // data for backend (all)
+      // console.log(saveEvent)
+      // backend
+      let AV = this.$AV
+      let Events = AV.Object.extend('Events')
+      let eventObj = new Events()
+      for (let key in saveEvent) {
+        eventObj.set(key, saveEvent[key])
+      }
+      eventObj.save()
+        .then((eventObj) => {
+          // frontend
+          this.ifShowForm = false
+          displayEvent.id = eventObj.id // id 是存储成功后生成的
+          console.log('id is ' + displayEvent.id)
+          this.resultMsg = operationMsg('create')
+          this.events.unshift(displayEvent)
+          this.resetForm()
+        })
+        .catch(() => {
+          this.resultMsg = operationMsg('fail')
+          console.error()
+        })
+    },
+    formToTable () {
+      return {
+        date: this.date,
+        time: `${this.startTime}:00 - ${this.endTime}:00`,
+        title: this.title,
+        isVIP: this.isVIP ? 'Yes' : 'No',
+        ifDiscover: this.ifDiscover,
+        detail: 'url'
+      }
+    },
+    formToBackend () {
+      let location = (this.locationType === 'Center') ? 'Center' : this.location
+      let level = (this.levelType === 'unlimited') ? 'Unlimited' : `L${this.lowerLevel}-L${this.upperLevel}`
+      let teacher = `${this.teacherType} ${this.teacherName}`
+      return {
+        startTime: new Date(`${this.date}, ${this.startTime}:00`),
+        endTime: new Date(`${this.date}, ${this.endTime}:00`),
+        title: this.title,
+        location: location,
+        level: level,
+        // lowerLevel: lowerLevel,
+        // upperLevel: upperLevel,
+        isVIP: this.isVIP,
+        teacher: teacher,
+        ifDiscover: this.ifDiscover,
+        intro: this.intro,
+        img: this.imgUrl
+      }
+    },
+    // form --> edit
+    editForm () {
+    },
+    // table --> get
+    refresh () {
+      this.queryEvents()
+    },
+    queryEvents () { // <-- mounted / refresh
+      // console.log('queryEvents starts')
+      let AV = this.$AV
+      let queryEvents = new AV.Query('Events')
+      // for production
+      queryEvents.greaterThanOrEqualTo('startTime', formatTime('today'))
+      queryEvents.ascending('startTime')
+        .find()
+        .then(events => {
+          // console.log(events)
+          // console.log(this.backendToTable(events))
+          this.events = this.backendToTable(events)
+        })
+        .catch(console.error())
+    },
+    backendToTable (objsArray) {
+      return objsArray.map(item => {
+        // attributes 中是自定义属性
+        let eventObj = item.attributes
+        // match the order of colTitle <-- need to be revised
+        // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
+        return {
+          date: displayDate(eventObj.startTime),
+          time: `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`,
+          title: eventObj.title,
+          isVIP: eventObj.isVIP ? 'Yes' : 'No',
+          ifDiscover: eventObj.ifDiscover,
+          detail: 'URL',
+          id: item.id // 存储对象时自动分配的 id
+        }
+      })
+    },
     // table --> remove
     confirmRemove () {
       if (!this.checkedEvents.length) {
@@ -486,20 +533,21 @@ export default {
         console.error()
       })
     },
+    // filter
     filterEvents (conditionArr) {
       if (!conditionArr.length) {
-        alert("You haven't chosen any filters.")
+        this.alert("You haven't chosen any filters.")
       } else {
         this.tempEvents = this.events
         let key
         let value
-        for (let item of conditionArr) {
+        conditionArr.forEach(item => {
           key = item.key
           value = item.value
           this.events = this.events.filter(function (targetObj) {
             return targetObj[key] === value
           })
-        }
+        })
         let count = this.events.length
         if (count) {
           let plural = (count === 1) ? 'result' : 'results'
@@ -515,25 +563,6 @@ export default {
       this.filterMsg = ''
       this.events = this.tempEvents
       this.tempEvents = []
-    },
-    refresh () {
-      this.queryEvents()
-    },
-    resetForm () {
-      this.startTime = 11
-      this.endTime = 12
-      this.title = ''
-      this.locationType = 'Center'
-      this.location = ''
-      this.levelType = 'unlimited'
-      this.lowerLevel = ''
-      this.upperLevel = ''
-      this.isVIP = '0'
-      this.teacherType = 'FT'
-      this.teacherName = 'John'
-      this.ifDiscover = false
-      this.intro = ''
-      this.imgUrl = ''
     },
     // dialog (alert)
     alert (msg) {
