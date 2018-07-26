@@ -98,13 +98,13 @@
 
     <course-dialog :dialog="dialogMsg" :isAlert="isAlert" @confirm="execute" @close="closeAlert"></course-dialog>
 
-    <course-message :message="resultMsg"></course-message>
+    <course-message :message="resultMsg" :ifShowMsg="ifShowMsg"></course-message>
   </div>
 </template>
 
 <script>
 // import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
-import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
+import {displayTime, displayDate, formatTime, continuousNum, checkNumber, operationMsg} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 import Dialog from '@/components/Dialog'
@@ -128,6 +128,7 @@ export default {
       lowerLevel: '', // num
       upperLevel: '', // num
       isVIP: false,
+      // form editing
       formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'description', 'isVIP'],
       origin: ['Wed Aug 1 2018', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
@@ -143,6 +144,7 @@ export default {
       checkedCourses: [],
       // msg component
       resultMsg: '',
+      ifShowMsg: false,
       // dialog component
       dialogMsg: '',
       isAlert: false,
@@ -199,6 +201,14 @@ export default {
     }
   },
   watch: {
+    resultMsg (newValue) {
+      if (newValue) {
+        this.ifShowMsg = true
+        setTimeout(() => {
+          this.ifShowMsg = false
+        }, 2000)
+      }
+    },
     editingForm: {
       handler (newValue, oldValue) {
         // 编辑时有三种状态：
@@ -299,12 +309,12 @@ export default {
           this.ifShowForm = false
           displayCourse.id = course.id // id 是存储成功后生成的
           // console.log('id is ' + displayCourse.id)
-          this.operationMsg('create')
+          this.resultMsg = operationMsg('create')
           this.courses.unshift(displayCourse)
           this.resetForm()
         })
         .catch(() => {
-          this.operationMsg('fail')
+          this.resultMsg = operationMsg('fail')
           console.error()
         })
     },
@@ -389,11 +399,11 @@ export default {
           // frontend
           this.ifShowForm = false
           this.courses[index] = tableObj
-          this.operationMsg('save')
+          this.resultMsg = operationMsg('save')
           this.emptySelected()
           this.resetForm()
         }).catch(() => {
-          this.operationMsg('fail')
+          this.resultMsg = operationMsg('fail')
           console.error()
         })
     },
@@ -511,10 +521,10 @@ export default {
         removeArrFront.forEach(item => {
           currentArr.splice(item, 1)
         })
-        this.operationMsg('remove', targetArr.length)
+        this.resultMsg = operationMsg('remove', targetArr.length)
         this.emptySelected()
       }).catch(() => {
-        this.operationMsg('fail')
+        this.resultMsg = operationMsg('fail')
         console.error()
       })
     },
@@ -554,7 +564,7 @@ export default {
       this.courses = this.tempCourses
       this.tempCourses = []
     },
-    // common
+    // dialog (alert)
     alert (msg) {
       this.dialogMsg = msg
       this.isAlert = true
@@ -562,43 +572,6 @@ export default {
     closeAlert () {
       this.dialogMsg = ''
       this.isAlert = false
-    },
-    operationMsg (string, number) { // 均在异步操作后调用
-      switch (string) {
-        case 'create':
-          this.resultMsg = {
-            text: 'Created successfully!',
-            type: 'success'
-          }
-          break
-        // case 'refresh':
-        //   this.resultMsg = `Refreshed Successfully!`
-        //   break
-        case 'save':
-          this.resultMsg = {
-            text: 'The change has been saved.',
-            type: 'success'
-          }
-          break
-        case 'remove':
-          let plural = (number === 1) ? 'item' : 'items'
-          this.resultMsg = {
-            text: `Removed ${number} ${plural} successfully.`,
-            type: 'success'
-          }
-          break
-        case 'fail':
-          this.resultMsg = {
-            text: 'The operation failed. Please try again later.',
-            type: 'fail'
-          }
-          break
-        default:
-          break
-      }
-      setTimeout(() => {
-        this.resultMsg = ''
-      }, 2000)
     }
   }
 }

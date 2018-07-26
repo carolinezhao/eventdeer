@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-fade">
-      <section class="msg-section card flex-center" :class="message.type" v-if="message">
+      <section class="msg-section card flex-center" :class="message.type" v-if="ifShowMsg">
         <div class="msg-text">{{message.text}}</div>
       </section>
   </transition>
@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  props: ['message']
+  props: ['message', 'ifShowMsg']
 }
 </script>
 

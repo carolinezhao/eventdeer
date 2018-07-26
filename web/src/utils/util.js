@@ -41,3 +41,31 @@ export function checkNumber (value) {
     return 'Please enter number'
   }
 }
+
+export function operationMsg (string, number) { // 均在异步操作后调用
+  switch (string) {
+    case 'create':
+      return {
+        text: 'Created successfully!',
+        type: 'success'
+      }
+    case 'save':
+      return {
+        text: 'The change has been saved.',
+        type: 'success'
+      }
+    case 'remove':
+      let plural = (number === 1) ? 'item' : 'items'
+      return {
+        text: `Removed ${number} ${plural} successfully.`,
+        type: 'success'
+      }
+    case 'fail':
+      return {
+        text: 'The operation failed. Please try again later.',
+        type: 'fail'
+      }
+    default:
+      break
+  }
+}

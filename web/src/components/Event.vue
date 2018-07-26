@@ -1,6 +1,6 @@
 <template>
   <div>
-    <section class="form-container flex-center" v-if="ifShowForm">
+    <section class="modal-container flex-center" v-if="ifShowForm">
       <section class="form-section flex-col">
         <div class="form-title flex-center">New Event</div>
         <form id="event-form">
@@ -22,7 +22,7 @@
                 <!-- <option disabled value="">End</option> -->
                 <option v-for="timeOption in endTimeOptions" :key="timeOption.id" :value="timeOption">{{timeOption}}:00</option>
               </select>
-              <div class="err-msg">{{checkTime()}}</div>
+              <div class="form-msg">{{checkTime()}}</div>
             </div>
           </div>
 
@@ -58,17 +58,17 @@
                 <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
                 <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
               </template>
-              <div class="err-msg">{{checkLevel()}}</div>
+              <div class="form-msg">{{checkLevel()}}</div>
             </div>
           </div>
 
           <div class="form-row">
             <label class="form-label">VIP</label>
             <div class="form-content">
-              <select v-model="isVIP">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-              </select>
+                <input type="radio" :value="false" v-model="isVIP" id="false">
+                <label class="radio-label" for="false">No</label>
+                <input type="radio" :value="true" v-model="isVIP" id="true">
+                <label class="radio-label" for="true">Yes</label>
             </div>
           </div>
 
@@ -120,8 +120,8 @@
         </form>
 
         <div class="form-footer flex">
-          <button type="button" class="primary-button small-button" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-button small-button" :disabled="disabledCreate" @click="createEvent">Create</button>
+          <button type="button" class="primary-btn small-btn" @click="closeForm">Cancel</button>
+          <button type="submit" class="main-btn small-btn" :disabled="disabledCreate" @click="createEvent">Create</button>
         </div>
       </section>
     </section>
@@ -130,25 +130,23 @@
       <event-filter ref="filter" :filters="filters" v-model="selectedFilter"></event-filter>
       <div class="filter-footer card flex">
         <template v-if="tempEvents.length">
-          <button class="primary-button small-button" @click="cancelFilter">Cancel</button>
+          <button class="primary-btn small-btn" @click="cancelFilter">Cancel</button>
         </template>
         <template v-else>
-          <button class="main-button small-button" @click="filterEvents(selectedFilter)">Filter</button>
+          <button class="main-btn small-btn" @click="filterEvents(selectedFilter)">Filter</button>
         </template>
-        <div class="operation-msg">{{filterMsg}}</div>
+        <div class="filter-msg">{{filterMsg}}</div>
       </div>
     </section>
 
     <section class="operation-section">
-      <button class="primary-button small-button" @click="openForm">Create</button>
-      <button class="primary-button small-button" @click="refresh">Refresh</button>
-      <button class="primary-button small-button">Edit</button>
-      <button class="danger-button small-button" @click="confirmRemove">Remove</button>
-
-      <div class="operation-msg">{{operationMsg('select')}}</div>
-      <div class="operation-msg">{{resultMsg}}</div>
+      <button class="main-btn small-btn" @click="openForm">Create</button>
+      <button class="primary-btn small-btn" @click="refresh">Refresh</button>
+      <button class="primary-btn small-btn">Edit</button>
+      <button class="danger-btn small-btn" @click="confirmRemove">Remove</button>
+      <div class="select-msg">{{selectMsg}}</div>
       <!-- for debug -->
-      <div class="operation-msg">test: {{checkedEvents}}</div>
+      <!-- <div>test: {{checkedEvents}}</div> -->
     </section>
 
     <section class="table-section">
@@ -156,25 +154,31 @@
       <!-- for production -->
       <!-- <div>Events since today (00:00)</div> -->
     </section>
+
+    <event-dialog :dialog="dialogMsg" :isAlert="isAlert" @confirm="execute" @close="closeAlert"></event-dialog>
+
+    <event-message :message="resultMsg" :ifShowMsg="ifShowMsg"></event-message>
   </div>
 </template>
 
 <script>
-import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
-// import {displayTime, displayDate, formatTime, continuousNum, checkNumber} from '@/utils/util'
+import {displayTime, displayDate, formatTime, continuousNum, checkNumber, operationMsg} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
+import Dialog from '@/components/Dialog'
+import Message from '@/components/Message'
 export default {
   name: 'event',
   components: {
     eventTable: Table,
-    eventFilter: Filter
+    eventFilter: Filter,
+    eventDialog: Dialog,
+    eventMessage: Message
   },
   data () {
     return {
-      // form
-      ifShowForm: false,
-      date: 'Jul 15 2018', // test
+      // form content
+      date: 'Wed Aug 1 2018', // test
       startTime: 11,
       endTime: 12,
       title: '',
@@ -183,7 +187,7 @@ export default {
       levelType: 'unlimited',
       lowerLevel: '',
       upperLevel: '',
-      isVIP: '0',
+      isVIP: false,
       teacherType: 'FT',
       teacherTypes: [],
       teacherOptions: [],
@@ -192,13 +196,19 @@ export default {
       intro: '',
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
-      // for table component
+      // form status
+      ifShowForm: false,
+      // table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
       events: [],
       // from table component to manipulate
       checkedEvents: [],
-      // msg
+      // msg component
       resultMsg: '',
+      ifShowMsg: false,
+      // dialog component
+      dialogMsg: '',
+      isAlert: false,
       // filter
       selectedFilter: [],
       tempEvents: [],
@@ -221,6 +231,15 @@ export default {
         return false
       }
     },
+    // table select
+    selectMsg () {
+      let len = this.checkedEvents.length
+      if (len) {
+        let plural = (len === 1) ? 'item' : 'items'
+        return `Selected ${len} ${plural}`
+      }
+    },
+    // filter
     filters () {
       return [
         {
@@ -243,6 +262,14 @@ export default {
         if (option.type === newValue) {
           this.teacherName = option.names[0]
         }
+      }
+    },
+    resultMsg (newValue) {
+      if (newValue) {
+        this.ifShowMsg = true
+        setTimeout(() => {
+          this.ifShowMsg = false
+        }, 2000)
       }
     }
   },
@@ -317,18 +344,21 @@ export default {
           // frontend
           displayEvent.id = eventObj.id // id 是存储成功后生成的
           console.log('id is ' + displayEvent.id)
-          // this.operationMsg('create')
+          this.resultMsg = operationMsg('create')
           this.events.unshift(displayEvent)
         })
-        .catch(console.error())
+        .catch(() => {
+          this.resultMsg = operationMsg('fail')
+          console.error()
+        })
     },
     queryEvents () {
       // console.log('queryEvents starts')
       let AV = this.$AV
       let queryEvents = new AV.Query('Events')
       // for production
-      // queryEvents.greaterThanOrEqualTo('time', formatTime('today'))
-      queryEvents.ascending('time')
+      queryEvents.greaterThanOrEqualTo('startTime', formatTime('today'))
+      queryEvents.ascending('startTime')
         .find()
         .then(events => {
           // console.log(events)
@@ -414,15 +444,22 @@ export default {
         this.imgUrl = file.url()
       }).catch(console.error())
     },
+    // table --> remove
     confirmRemove () {
       if (!this.checkedEvents.length) {
-        alert("You haven't chosen any data.")
+        this.alert("You haven't chosen any data.")
       } else {
-        let result = window.confirm('Are you sure you want to remove checked data?')
-        if (result) {
-          this.removeEvents(this.events, this.checkedEvents, 'Events')
-        }
+        this.dialogMsg = 'Are you sure you want to remove checked data?'
+        this.$dialog.confirm({})
+          .then((value) => {
+            console.log(value)
+            this.dialogMsg = ''
+            this.removeEvents(this.events, this.checkedEvents, 'Events')
+          }).catch()
       }
+    },
+    execute () {
+      this.$dialog.util.promiseResolver('run')
     },
     removeEvents (currentArr, targetArr, tableName) {
       let AV = this.$AV
@@ -442,9 +479,12 @@ export default {
         removeArrFront.forEach(item => {
           currentArr.splice(item, 1)
         })
-        this.operationMsg('remove', targetArr.length)
+        this.resultMsg = operationMsg('remove', targetArr.length)
         this.emptySelected()
-      }).catch(console.error())
+      }).catch(() => {
+        this.resultMsg = operationMsg('fail')
+        console.error()
+      })
     },
     filterEvents (conditionArr) {
       if (!conditionArr.length) {
@@ -479,32 +519,6 @@ export default {
     refresh () {
       this.queryEvents()
     },
-    operationMsg (string, number) {
-      switch (string) {
-        case 'create':
-          this.resultMsg = 'Created Successfully!'
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
-          break
-        case 'select':
-          let len = this.checkedEvents.length
-          if (len) {
-            let plural = (len === 1) ? 'item' : 'items'
-            return `Selected ${len} ${plural}`
-          }
-          break
-        case 'remove':
-          let plural = (number === 1) ? 'item' : 'items'
-          this.resultMsg = `Removed ${number} ${plural}`
-          setTimeout(() => {
-            this.resultMsg = ''
-          }, 1000)
-          break
-        default:
-          break
-      }
-    },
     resetForm () {
       this.startTime = 11
       this.endTime = 12
@@ -520,6 +534,15 @@ export default {
       this.ifDiscover = false
       this.intro = ''
       this.imgUrl = ''
+    },
+    // dialog (alert)
+    alert (msg) {
+      this.dialogMsg = msg
+      this.isAlert = true
+    },
+    closeAlert () {
+      this.dialogMsg = ''
+      this.isAlert = false
     }
   }
 }
@@ -533,7 +556,7 @@ export default {
   }
 
   #event-form {
-    margin: 10px;
+    margin: 15px 10px;
   }
 
   .form-label {
@@ -564,6 +587,10 @@ export default {
     width: 80%;
   }
 
+  .radio-label {
+    margin-right: 10px;
+  }
+
   /* 深度作用选择器：影响子组件样式 */
 
   .filter-section >>> .filter-label {
@@ -578,5 +605,7 @@ export default {
 
   .table-section {
     width: 80%;
+    margin-top: 10px;
+    overflow: hidden;
   }
 </style>
