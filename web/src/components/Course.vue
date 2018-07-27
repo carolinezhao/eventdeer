@@ -104,7 +104,7 @@
 
 <script>
 // import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
-import {displayTime, displayDate, formatTime, continuousNum, checkNumber, operationMsg} from '@/utils/util'
+import {displayTime, displayDate, formatTime, continuousNum, checkNumber, ifSameArray, diff, operationMsg} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 import Dialog from '@/components/Dialog'
@@ -215,17 +215,17 @@ export default {
         // old初始值，new已有值(打开时)-->不激活save；old已有值，new修改值-->激活save；old修改值，new已有值-->不激活save
         if (!this.ifNewForm) {
           // 两者不能直接用 == 比较，因为 this.数据中有个 observer (不可迭代)
-          let oldIfOrigin = this.ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
+          let oldIfOrigin = ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
           if (oldIfOrigin) { // 打开表格的瞬间执行
             this.editing = newValue // 记录已有值
           }
           // console.log(newValue)
 
-          let newIfExisted = this.ifSameArray(newValue, this.editing)
+          let newIfExisted = ifSameArray(newValue, this.editing)
           if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
             this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
-            this.changedObj = this.diff(this.editing, newValue)
-            // console.log(this.changedObj)
+            this.changedObj = diff(this.formKey, this.editing, newValue)
+            console.log(this.changedObj)
           } else {
             this.disabledSave = true
           }
@@ -243,23 +243,7 @@ export default {
       this.checkedCourses = [] // 本页面
       this.$refs.table.empty() // 子组件
     },
-    ifSameArray (arr1, arr2) {
-      return arr1.every((item1, index1) => { // 有一个不符合就返回 false
-        return item1 === arr2[index1]
-      })
-    },
-    diff (editing, edited) {
-      let keys = this.formKey
-      let obj = {}
-      edited.forEach((item, index) => {
-        if (item !== editing[index]) {
-          let key = keys[index]
-          obj[key] = item
-        }
-      })
-      return obj
-    },
-    // check status for 'ifDisabled'
+    // for 'ifDisabled'
     checkUnit () {
       return checkNumber(this.unit)
     },
@@ -324,7 +308,7 @@ export default {
         time: `${this.time}:00`,
         type: this.type,
         description: (this.type === 'FTClass') ? `Unit ${this.unit}` : `L${this.lowerLevel} - L${this.upperLevel}`,
-        isVIP: (this.isVIP) ? 'Yes' : 'No'
+        isVIP: this.isVIP ? 'Yes' : 'No'
       }
     },
     formToBackend () {
@@ -374,11 +358,13 @@ export default {
       this.isVIP = (obj.isVIP === 'Yes')
     },
     getNum (string) {
-      return Number.parseInt(string.match(/\d/g).join(''))
+      // possible case: 'Unit 30'
+      return Number.parseInt(string.match(/\d+/))
     },
     levelNum (string) {
-      let arr = string.split(' - ')
-      return [this.getNum(arr[0]), this.getNum(arr[1])]
+      // possible case: 'L1 - L10'
+      let arr = string.match(/^.(\d{1,2}).+ .(\d{1,2})/)
+      return [Number.parseInt(arr[1]), Number.parseInt(arr[2])]
     },
     updateCourse () {
       let courseInfo = this.checkedCourses[0]
@@ -453,7 +439,10 @@ export default {
       }
     },
     // table --> get
-    queryCourses () {
+    refresh () {
+      this.queryCourses()
+    },
+    queryCourses () { // <-- mounted / refresh
       // console.log('queryCourses starts')
       let AV = this.$AV
       let queryCourses = new AV.Query('Courses')
@@ -527,9 +516,6 @@ export default {
         this.resultMsg = operationMsg('fail')
         console.error()
       })
-    },
-    refresh () {
-      this.queryCourses()
     },
     // filter
     filterCourses (conditionArr) {

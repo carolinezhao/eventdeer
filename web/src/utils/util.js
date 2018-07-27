@@ -1,6 +1,6 @@
-export function displayTime (timeObj, duration) {
+export function displayTime (timeObj) {
   let hour = timeObj.getHours()
-  return (duration === undefined) ? `${hour}:00` : `${hour}:00-${hour + duration}:00`
+  return `${hour}:00`
 }
 
 export function displayDate (timeObj) {
@@ -40,6 +40,23 @@ export function checkNumber (value) {
   if (value && (typeof value !== 'number')) {
     return 'Please enter number'
   }
+}
+
+export function ifSameArray (arr1, arr2) {
+  return arr1.every((item1, index1) => { // 有一个不符合就返回 false
+    return item1 === arr2[index1]
+  })
+}
+
+export function diff (keys, oldArr, newArr) { // 三者中相同 index 的 item 是对应的
+  let obj = {}
+  newArr.forEach((item, index) => {
+    if (item !== oldArr[index]) {
+      let key = keys[index]
+      obj[key] = item
+    }
+  })
+  return obj
 }
 
 export function operationMsg (string, number) { // 均在异步操作后调用

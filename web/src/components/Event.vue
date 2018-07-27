@@ -37,10 +37,10 @@
             <label class="form-label">Location</label>
             <div class="form-content">
               <select v-model="locationType">
-                <option value="Center">Center</option>
-                <option value="Outing">Outing</option>
+                <option :value="false">Center</option>
+                <option :value="true">Outing</option>
               </select>
-              <template v-if="locationType === 'Outing'">
+              <template v-if="locationType">
                 <input type="text" class="lg-input" v-model.trim="location">
               </template>
             </div>
@@ -50,10 +50,10 @@
             <label class="form-label">Level</label>
             <div class="form-content">
               <select v-model="levelType">
-                <option value="unlimited">Unlimited</option>
-                <option value="limited">Limited</option>
+                <option :value="false">Unlimited</option>
+                <option :value="true">Limited</option>
               </select>
-              <template v-if="levelType === 'limited'">
+              <template v-if="levelType">
                 <label>Level</label>
                 <input type="text" class="short-input" maxlength="2" v-model.number="lowerLevel"> -
                 <input type="text" class="short-input" maxlength="2" v-model.number="upperLevel">
@@ -92,7 +92,7 @@
             </div>
           </div>
 
-          <template v-if="ifDiscover === true">
+          <template v-if="ifDiscover">
             <div class="form-row">
               <label class="form-label">Introduction</label>
               <div class="form-content form-textarea">
@@ -121,7 +121,8 @@
 
         <div class="form-footer flex">
           <button type="button" class="primary-btn small-btn" @click="closeForm">Cancel</button>
-          <button type="submit" class="main-btn small-btn" :disabled="ifDisabled" @click="createEvent">Create</button>
+          <button type="submit" class="main-btn small-btn" v-if="ifNewForm" :disabled="ifDisabled" @click="createEvent">Create</button>
+          <button type="submit" class="main-btn small-btn" v-if="!ifNewForm" :disabled="disabledSave" @click="updateEvent">Save</button>
         </div>
       </section>
     </section>
@@ -142,7 +143,7 @@
     <section class="operation-section">
       <button class="main-btn small-btn" @click="openForm">Create</button>
       <button class="primary-btn small-btn" @click="refresh">Refresh</button>
-      <button class="primary-btn small-btn">Edit</button>
+      <button class="primary-btn small-btn" @click="editForm">Edit</button>
       <button class="danger-btn small-btn" @click="confirmRemove">Remove</button>
       <div class="select-msg">{{selectMsg}}</div>
       <!-- for debug -->
@@ -162,7 +163,7 @@
 </template>
 
 <script>
-import {displayTime, displayDate, formatTime, continuousNum, checkNumber, operationMsg} from '@/utils/util'
+import {displayTime, displayDate, formatTime, continuousNum, checkNumber, ifSameArray, diff, operationMsg} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 import Dialog from '@/components/Dialog'
@@ -182,9 +183,9 @@ export default {
       startTime: 11,
       endTime: 12,
       title: '',
-      locationType: 'Center',
+      locationType: false,
       location: '',
-      levelType: 'unlimited',
+      levelType: false,
       lowerLevel: '',
       upperLevel: '',
       isVIP: false,
@@ -197,16 +198,16 @@ export default {
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
       // form editing
-      // formKey: ['date', 'startTime', 'endTime', 'title', 'locationType', 'location', 'levelType', 'lowerLevel', 'upperLevel', 'isVIP', 'teacherType', 'teacherName', 'ifDiscover', 'intro', 'imgUrl'],
-      // origin: ['Wed Aug 1 2018', 11, 12, '', 'Center', '', 'unlimited', '', '', false, 'FT', 'John', false, '', ''], // 初始值，用于在编辑状态下比较
-      // editing: [], // 打开编辑框时的值
-      // changedObj: {}, // 更改的 key-value
+      formKey: ['date', 'startTime', 'endTime', 'title', 'locationType', 'location', 'levelType', 'lowerLevel', 'upperLevel', 'isVIP', 'teacherType', 'teacherName', 'ifDiscover', 'intro', 'imgUrl'],
+      origin: ['Wed Aug 1 2018', 11, 12, '', false, '', false, '', '', false, 'FT', 'John', false, '', ''], // 初始值，用于在编辑状态下比较
+      editing: [], // 打开编辑框时的值
+      changedObj: {}, // 更改的 key-value
       // form status
       ifShowForm: false,
       ifNewForm: true,
       disabledSave: true,
       // table component
-      colTitles: ['Date', 'Time', 'Title', 'VIP', 'Display in Discover', 'Detail'],
+      colTitles: ['Date', 'Time', 'Title', 'VIP', 'Level', 'Teacher', 'Location', 'Detail'],
       events: [],
       // from table component to manipulate
       checkedEvents: [],
@@ -239,6 +240,9 @@ export default {
         return false
       }
     },
+    editingForm () {
+      return [this.date, this.startTime, this.endTime, this.title, this.locationType, this.location, this.levelType, this.lowerLevel, this.upperLevel, this.isVIP, this.teacherType, this.teacherName, this.ifDiscover, this.intro, this.imgUrl]
+    },
     // table select
     selectMsg () {
       let len = this.checkedEvents.length
@@ -263,7 +267,9 @@ export default {
   },
   watch: {
     startTime (newValue, oldValue) {
-      this.endTime = newValue + 1
+      if (this.ifNewForm) {
+        this.endTime = newValue + 1
+      }
     },
     teacherType (newValue, oldValue) {
       for (let option of this.teacherOptions) {
@@ -278,6 +284,26 @@ export default {
         setTimeout(() => {
           this.ifShowMsg = false
         }, 2000)
+      }
+    },
+    editingForm: {
+      handler (newValue, oldValue) {
+        if (!this.ifNewForm) {
+          let oldIfOrigin = ifSameArray(oldValue, this.origin) // origin 结果为 true，是初始值
+          if (oldIfOrigin) {
+            this.editing = newValue
+          }
+          console.log(newValue)
+
+          let newIfExisted = ifSameArray(newValue, this.editing)
+          if (!oldIfOrigin && !newIfExisted) {
+            this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
+            this.changedObj = diff(this.formKey, this.editing, newValue)
+            console.log(this.changedObj)
+          } else {
+            this.disabledSave = true
+          }
+        }
       }
     }
   },
@@ -384,9 +410,9 @@ export default {
       this.startTime = 11
       this.endTime = 12
       this.title = ''
-      this.locationType = 'Center'
+      this.locationType = false
       this.location = ''
-      this.levelType = 'unlimited'
+      this.levelType = false
       this.lowerLevel = ''
       this.upperLevel = ''
       this.isVIP = false
@@ -424,36 +450,147 @@ export default {
         })
     },
     formToTable () {
-      return {
-        date: this.date,
-        time: `${this.startTime}:00 - ${this.endTime}:00`,
-        title: this.title,
-        isVIP: this.isVIP ? 'Yes' : 'No',
-        ifDiscover: this.ifDiscover,
-        detail: 'url'
+      return { // 和 backendToTable 结构一致
+        date: {
+          text: this.date,
+          index: 1
+        },
+        time: {
+          text: `${this.startTime}:00 - ${this.endTime}:00`,
+          index: 2
+        },
+        title: {
+          text: this.title,
+          index: 3
+        },
+        isVIP: {
+          text: this.isVIP ? 'Yes' : 'No',
+          index: 4
+        },
+        level: {
+          text: (this.levelType) ? `L${this.lowerLevel} - L${this.upperLevel}` : 'Unlimited',
+          index: 5
+        },
+        teacher: {
+          text: `${this.teacherType} ${this.teacherName}`,
+          index: 6
+        },
+        location: {
+          text: (this.locationType) ? this.location : 'Center',
+          index: 7
+        },
+        // 详情
+        detail: {
+          text: '',
+          index: 8
+        },
+        ifDiscover: {
+          text: this.ifDiscover,
+          index: 9
+        },
+        intro: {
+          text: this.intro,
+          index: 10
+        },
+        imgUrl: {
+          text: this.imgUrl,
+          index: 11
+        }
       }
     },
     formToBackend () {
-      let location = (this.locationType === 'Center') ? 'Center' : this.location
-      let level = (this.levelType === 'unlimited') ? 'Unlimited' : `L${this.lowerLevel}-L${this.upperLevel}`
-      let teacher = `${this.teacherType} ${this.teacherName}`
       return {
         startTime: new Date(`${this.date}, ${this.startTime}:00`),
         endTime: new Date(`${this.date}, ${this.endTime}:00`),
         title: this.title,
-        location: location,
-        level: level,
-        // lowerLevel: lowerLevel,
-        // upperLevel: upperLevel,
         isVIP: this.isVIP,
-        teacher: teacher,
         ifDiscover: this.ifDiscover,
+        location: (this.locationType) ? this.location : 'Center',
+        level: (this.levelType) ? `L${this.lowerLevel} - L${this.upperLevel}` : 'Unlimited',
+        teacher: `${this.teacherType} ${this.teacherName}`,
         intro: this.intro,
-        img: this.imgUrl
+        imgUrl: this.imgUrl
       }
     },
     // form --> edit
     editForm () {
+      if (this.checkedEvents.length !== 1) {
+        this.alert('Please select one item to edit.')
+      } else {
+        this.ifShowForm = true
+        this.ifNewForm = false
+        let index = this.checkedEvents[0].index
+        let tableObj = this.events[index]
+        // console.log(tableObj)
+        this.tableToForm(tableObj)
+      }
+    },
+    tableToForm (obj) {
+      this.date = obj.date.text
+      this.startTime = this.timeNum(obj.time.text)[0]
+      this.endTime = this.timeNum(obj.time.text)[1]
+      this.title = obj.title.text
+      this.locationType = (obj.location.text !== 'Center')
+      this.location = (obj.location.text !== 'Center') ? obj.location.text : ''
+      if (obj.level.text === 'Unlimited') {
+        this.levelType = false
+      } else {
+        this.levelType = true
+        this.lowerLevel = this.levelNum(obj.level.text)[0]
+        this.upperLevel = this.levelNum(obj.level.text)[1]
+      }
+      this.isVIP = (obj.isVIP.text === 'Yes')
+      // [this.teacherType, this.teacherName] = this.teacherText(obj.teacher.text)
+      this.teacherType = this.teacherText(obj.teacher.text)[0]
+      this.teacherName = this.teacherText(obj.teacher.text)[1]
+      this.ifDiscover = obj.ifDiscover.text
+      this.intro = obj.intro.text
+      this.imgUrl = obj.imgUrl.text
+    },
+    timeNum (string) {
+      // possible case: '11:00 - 12:00'
+      let arr = string.match(/^(\d{1,2}):.+ (\d{1,2}):/)
+      return [Number.parseInt(arr[1]), Number.parseInt(arr[2])]
+    },
+    levelNum (string) {
+      // possible case: 'L1 - L10'
+      let arr = string.match(/^.(\d{1,2}).+ .(\d{1,2})/)
+      console.log(arr)
+      return [Number.parseInt(arr[1]), Number.parseInt(arr[2])]
+    },
+    teacherText (string) {
+      let arr = string.match(/(.{2,}) (.{1,})/)
+      console.log([arr[1], arr[2]])
+      return [arr[1], arr[2]]
+    },
+    updateEvent () {
+      let eventInfo = this.checkedEvents[0]
+      let id = eventInfo.id // for backend data
+      let index = eventInfo.index // for table data
+      let tableObj = this.events[index]
+
+      let AV = this.$AV
+      let eventObj = AV.Object.createWithoutData('Events', id)
+
+      // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
+      this.updateEditedKeys(this.changedObj, tableObj, eventObj)
+      console.log(tableObj)
+
+      eventObj.save()
+        .then((eventObj) => {
+          // console.log('updated id = ' + eventObj.id)
+          // frontend
+          this.ifShowForm = false
+          this.events[index] = tableObj
+          this.resultMsg = operationMsg('save')
+          this.emptySelected()
+          this.resetForm()
+        }).catch(() => {
+          this.resultMsg = operationMsg('fail')
+          console.error()
+        })
+    },
+    updateEditedKeys (changedObj, tableObj, backObj) {
     },
     // table --> get
     refresh () {
@@ -480,14 +617,53 @@ export default {
         let eventObj = item.attributes
         // match the order of colTitle <-- need to be revised
         // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-        return {
-          date: displayDate(eventObj.startTime),
-          time: `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`,
-          title: eventObj.title,
-          isVIP: eventObj.isVIP ? 'Yes' : 'No',
-          ifDiscover: eventObj.ifDiscover,
-          detail: 'URL',
-          id: item.id // 存储对象时自动分配的 id
+        return { // 和 formToTable 结构一致
+          id: item.id, // 存储对象时自动分配的 id
+          date: {
+            text: displayDate(eventObj.startTime),
+            index: 1
+          },
+          time: {
+            text: `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`,
+            index: 2
+          },
+          title: {
+            text: eventObj.title,
+            index: 3
+          },
+          isVIP: {
+            text: eventObj.isVIP ? 'Yes' : 'No',
+            index: 4
+          },
+          level: {
+            text: eventObj.level,
+            index: 5
+          },
+          teacher: {
+            text: eventObj.teacher,
+            index: 6
+          },
+          location: {
+            text: eventObj.location,
+            index: 7
+          },
+          // 详情
+          detail: { // 自动生成的
+            text: '',
+            index: 8
+          },
+          ifDiscover: {
+            text: eventObj.ifDiscover,
+            index: 9
+          },
+          intro: {
+            text: eventObj.intro,
+            index: 10
+          },
+          imgUrl: {
+            text: eventObj.imgUrl,
+            index: 11
+          }
         }
       })
     },
@@ -633,7 +809,7 @@ export default {
   }
 
   .table-section {
-    width: 80%;
+    width: 100%;
     margin-top: 10px;
     overflow: hidden;
   }
