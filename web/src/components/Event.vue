@@ -41,7 +41,7 @@
                 <option :value="true">Outing</option>
               </select>
               <template v-if="locationType">
-                <input type="text" class="lg-input" v-model.trim="location">
+                <input type="text" class="lg-input" v-model.trim="locationName">
               </template>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default {
       endTime: 12,
       title: '',
       locationType: false,
-      location: '',
+      locationName: '',
       levelType: false,
       lowerLevel: '',
       upperLevel: '',
@@ -197,9 +197,9 @@ export default {
       intro: '',
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
-      // form editing
-      formKey: ['date', 'startTime', 'endTime', 'title', 'locationType', 'location', 'levelType', 'lowerLevel', 'upperLevel', 'isVIP', 'teacherType', 'teacherName', 'ifDiscover', 'intro', 'imgUrl'],
-      origin: ['Wed Aug 1 2018', 11, 12, '', false, '', false, '', '', false, 'FT', 'John', false, '', ''], // 初始值，用于在编辑状态下比较
+      // form editing (与 'editingForm' 对应)
+      formKey: ['date', 'startTime', 'endTime', 'time', 'title', 'locationType', 'locationName', 'location', 'levelType', 'lowerLevel', 'upperLevel', 'level', 'isVIP', 'teacherType', 'teacherName', 'teacher', 'ifDiscover', 'intro', 'imgUrl'],
+      origin: ['Wed Aug 1 2018', 11, 12, '11:00 - 12:00', '', false, '', 'Center', false, '', '', 'Unlimited', false, 'FT', 'John', 'FT John', false, '', ''], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -230,9 +230,22 @@ export default {
     endTimeOptions () {
       return continuousNum(12, 21)
     },
+    // form data to table/backend
+    time () { // only for table
+      return `${this.startTime}:00 - ${this.endTime}:00`
+    },
+    location () {
+      return (this.locationType) ? this.locationName : 'Center'
+    },
+    level () {
+      return (this.levelType) ? `L${this.lowerLevel} - L${this.upperLevel}` : 'Unlimited'
+    },
+    teacher () {
+      return `${this.teacherType} ${this.teacherName}`
+    },
     // form status
     ifDisabled () {
-      if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.ifDiscover && !this.intro)) {
+      if (!this.title || (this.levelType === 'limited' && (!this.lowerLevel || !this.upperLevel)) || (this.locationType && !this.locationName) || (this.ifDiscover && !this.intro)) {
         return true
       } else if (this.checkLevel() || this.checkTime()) {
         return true
@@ -240,8 +253,8 @@ export default {
         return false
       }
     },
-    editingForm () {
-      return [this.date, this.startTime, this.endTime, this.title, this.locationType, this.location, this.levelType, this.lowerLevel, this.upperLevel, this.isVIP, this.teacherType, this.teacherName, this.ifDiscover, this.intro, this.imgUrl]
+    editingForm () { // 与 'formKey' 和 'origin' 对应
+      return [this.date, this.startTime, this.endTime, this.time, this.title, this.locationType, this.locationName, this.location, this.levelType, this.lowerLevel, this.upperLevel, this.level, this.isVIP, this.teacherType, this.teacherName, this.teacher, this.ifDiscover, this.intro, this.imgUrl]
     },
     // table select
     selectMsg () {
@@ -411,7 +424,7 @@ export default {
       this.endTime = 12
       this.title = ''
       this.locationType = false
-      this.location = ''
+      this.locationName = ''
       this.levelType = false
       this.lowerLevel = ''
       this.upperLevel = ''
@@ -456,7 +469,7 @@ export default {
           index: 1
         },
         time: {
-          text: `${this.startTime}:00 - ${this.endTime}:00`,
+          text: this.time,
           index: 2
         },
         title: {
@@ -468,15 +481,15 @@ export default {
           index: 4
         },
         level: {
-          text: (this.levelType) ? `L${this.lowerLevel} - L${this.upperLevel}` : 'Unlimited',
+          text: this.level,
           index: 5
         },
         teacher: {
-          text: `${this.teacherType} ${this.teacherName}`,
+          text: this.teacher,
           index: 6
         },
         location: {
-          text: (this.locationType) ? this.location : 'Center',
+          text: this.location,
           index: 7
         },
         // 详情
@@ -505,9 +518,9 @@ export default {
         title: this.title,
         isVIP: this.isVIP,
         ifDiscover: this.ifDiscover,
-        location: (this.locationType) ? this.location : 'Center',
-        level: (this.levelType) ? `L${this.lowerLevel} - L${this.upperLevel}` : 'Unlimited',
-        teacher: `${this.teacherType} ${this.teacherName}`,
+        location: this.location,
+        level: this.level,
+        teacher: this.teacher,
         intro: this.intro,
         imgUrl: this.imgUrl
       }
@@ -526,26 +539,28 @@ export default {
       }
     },
     tableToForm (obj) {
-      this.date = obj.date.text
-      this.startTime = this.timeNum(obj.time.text)[0]
-      this.endTime = this.timeNum(obj.time.text)[1]
-      this.title = obj.title.text
-      this.locationType = (obj.location.text !== 'Center')
-      this.location = (obj.location.text !== 'Center') ? obj.location.text : ''
-      if (obj.level.text === 'Unlimited') {
+      this.date = obj.date
+      this.startTime = this.timeNum(obj.time)[0]
+      this.endTime = this.timeNum(obj.time)[1]
+      this.title = obj.title
+      this.locationType = (obj.location !== 'Center')
+      this.locationName = (obj.location !== 'Center') ? obj.location : ''
+      if (obj.level === 'Unlimited') {
         this.levelType = false
       } else {
         this.levelType = true
-        this.lowerLevel = this.levelNum(obj.level.text)[0]
-        this.upperLevel = this.levelNum(obj.level.text)[1]
+        let levelArr = this.levelNum(obj.level)
+        this.lowerLevel = levelArr[0]
+        this.upperLevel = levelArr[1]
       }
-      this.isVIP = (obj.isVIP.text === 'Yes')
-      // [this.teacherType, this.teacherName] = this.teacherText(obj.teacher.text)
-      this.teacherType = this.teacherText(obj.teacher.text)[0]
-      this.teacherName = this.teacherText(obj.teacher.text)[1]
-      this.ifDiscover = obj.ifDiscover.text
-      this.intro = obj.intro.text
-      this.imgUrl = obj.imgUrl.text
+      this.isVIP = (obj.isVIP === 'Yes')
+      // [this.teacherType, this.teacherName] = this.teacherText(obj.teacher)
+      let teacherArr = this.teacherText(obj.teacher)
+      this.teacherType = teacherArr[0]
+      this.teacherName = teacherArr[1]
+      this.ifDiscover = obj.ifDiscover
+      this.intro = obj.intro
+      this.imgUrl = obj.imgUrl
     },
     timeNum (string) {
       // possible case: '11:00 - 12:00'
@@ -555,12 +570,12 @@ export default {
     levelNum (string) {
       // possible case: 'L1 - L10'
       let arr = string.match(/^.(\d{1,2}).+ .(\d{1,2})/)
-      console.log(arr)
+      // console.log(arr)
       return [Number.parseInt(arr[1]), Number.parseInt(arr[2])]
     },
     teacherText (string) {
       let arr = string.match(/(.{2,}) (.{1,})/)
-      console.log([arr[1], arr[2]])
+      // console.log([arr[1], arr[2]])
       return [arr[1], arr[2]]
     },
     updateEvent () {
@@ -573,7 +588,7 @@ export default {
       let eventObj = AV.Object.createWithoutData('Events', id)
 
       // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
-      this.updateEditedKeys(this.changedObj, tableObj, eventObj)
+      this.updateEditedItems(this.changedObj, tableObj, eventObj)
       console.log(tableObj)
 
       eventObj.save()
@@ -590,7 +605,41 @@ export default {
           console.error()
         })
     },
-    updateEditedKeys (changedObj, tableObj, backObj) {
+    updateEditedItems (changedObj, tableObj, backObj) {
+      for (let key in changedObj) {
+        console.log(key, changedObj[key])
+        if (!tableObj.hasOwnProperty(key)) {
+          // 'startTime', 'endTime'
+          if (!changedObj.date) {
+            backObj.set(key, new Date(`${tableObj.date}, ${changedObj[key]}:00`))
+          }
+        } else {
+          switch (key) {
+            case 'date':
+              tableObj.date = changedObj.date
+              let currentStartTime = this.timeNum(tableObj.time)[0]
+              let currentEndTime = this.timeNum(tableObj.time)[1]
+              let startTime = (changedObj.startTime) ? changedObj.startTime : currentStartTime
+              backObj.set('startTime', new Date(`${changedObj.date}, ${startTime}:00`))
+              let endTime = (changedObj.endTime) ? changedObj.endTime : currentEndTime
+              backObj.set('endTime', new Date(`${changedObj.date}, ${endTime}:00`))
+              break
+            case 'isVIP':
+              tableObj.isVIP = changedObj.isVIP ? 'Yes' : 'No'
+              backObj.set('isVIP', changedObj.isVIP)
+              break
+            default:
+              // 'title', 'ifDiscover', 'intro', 'imgUrl'
+              // 'time' ('startTime', 'endTime')
+              // 'location' ('locationType', 'locationName')
+              // 'level' ('levelType', 'lowerLevel', 'upperLevel')
+              // 'teacher' ('teacherType', 'teacherName')
+              tableObj[key] = changedObj[key]
+              backObj.set(key, changedObj[key])
+              break
+          }
+        }
+      }
     },
     // table --> get
     refresh () {
@@ -612,59 +661,42 @@ export default {
         .catch(console.error())
     },
     backendToTable (objsArray) {
-      return objsArray.map(item => {
-        // attributes 中是自定义属性
-        let eventObj = item.attributes
+      return objsArray.map(item => { // 和 formToTable 结构一致
+        let backObj = item.attributes
+        // 重写特殊格式的数据
+        backObj.date = displayDate(backObj.startTime)
+        backObj.time = `${displayTime(backObj.startTime)} - ${displayTime(backObj.endTime)}`
+        backObj.isVIP = backObj.isVIP ? 'Yes' : 'No'
         // match the order of colTitle <-- need to be revised
+        // index 表示属性在 table-列 中的顺序
         // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-        return { // 和 formToTable 结构一致
-          id: item.id, // 存储对象时自动分配的 id
-          date: {
-            text: displayDate(eventObj.startTime),
-            index: 1
-          },
-          time: {
-            text: `${displayTime(eventObj.startTime)} - ${displayTime(eventObj.endTime)}`,
-            index: 2
-          },
-          title: {
-            text: eventObj.title,
-            index: 3
-          },
-          isVIP: {
-            text: eventObj.isVIP ? 'Yes' : 'No',
-            index: 4
-          },
-          level: {
-            text: eventObj.level,
-            index: 5
-          },
-          teacher: {
-            text: eventObj.teacher,
-            index: 6
-          },
-          location: {
-            text: eventObj.location,
-            index: 7
-          },
-          // 详情
-          detail: { // 自动生成的
-            text: '',
-            index: 8
-          },
-          ifDiscover: {
-            text: eventObj.ifDiscover,
-            index: 9
-          },
-          intro: {
-            text: eventObj.intro,
-            index: 10
-          },
-          imgUrl: {
-            text: eventObj.imgUrl,
-            index: 11
-          }
+        let keys = ['date', 'time', 'title', 'isVIP', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl']
+        let tableObj = {
+          id: item.id
+          // detail: {}
         }
+        let index = 1
+        keys.forEach((key) => {
+          tableObj[`_${key}`] = {
+            text: backObj[key],
+            index: index
+          }
+          Object.defineProperty(tableObj, `_${key}`, {
+            enumerable: false
+          })
+          Object.defineProperty(tableObj, key, {
+            get () { // for-in 直接拿到的值
+              return this[`_${key}`].text
+            },
+            set (value) {
+              this[`_${key}`].text = value
+            },
+            enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl')
+          })
+          index++
+        })
+        console.log(tableObj)
+        return tableObj
       })
     },
     // table --> remove
