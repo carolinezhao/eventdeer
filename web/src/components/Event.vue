@@ -159,6 +159,8 @@
     <event-dialog :dialog="dialogMsg" :isAlert="isAlert" @confirm="execute" @close="closeAlert"></event-dialog>
 
     <event-message :message="resultMsg" :ifShowMsg="ifShowMsg"></event-message>
+
+    <router-view></router-view>
   </div>
 </template>
 
@@ -245,6 +247,9 @@ export default {
     },
     teacher () {
       return `${this.teacherType} ${this.teacherName}`
+    },
+    detail () {
+      return (this.ifDiscover) ? 'view' : '-'
     },
     // form status
     ifDisabled () {
@@ -466,10 +471,8 @@ export default {
         })
     },
     formToTable () { // 和 backendToTable 结构一致
-      let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl']
-      let tableObj = {
-        // detail: {}
-      }
+      let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail']
+      let tableObj = {}
       let index = 1
       keys.forEach((key) => {
         tableObj[`_${key}`] = {
@@ -486,7 +489,7 @@ export default {
           set (value) {
             this[`_${key}`].text = value
           },
-          enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl')
+          enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl') && (key !== 'detail')
         })
         index++
       })
@@ -654,13 +657,13 @@ export default {
         backObj.date = displayDate(backObj.startTime)
         backObj.time = `${displayTime(backObj.startTime)} - ${displayTime(backObj.endTime)}`
         backObj.vip = backObj.isVIP ? 'Yes' : 'No'
+        backObj.detail = (backObj.ifDiscover) ? 'view' : '-'
         // match the order of colTitle <-- need to be revised
         // index 表示属性在 table-列 中的顺序
         // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-        let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl']
+        let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail']
         let tableObj = {
           id: item.id
-          // detail: {}
         }
         let index = 1
         keys.forEach((key) => {
@@ -678,11 +681,11 @@ export default {
             set (value) {
               this[`_${key}`].text = value
             },
-            enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl')
+            enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl') && (key !== 'detail')
           })
           index++
         })
-        console.log(tableObj)
+        // console.log(tableObj)
         return tableObj
       })
     },
@@ -808,7 +811,7 @@ export default {
   }
 
   .filter-section {
-    width: 80%;
+    width: 60%;
   }
 
   .radio-label {
@@ -828,7 +831,7 @@ export default {
   }
 
   .table-section {
-    width: 100%;
+    width: 80%;
     margin-top: 10px;
     overflow: hidden;
   }

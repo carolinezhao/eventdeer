@@ -5,6 +5,7 @@ import Home from '@/components/Home'
 import Dashboard from '@/components/Dashboard'
 import Course from '@/components/Course'
 import Event from '@/components/Event'
+import Detail from '@/components/Detail'
 
 const AV = require('leancloud-storage')
 // index.js 不能访问 main.js 的 AV，且不能在此处使用 AV
@@ -56,7 +57,14 @@ const router = new Router({
         {
           path: 'event',
           name: 'event',
-          component: Event
+          component: Event,
+          children: [
+            {
+              path: ':id',
+              name: 'detail',
+              component: Detail
+            }
+          ]
         },
         { // test
           path: 'activity1',
