@@ -92,16 +92,16 @@ Page({
             currentDate: currentDate
         })
     },
-    queryCourses: function (startTime, endTime) {
-        console.log('queryCourses starts');
+    queryCourses: function (start, end) {
+        // console.log('queryCourses starts');
         let queryCourses = new AV.Query('Courses');
-        queryCourses.greaterThanOrEqualTo('time', app.queryTime(startTime));
-        queryCourses.lessThan('time', app.queryTime(endTime));
+        queryCourses.greaterThanOrEqualTo('time', app.formatTime(start));
+        queryCourses.lessThan('time', app.formatTime(end));
 
         queryCourses.ascending('time')
             .find()
             .then(courses => {
-                console.log(courses);
+                // console.log(courses);
                 let type1 = 'FTClass',
                     type2 = 'Extend',
                     type3 = 'GroupChat';
@@ -112,10 +112,10 @@ Page({
                     // attributes 是 LeanCloud 自动生成的，拿到的数据都放在这个属性中。
                     let course = item.attributes;
                     let type = course.type;
+                    course.description = (type === type1) ? `Unit ${course.unit}` : `L${course.lowerLevel} - L${course.upperLevel}`
                     course.time = app.displayTime(course.time);
                     switch (type) {
                         case type1:
-                            // 这里直接 push(item) 页面也能渲染一样的结果？
                             arrType1.push(course);
                             break;
                         case type2:
@@ -148,25 +148,18 @@ Page({
             })
             .catch(console.error);
     },
-    queryEvents: function (startTime, endTime) {
-        console.log('queryEvents starts');
+    queryEvents: function (start, end) {
+        // console.log('queryEvents starts');
         let queryEvents = new AV.Query('Events');
-        queryEvents.greaterThanOrEqualTo('time', app.queryTime(startTime));
-        queryEvents.lessThan('time', app.queryTime(endTime));
+        queryEvents.greaterThanOrEqualTo('startTime', app.formatTime(start));
+        queryEvents.lessThan('startTime', app.formatTime(end));
 
-        queryEvents.ascending('time')
+        queryEvents.ascending('startTime')
             .find()
             .then(events => {
-                // let arrEvents = [];
-                // for (let item of events) {
-                //     let event = item.attributes;
-                //     event.time = app.displayTime(event.time, event.duration);
-                //     arrEvents.push(event);
-                // }
-
                 let arrEvents = events.map(item => {
                     let event = item.attributes;
-                    event.time = app.displayTime(event.time, event.duration);
+                    event.time = `${app.displayTime(event.startTime)} - ${app.displayTime(event.endTime)}`;
                     return event;
                 })
                 this.setData({
