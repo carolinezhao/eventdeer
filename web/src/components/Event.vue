@@ -34,19 +34,6 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">Location</label>
-            <div class="form-content">
-              <select v-model="locationType">
-                <option :value="false">Center</option>
-                <option :value="true">Outing</option>
-              </select>
-              <template v-if="locationType">
-                <input type="text" class="lg-input" v-model.trim="locationName">
-              </template>
-            </div>
-          </div>
-
-          <div class="form-row">
             <label class="form-label">Level</label>
             <div class="form-content">
               <select v-model="levelType">
@@ -63,6 +50,21 @@
           </div>
 
           <div class="form-row">
+            <label class="form-label">Teacher</label>
+            <div class="form-content">
+              <select v-model="teacherType">
+                <option v-for="type in teacherTypes" :key="type.id" :value="type">{{type}}</option>
+              </select>
+              <select v-model="teacherName" v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType">
+                <option v-for="name in option.names" :key="name.id" :value="name">{{name}}</option>
+              </select>
+              <input type="checkbox" v-model="teacherIfOther">
+              <label>Other</label>
+              <input type="text" class="input" v-if="teacherIfOther" v-model="teacherOther">
+            </div>
+          </div>
+
+          <div class="form-row">
             <label class="form-label">VIP</label>
             <div class="form-content">
                 <input type="radio" :value="false" v-model="isVIP" id="false">
@@ -73,14 +75,15 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">Teacher</label>
+            <label class="form-label">Location</label>
             <div class="form-content">
-              <select v-model="teacherType">
-                <option v-for="type in teacherTypes" :key="type.id" :value="type">{{type}}</option>
+              <select v-model="locationType">
+                <option :value="false">Center</option>
+                <option :value="true">Outing</option>
               </select>
-              <select v-model="teacherName" v-for="option in teacherOptions" :key="option.id" v-if="option.type === teacherType">
-                <option v-for="name in option.names" :key="name.id" :value="name">{{name}}</option>
-              </select>
+              <template v-if="locationType">
+                <input type="text" class="lg-input" v-model.trim="locationName">
+              </template>
             </div>
           </div>
 
@@ -192,16 +195,18 @@ export default {
       upperLevel: '',
       isVIP: false,
       teacherType: 'FT',
-      teacherTypes: [],
+      teacherTypes: ['FT', 'SA', 'VIP SA', 'Manager'],
       teacherOptions: [],
-      teacherName: 'John',
+      teacherName: 'Hassan',
+      teacherIfOther: false,
+      teacherOther: '',
       ifDiscover: false,
       intro: '',
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
       // form editing (与 'editingForm' 对应)
       formKey: ['date', 'startTime', 'endTime', 'time', 'title', 'location', 'level', 'isVIP', 'vip', 'teacher', 'ifDiscover', 'intro', 'imgUrl'],
-      origin: ['Wed Aug 1 2018', 11, 12, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT John', false, '', ''], // 初始值，用于在编辑状态下比较
+      origin: ['Wed Aug 1 2018', 11, 12, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT Hassan', false, '', ''], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -246,14 +251,14 @@ export default {
       return this.isVIP ? 'Yes' : 'No'
     },
     teacher () {
-      return `${this.teacherType} ${this.teacherName}`
+      return (this.teacherIfOther) ? this.teacherOther : `${this.teacherType} ${this.teacherName}`
     },
     detail () {
       return (this.ifDiscover) ? 'view' : '-'
     },
     // form status
     ifDisabled () {
-      if (!this.title || (this.levelType && (!this.lowerLevel || !this.upperLevel)) || (this.locationType && !this.locationName) || (this.ifDiscover && !this.intro)) {
+      if (!this.title || (this.levelType && (!this.lowerLevel || !this.upperLevel)) || !this.location || !this.teacher || (this.ifDiscover && !this.intro)) {
         return true
       } else if (this.checkLevel() || this.checkTime()) {
         return true
@@ -294,9 +299,16 @@ export default {
     },
     teacherType (newValue, oldValue) {
       for (let option of this.teacherOptions) {
-        if (option.type === newValue) {
+        if (option.type === newValue && option.names.length) {
           this.teacherName = option.names[0]
         }
+      }
+      this.teacherIfOther = !newValue
+    },
+    teacherIfOther (newValue) {
+      this.teacherType = (newValue) ? '' : 'FT'
+      if (!newValue) {
+        this.teacherOther = ''
       }
     },
     resultMsg (newValue) {
@@ -361,43 +373,26 @@ export default {
       queryTeachers.find()
         .then(teachers => {
           // console.log(teachers)
-          let type1 = 'FT'
-          let type2 = 'CT'
-          let type3 = 'Manager'
-          let namesArr1 = []
-          let namesArr2 = []
-          let namesArr3 = []
-          for (let item of teachers) {
-            let teacherObj = item.attributes
-            let type = teacherObj.type
-            let name = teacherObj.name
-            switch (type) {
-              case type1:
-                namesArr1.push(name)
-                break
-              case type2:
-                namesArr2.push(name)
-                break
-              case type3:
-                namesArr3.push(name)
-                break
-              default:
-                break
-            }
-          }
-          let teachersArr = [{
-            type: type1,
-            names: namesArr1
-          }, {
-            type: type2,
-            names: namesArr2
-          }, {
-            type: type3,
-            names: namesArr3
-          }]
-          this.teacherTypes = [type1, type2, type3]
-          this.teacherOptions = teachersArr
+          this.teacherOptions = this.formatTeacher(teachers)
         })
+    },
+    formatTeacher (objsArray) {
+      let teachersArr = []
+      this.teacherTypes.forEach((type) => {
+        let teacherObj = {
+          type: type,
+          names: []
+        }
+        objsArray.forEach((item) => {
+          let obj = item.attributes
+          if (obj.type === teacherObj.type) {
+            teacherObj.names.push(obj.name)
+          }
+        })
+        teachersArr.push(teacherObj)
+      })
+      // console.log(teachersArr)
+      return teachersArr
     },
     chooseFile (e) {
       console.log('chooseFile works')
@@ -438,7 +433,9 @@ export default {
       this.upperLevel = ''
       this.isVIP = false
       this.teacherType = 'FT'
-      this.teacherName = 'John'
+      this.teacherName = 'Hassan'
+      this.teacherIfOther = false
+      this.teacherOther = ''
       this.ifDiscover = false
       this.intro = ''
       this.imgUrl = ''
@@ -543,6 +540,8 @@ export default {
       let teacherArr = this.teacherText(obj.teacher)
       this.teacherType = teacherArr[0]
       this.teacherName = teacherArr[1]
+      this.teacherIfOther = teacherArr[2]
+      this.teacherOther = teacherArr[3]
       this.ifDiscover = obj.ifDiscover
       this.intro = obj.intro
       this.imgUrl = obj.imgUrl
@@ -560,8 +559,15 @@ export default {
     },
     teacherText (string) {
       let arr = string.match(/(.{2,}) (.{1,})/)
-      // console.log([arr[1], arr[2]])
-      return [arr[1], arr[2]]
+      let result = []
+      let ifExist = this.teacherTypes.some((item) => {
+        if (arr.length) {
+          return item === arr[1]
+        }
+      })
+      result = (ifExist) ? [arr[1], arr[2], false, ''] : ['', '', true, string]
+      console.log(result)
+      return result
     },
     updateEvent () {
       let eventInfo = this.checkedEvents[0]
@@ -641,7 +647,7 @@ export default {
       let queryEvents = new AV.Query('Events')
       // for production
       queryEvents.greaterThanOrEqualTo('startTime', formatTime('today'))
-      queryEvents.ascending('startTime')
+      queryEvents.descending('startTime')
         .find()
         .then(events => {
           // console.log(events)
