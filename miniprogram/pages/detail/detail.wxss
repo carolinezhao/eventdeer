@@ -2,6 +2,10 @@
     color: #222;
 }
 
+.icon-big {
+    color: #dedede;
+}
+
 .inner-container {
     width: 100%;
     border: 1.5px dashed #8E8E93;
@@ -18,7 +22,7 @@
 
 .image-container image {
     width: 100%;
-    height: 350rpx;
+    height: 450rpx;
 }
 
 .content {
@@ -63,7 +67,7 @@
 .canvas-container {
     width: 100%;
     /* height: 1000rpx; */
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(66, 66, 66, 0.9);
     position: absolute;
     left: 0;
     top: 0;

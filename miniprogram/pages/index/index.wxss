@@ -122,6 +122,10 @@
 	justify-content: center;
 }
 
+.event-level {
+	font-size: 30rpx;
+}
+
 .event-content {
 	font-size: 30rpx;
 	padding: 20rpx 40rpx;

@@ -1,7 +1,7 @@
 <view class="container">
     <view class="inner-container" data="{{event}}">
         <view class="image-container">
-            <image mode="aspectFill" src="../../img/picnic.jpg"></image>
+            <image mode="aspectFill" src="{{event.imgUrl}}"></image>
         </view>
 
         <view class="content">
@@ -15,7 +15,7 @@
                 <text class="icon-small icon-location-hollow"></text>{{event.location}}</view>
             <!-- text 能显示换行，view 不能 -->
             <view class="detail">
-                <text>{{event.detail}}</text>
+                <text>{{event.intro}}</text>
             </view>
         </view>
     </view>
@@ -23,9 +23,9 @@
     <view class="button-container">
         <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
         <button class="navi long" bindtap="openDiscoverPage" wx:if="{{isDisplayButton}}">View All Upcoming Events</button>
-        <!-- <button class="navi" open-type="share">Share</button> -->
+        <button class="navi" open-type="share"><text class="icon-small icon-share"></text>Share</button>
         <!-- 保存为图片后：保存到相册，分享到朋友圈 -->
-        <button class="navi" bindtap="saveAsImage">Save as Image</button>
+        <button class="navi" bindtap="saveAsImage"><text class="icon-small icon-save"></text>Save as Image</button>
     </view>
 </view>
 

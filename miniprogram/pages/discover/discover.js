@@ -11,7 +11,8 @@ Page({
     },
     onLoad: function () {
         // 获取并设置 eventSets
-        this.queryComingEvents();
+        // 查询区间：明天零点以后
+        this.queryComingEvents('tomorrow');
     },
     openDetailPage: function (params) {
         // console.log(params.currentTarget.dataset);
@@ -31,12 +32,12 @@ Page({
             }
         })
     },
-    queryComingEvents: function () {
+    queryComingEvents: function (start) {
         let query = new AV.Query('Events');
-        query.equalTo('isParty', true);
-        query.greaterThanOrEqualTo('time', app.queryTime('tomorrow'));
+        query.equalTo('ifDiscover', true);
+        query.greaterThanOrEqualTo('startTime', app.formatTime(start));
 
-        query.ascending('time')
+        query.ascending('startTime')
             .find()
             .then(events => {
                 console.log(events);
@@ -50,9 +51,9 @@ Page({
                     // attributes 中是手动创建的属性，id 等默认属性和 attributes 同级
                     let id = item.id;
                     let event = item.attributes;
-                    let countType = this.countDown(event.time);
-                    event.date = app.displayDate(event.time);
-                    event.time = app.displayTime(event.time, event.duration);
+                    let countType = this.countDown(event.startTime);
+                    event.date = app.displayDate(event.startTime);
+                    event.time = `${app.displayTime(event.startTime)} - ${app.displayTime(event.endTime)}`;
                     event.id = id;
                     switch (countType) {
                         case countType1:

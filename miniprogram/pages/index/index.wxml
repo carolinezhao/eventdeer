@@ -61,7 +61,9 @@
     <view class="section-title">Special Event</view>
 
     <template name="event-item">
-        <view class="event-title theme-bg-color">{{title}}</view>
+        <view class="event-title theme-bg-color">{{title}}
+            <view class="event-level" wx:if="{{level}}">{{level}}</view>
+        </view>
         <view class="event-content">
             <view>{{time}}</view>
             <view class="vip theme-color" wx:if="{{isVIP}}">VIP</view>

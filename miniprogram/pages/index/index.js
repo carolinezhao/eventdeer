@@ -160,6 +160,7 @@ Page({
                 let arrEvents = events.map(item => {
                     let event = item.attributes;
                     event.time = `${app.displayTime(event.startTime)} - ${app.displayTime(event.endTime)}`;
+                    event.level = (event.level === 'Unlimited') ? '' : event.level;
                     return event;
                 })
                 this.setData({

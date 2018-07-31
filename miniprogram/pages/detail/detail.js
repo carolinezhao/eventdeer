@@ -85,16 +85,16 @@ Page({
         })
     },
     queryTargetEvent: function () {
-        console.log('query starts');
+        // console.log('query starts');
         let query = new AV.Query('Events');
         query.equalTo('objectId', this.data.queryid);
 
-        query.ascending('time')
+        query.ascending('startTime')
             .find()
             .then(events => {
                 let event = events[0].attributes;
-                event.date = app.displayDate(event.time);
-                event.time = app.displayTime(event.time, event.duration);
+                event.date = app.displayDate(event.startTime);
+                event.time = `${app.displayTime(event.startTime)} - ${app.displayTime(event.endTime)}`;
                 this.setData({
                     event: event
                 })
@@ -197,14 +197,14 @@ Page({
         ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight); // 不填充的矩形
 
         // 活动信息-头图
-        ctx.drawImage('../../img/picnic.jpg', imageStatX, imageStatY, contentWidth, imageHeight);
+        let obj = this.data.event;
+        ctx.drawImage(obj.imgUrl, imageStatX, imageStatY, contentWidth, imageHeight);
 
         // 活动信息-文字
         ctx.setFontSize(15);
         console.log(textMaxWidth);
-        let obj = this.data.event;
         // 选择展示 obj 部分属性
-        let arr = [obj.title, obj.date, obj.time, obj.location, obj.detail];
+        let arr = [obj.title, obj.date, obj.time, obj.location, obj.intro];
         arr.forEach((item, index) => {
             this.createFillText(ctx, item, textStartX, textStartY, textMaxWidth, textLineGap);
             // 设置不同间距
