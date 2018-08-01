@@ -2,13 +2,15 @@
   <div class="page-container flex">
     <section class="navbar-container">
       <router-link :to="{name: 'dashboard'}">
-        <div class="top-btn flex-center">Dashboard</div>
+        <div class="top-btn flex-center">Home</div>
       </router-link>
       <div class="navbar flex-col">
         <template v-for="nav in navs">
           <!-- to='string' :to='js' -->
-          <router-link :to="{name: nav.toLowerCase()}" :key="nav.id">
-            <div class="nav-inner">{{nav}}</div>
+          <router-link :to="{name: nav.text.toLowerCase()}" :key="nav.id">
+            <div class="nav-inner flex-col">
+              <i class="iconfont" :class="nav.icon"></i>
+              <div class="nav-text"></div>{{nav.text}}</div>
           </router-link>
         </template>
       </div>
@@ -36,7 +38,13 @@ export default {
   },
   data () {
     return {
-      navs: ['Course', 'Event'],
+      navs: [{
+        text: 'Course',
+        icon: 'icon-kecheng1'
+      }, {
+        text: 'Event',
+        icon: 'icon-taolun'
+      }],
       dialogMsg: '',
       isAlert: false
     }
@@ -76,12 +84,12 @@ export default {
   }
 
   .navbar-placeholder {
-    width: 10%;
+    width: 8%;
     min-width: 100px;
   }
 
   .navbar-container {
-    width: 10%;
+    width: 8%;
     min-width: 100px;
     background-color: #bfcbd9;
     height: 100vh;
@@ -93,6 +101,8 @@ export default {
     min-height: 60px;
     background-color: #2c3e50;
     color: #fff;
+    font-weight: 500;
+    font-size: 17px;
   }
 
   .navbar {
@@ -110,6 +120,10 @@ export default {
     background-color: #61788d;
     color: #fff;
     transition: all .5s;
+  }
+
+  .nav-text {
+    margin-top: 5px;
   }
 
   .nav-logout {
@@ -134,3 +148,5 @@ export default {
     color: #fff;
   }
 </style>
+
+<style scoped src="../assets/iconfont.css"></style>

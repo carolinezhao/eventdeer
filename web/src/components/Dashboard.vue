@@ -7,8 +7,8 @@
     </section>
     <section class="card-section flex">
       <template v-for="nav in navs">
-        <router-link class="card form-entry" :to="{name: nav.toLowerCase()}" :key="nav.id">
-          <div>{{nav}}</div>
+        <router-link class="card form-entry" :to="{name: nav.name}" :key="nav.id">
+          <div>{{nav.text}}</div>
         </router-link>
       </template>
     </section>
@@ -21,7 +21,15 @@ export default {
   data () {
     return {
       count: '',
-      navs: ['Course', 'Event', 'Activity1']
+      navs: [{
+        name: 'course',
+        text: 'Regular Course'
+      }, {
+        name: 'event',
+        text: 'Special Event & EC'
+      }, {
+        name: 'activity1',
+        text: 'Activity1'}]
     }
   },
   computed: {
@@ -71,11 +79,12 @@ export default {
 }
 
 .form-entry {
-  width: 200px;
+  width: 250px;
+  height: 100px;
   margin-bottom: 20px;
   margin-right: 20px;
-  border-left: 4px solid #42b983;
   color: #2c3e50;
+  box-shadow: 3px 3px 8px 1px #bfcbd962;
 }
 
 .form-entry:hover {
