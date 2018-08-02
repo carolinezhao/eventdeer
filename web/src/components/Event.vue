@@ -154,8 +154,7 @@
     </section>
 
     <section class="table-section">
-      <event-table ref="table" :colTitles="colTitles" :objsArray="events" v-model="checkedEvents"></event-table>
-      <!-- for production -->
+      <event-table ref="table" :colTitles="colTitles" :objsArray="events" :colKeys="colKeys" :keyLimit="7" v-model="checkedEvents"></event-table>
       <!-- <div>Events since today (00:00)</div> -->
     </section>
 
@@ -184,9 +183,9 @@ export default {
   data () {
     return {
       // form content
-      date: 'Wed Aug 1 2018', // test
-      startTime: 11,
-      endTime: 12,
+      date: 'Wed Aug 2 2018', // test
+      startTime: 14,
+      endTime: 15,
       title: '',
       locationType: false,
       locationName: '',
@@ -206,7 +205,7 @@ export default {
       imgTip: 'Optimal ratio of length to width: 5:3',
       // form editing (与 'editingForm' 对应)
       formKey: ['date', 'startTime', 'endTime', 'time', 'title', 'location', 'level', 'isVIP', 'vip', 'teacher', 'ifDiscover', 'intro', 'imgUrl'],
-      origin: ['Wed Aug 1 2018', 11, 12, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT Hassan', false, '', ''], // 初始值，用于在编辑状态下比较
+      origin: ['Wed Aug 2 2018', 14, 15, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT Hassan', false, '', ''], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -215,6 +214,7 @@ export default {
       disabledSave: true,
       // table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Level', 'Teacher', 'Location', 'Detail'],
+      colKeys: ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail'],
       events: [],
       // from table component to manipulate
       checkedEvents: [],
@@ -232,10 +232,10 @@ export default {
   },
   computed: {
     startTimeOptions () {
-      return continuousNum(11, 20)
+      return continuousNum(14, 20)
     },
     endTimeOptions () {
-      return continuousNum(12, 21)
+      return continuousNum(15, 21)
     },
     // form data to table/backend
     time () { // only for table
@@ -326,13 +326,13 @@ export default {
           if (oldIfOrigin) {
             this.editing = newValue
           }
-          console.log(newValue)
+          // console.log(newValue)
 
           let newIfExisted = ifSameArray(newValue, this.editing)
           if (!oldIfOrigin && !newIfExisted) {
             this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
             this.changedObj = diff(this.formKey, this.editing, newValue)
-            console.log(this.changedObj)
+            // console.log(this.changedObj)
           } else {
             this.disabledSave = true
           }
@@ -422,9 +422,9 @@ export default {
       this.emptySelected()
     },
     resetForm () {
-      this.date = 'Wed Aug 1 2018' // test
-      this.startTime = 11
-      this.endTime = 12
+      this.date = 'Wed Aug 2 2018' // test
+      this.startTime = 14
+      this.endTime = 15
       this.title = ''
       this.locationType = false
       this.locationName = ''
@@ -468,29 +468,12 @@ export default {
         })
     },
     formToTable () { // 和 backendToTable 结构一致
-      let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail']
       let tableObj = {}
-      let index = 1
-      keys.forEach((key) => {
-        tableObj[`_${key}`] = {
-          text: this[key],
-          index: index
-        }
-        Object.defineProperty(tableObj, `_${key}`, {
-          enumerable: false
-        })
-        Object.defineProperty(tableObj, key, {
-          get () { // for-in 直接拿到的值
-            return this[`_${key}`].text
-          },
-          set (value) {
-            this[`_${key}`].text = value
-          },
-          enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl') && (key !== 'detail')
-        })
-        index++
+      // this.colKeys 为根据列标题排列的属性
+      this.colKeys.forEach((key) => {
+        tableObj[key] = this[key]
       })
-      console.log(tableObj)
+      // console.log(tableObj)
       return tableObj
     },
     formToBackend () {
@@ -558,15 +541,15 @@ export default {
       return [Number.parseInt(arr[1]), Number.parseInt(arr[2])]
     },
     teacherText (string) {
-      let arr = string.match(/(.{2,}) (.{1,})/)
-      let result = []
-      let ifExist = this.teacherTypes.some((item) => {
-        if (arr.length) {
+      let arr = string.match(/(.{2,}) (.{1,})/) // 格式匹配
+      let ifExist
+      if (arr) {
+        ifExist = this.teacherTypes.some((item) => { // 内容匹配
           return item === arr[1]
-        }
-      })
-      result = (ifExist) ? [arr[1], arr[2], false, ''] : ['', '', true, string]
-      console.log(result)
+        })
+      }
+      let result = (ifExist) ? [arr[1], arr[2], false, ''] : ['', '', true, string]
+      // console.log(result)
       return result
     },
     updateEvent () {
@@ -651,7 +634,6 @@ export default {
         .find()
         .then(events => {
           // console.log(events)
-          // console.log(this.backendToTable(events))
           this.events = this.backendToTable(events)
         })
         .catch(console.error())
@@ -664,35 +646,15 @@ export default {
         backObj.time = `${displayTime(backObj.startTime)} - ${displayTime(backObj.endTime)}`
         backObj.vip = backObj.isVIP ? 'Yes' : 'No'
         backObj.detail = (backObj.ifDiscover) ? 'view' : '-'
-        // match the order of colTitle <-- need to be revised
-        // index 表示属性在 table-列 中的顺序
-        // 如果第一条数据的某个属性格式不匹配，则会中止后续步骤
-        let keys = ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail']
         let tableObj = {
           id: item.id
         }
-        let index = 1
-        keys.forEach((key) => {
-          tableObj[`_${key}`] = {
-            text: backObj[key],
-            index: index
-          }
-          Object.defineProperty(tableObj, `_${key}`, {
-            enumerable: false
-          })
-          Object.defineProperty(tableObj, key, {
-            get () { // for-in 直接拿到的值
-              return this[`_${key}`].text
-            },
-            set (value) {
-              this[`_${key}`].text = value
-            },
-            enumerable: (key !== 'ifDiscover') && (key !== 'intro') && (key !== 'imgUrl') && (key !== 'detail')
-          })
-          index++
+        // this.colKeys 为根据列标题排列的属性
+        this.colKeys.forEach((key) => {
+          tableObj[key] = backObj[key]
         })
         // console.log(tableObj)
-        return tableObj
+        return tableObj // 行数据
       })
     },
     // table --> remove
@@ -818,6 +780,7 @@ export default {
 
   .filter-section {
     width: 60%;
+    min-width: 500px;
   }
 
   .radio-label {
@@ -838,6 +801,7 @@ export default {
 
   .table-section {
     width: 80%;
+    min-width: 650px;
     margin-top: 10px;
     overflow: hidden;
   }

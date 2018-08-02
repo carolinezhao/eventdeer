@@ -1,10 +1,11 @@
 export function displayTime (timeObj) {
-  let hour = timeObj.getHours()
-  return `${hour}:00`
+  return `${timeObj.getHours()}:00`
 }
 
 export function displayDate (timeObj) {
-  return timeObj.toDateString()
+  let string = timeObj.toDateString()
+  let result = string.match(/(.{10}) (\d{4})/)
+  return result[1]
 }
 
 export function formatTime (string) {

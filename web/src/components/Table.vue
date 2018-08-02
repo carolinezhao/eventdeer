@@ -14,10 +14,13 @@
         <td class="content-cell center-align check-col">
           <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
         </td>
-        <!-- Event.vue 使用 table 组件时 :key="value.id" 报错，Course.vue 使用时不报错 -->
-        <td class="content-cell left-align" v-for="(value, key) in object" :key="key.id" v-if="!(key === 'id')">{{value}}</td>
-        <!-- for debug -->
-        <!-- <td class="center-align" style="color: blue;">{{index}}</td> -->
+        <td class="content-cell left-align" v-for="(colKey, index) in colKeys" :key="colKey.id" v-if="index < keyLimit">{{object[colKey]}}</td>
+        <td class="content-cell center-align detail-col" v-if="object.detail">
+          <template v-if="object.ifDiscover">
+            <router-link class="link" :to="{name: 'detail', params: {id: object.id}}">{{object.detail}}</router-link>
+          </template>
+          <template v-else>{{object.detail}}</template>
+        </td>
       </tr>
     </tbody>
 
@@ -28,25 +31,24 @@
             <div>
               <input type="text" class="short-input" v-model.number="itemsPerPage"> items per page</div>
             <div class="flex table-page-nav">
-              <button class="primary-button" :class="{disabled: currentPage == 1}" @click="pageNav('previous')">Previous</button>
+              <button class="primary-btn" :disabled="currentPage == 1" @click="pageNav('previous')">Previous</button>
               <div>Page
                 <input type="text" class="short-input" v-model.number="currentPage"> of {{totalPage}}</div>
-              <button class="primary-button" :class="{disabled: currentPage == totalPage}" @click="pageNav('next')">Next</button>
+              <button class="primary-btn" :disabled="currentPage == totalPage" @click="pageNav('next')">Next</button>
             </div>
           </div>
         </td>
       </tr>
-      <tr>
-        <!-- for debug -->
+      <!-- <tr>
         <td class="content-cell center-align" :colspan="colNum">{{checkedObjs}}</td>
-      </tr>
+      </tr> -->
     </tfoot>
   </table>
 </template>
 
 <script>
 export default {
-  props: ['colTitles', 'objsArray'],
+  props: ['colTitles', 'objsArray', 'colKeys', 'keyLimit'],
   data () {
     return {
       // check data
@@ -54,7 +56,7 @@ export default {
       checked: false, // 是否全选
       // table page
       currentPage: 1,
-      itemsPerPage: 3
+      itemsPerPage: 8
     }
   },
   computed: {
@@ -136,7 +138,7 @@ export default {
   .content-cell {
     font-weight: 300;
     font-size: 15px;
-    height: 35px;
+    height: 38px;
   }
 
   .center-align {
@@ -152,6 +154,15 @@ export default {
     width: 30px;
   }
 
+  .detail-col {
+    width: 60px;
+  }
+
+  .link {
+    /* color: #2c3e50; */
+    cursor: pointer;
+  }
+
   /* table foot */
 
   .foot-row {
@@ -165,12 +176,5 @@ export default {
 
   .table-page-nav>* {
     margin-right: 5px;
-  }
-
-  /* button */
-
-  .disabled {
-    color: #bfcbd9;
-    border-color: #bfcbd9;
   }
 </style>

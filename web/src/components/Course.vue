@@ -91,8 +91,7 @@
     </section>
 
     <section class="table-section">
-      <course-table ref="table" :colTitles="colTitles" :objsArray="courses" v-model="checkedCourses"></course-table>
-      <!-- for production -->
+      <course-table ref="table" :colTitles="colTitles" :objsArray="courses" :colKeys="colKeys" :keyLimit="colKeys.length" v-model="checkedCourses"></course-table>
       <!-- <div>Courses since today (00:00)</div> -->
     </section>
 
@@ -139,6 +138,7 @@ export default {
       disabledSave: true,
       // table component
       colTitles: ['Date', 'Time', 'Course Type', 'Description', 'VIP'],
+      colKeys: ['date', 'time', 'type', 'description', 'isVIP'],
       courses: [],
       // from table component to manipulate
       checkedCourses: [],
@@ -297,12 +297,14 @@ export default {
           this.courses.unshift(displayCourse)
           this.resetForm()
         })
-        .catch(() => {
+        .catch((res) => {
           this.resultMsg = operationMsg('fail')
+          console.log(res)
           console.error()
         })
     },
     formToTable () {
+      // 根据 colKeys 的顺序排列属性
       return {
         date: this.date,
         time: `${this.time}:00`,
@@ -376,7 +378,7 @@ export default {
       let course = AV.Object.createWithoutData('Courses', id)
 
       // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
-      this.updateEditedKeys(this.changedObj, tableObj, course)
+      this.updateEditedItems(this.changedObj, tableObj, course)
       // console.log(tableObj)
 
       course.save()
@@ -393,7 +395,7 @@ export default {
           console.error()
         })
     },
-    updateEditedKeys (changedObj, tableObj, backObj) {
+    updateEditedItems (changedObj, tableObj, backObj) {
       for (let key in changedObj) {
         if (!tableObj.hasOwnProperty(key)) { // unit, lowerLevel, upperLevel
           console.log(key)
@@ -448,7 +450,7 @@ export default {
       let queryCourses = new AV.Query('Courses')
       // for production
       queryCourses.greaterThanOrEqualTo('time', formatTime('today'))
-      queryCourses.ascending('time')
+      queryCourses.descending('time')
         .find()
         .then(courses => {
           // console.log(courses)
@@ -461,7 +463,7 @@ export default {
       return objsArray.map(item => {
         // attributes 中是自定义属性
         let course = item.attributes
-        // match the order of colTitle <-- need to be revised
+        // 根据 colKeys 的顺序排列属性
         return {
           date: displayDate(course.time),
           time: displayTime(course.time),
@@ -576,7 +578,8 @@ export default {
   }
 
   .filter-section {
-    width: 80%;
+    width: 60%;
+    min-width: 550px;
   }
 
   .radio-label {
@@ -590,7 +593,8 @@ export default {
   }
 
   .table-section {
-    width: 80%;
+    width: 60%;
+    min-width: 550px;
     margin-top: 10px;
     overflow: hidden;
   }
