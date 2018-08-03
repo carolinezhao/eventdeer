@@ -7,7 +7,7 @@
           <div class="form-row">
             <label class="form-label">Date</label>
             <div class="form-content">
-              <input type="text" class="input" v-model="date">
+              <input type="text" class="lg-input" v-model="date">
             </div>
           </div>
 
@@ -91,7 +91,7 @@
     </section>
 
     <section class="table-section">
-      <course-table ref="table" :colTitles="colTitles" :objsArray="courses" :colKeys="colKeys" :keyLimit="colKeys.length" v-model="checkedCourses"></course-table>
+      <course-table ref="table" :colTitles="colTitles" :objsArray="courses" :colKeys="colKeys" :keyLimit="colKeys.length" :ifArchive="false" v-model="checkedCourses"></course-table>
       <!-- <div>Courses since today (00:00)</div> -->
     </section>
 
@@ -102,7 +102,6 @@
 </template>
 
 <script>
-// import {displayTime, displayDate, continuousNum, checkNumber} from '@/utils/util'
 import {displayTime, displayDate, formatTime, continuousNum, checkNumber, ifSameArray, diff, operationMsg} from '@/utils/util'
 import Table from '@/components/Table'
 import Filter from '@/components/Filter'
@@ -225,7 +224,7 @@ export default {
           if (!oldIfOrigin && !newIfExisted) { // old不是初始值且new不是已有值
             this.disabledSave = this.ifDisabled // 如果通过了检查，则为 false，激活 save
             this.changedObj = diff(this.formKey, this.editing, newValue)
-            console.log(this.changedObj)
+            // console.log(this.changedObj)
           } else {
             this.disabledSave = true
           }
@@ -492,7 +491,7 @@ export default {
     },
     execute () {
       // promise resolve() main.js
-      this.$dialog.util.promiseResolver('run')
+      this.$dialog.util.promiseResolver()
     },
     removeCourses (currentArr, targetArr, tableName) {
       let AV = this.$AV

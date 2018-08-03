@@ -2,8 +2,8 @@
   <table id="table">
     <thead>
       <tr>
-        <th class="title-cell center-align check-col">
-          <input type="checkbox" v-model="checked" @change="changeCheckAll()">
+        <th class="title-cell center-align" :class="{'check-col': !ifArchive}">
+          <input type="checkbox" v-model="checked" @change="changeCheckAll()" v-if="!ifArchive">
         </th>
         <th class="title-cell left-align" v-for="title in colTitles" :key="title">{{title}}</th>
       </tr>
@@ -11,15 +11,15 @@
 
     <tbody>
       <tr class="content-row" v-for="(object, index) in objsArray" :key="object.id" v-if="(indexMin <= index) && (index < indexMin + itemsPerPage)">
-        <td class="content-cell center-align check-col">
-          <input type="checkbox" :value="{index: index, id: object.id}" v-model="checkedObjs">
+        <td class="content-cell center-align" :class="{'check-col': !ifArchive}">
+          <input type="checkbox" :value="{index: index, id: object.id}" v-if="!ifArchive" v-model="checkedObjs">
         </td>
         <td class="content-cell left-align" v-for="(colKey, index) in colKeys" :key="colKey.id" v-if="index < keyLimit">{{object[colKey]}}</td>
         <td class="content-cell center-align detail-col" v-if="object.detail">
           <template v-if="object.ifDiscover">
-            <router-link class="link" :to="{name: 'detail', params: {id: object.id}}">{{object.detail}}</router-link>
+            <router-link class="link" :to="{name: 'detail', params: {id: object.id}}">view</router-link>
           </template>
-          <template v-else>{{object.detail}}</template>
+          <template v-else> - </template>
         </td>
       </tr>
     </tbody>
@@ -48,7 +48,7 @@
 
 <script>
 export default {
-  props: ['colTitles', 'objsArray', 'colKeys', 'keyLimit'],
+  props: ['colTitles', 'objsArray', 'colKeys', 'keyLimit', 'ifArchive'],
   data () {
     return {
       // check data
@@ -147,7 +147,7 @@ export default {
 
   .left-align {
     text-align: left;
-    padding-left: 5px;
+    padding-left: 6px;
   }
 
   .check-col {
