@@ -7,7 +7,7 @@
           <div class="form-row">
             <label class="form-label">Date</label>
             <div class="form-content">
-              <input type="text" class="input" v-model="date">
+              <input type="text" class="lg-input" v-model="date">
             </div>
           </div>
 
@@ -88,11 +88,18 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">Display in Discover</label>
+            <label class="form-label">Detail
+              <span class="icon-btn" @click="ifShowTip = !ifShowTip"><i class="iconfont icon-wenhao"></i></span>
+            </label>
             <div class="form-content">
               <input type="checkbox" v-model="ifDiscover">
               <label>{{ifDiscover}}</label>
             </div>
+          </div>
+
+          <div class="detail-tip card flex" v-if="ifShowTip">
+            <span>{{detailTip}}</span>
+            <span class="icon-btn" @click="ifShowTip = false"><i class="iconfont icon-guanbi"></i></span>
           </div>
 
           <template v-if="ifDiscover">
@@ -104,7 +111,7 @@
             </div>
 
             <div class="form-row">
-              <label class="form-label">Image</label>
+              <label class="form-label">Image (optional)</label>
               <div class="form-content">
                 <input type="file" @change="chooseFile">
                 <p class="img-tip">{{imgTip}}</p>
@@ -154,7 +161,7 @@
     </section>
 
     <section class="table-section">
-      <event-table ref="table" :colTitles="colTitles" :objsArray="events" :colKeys="colKeys" :keyLimit="7" v-model="checkedEvents"></event-table>
+      <event-table ref="table" :colTitles="colTitles" :objsArray="events" :colKeys="colKeys" :keyLimit="7" :ifArchive="false" v-model="checkedEvents"></event-table>
       <!-- <div>Events since today (00:00)</div> -->
     </section>
 
@@ -194,12 +201,14 @@ export default {
       upperLevel: '',
       isVIP: false,
       teacherType: 'FT',
-      teacherTypes: ['FT', 'SA', 'VIP SA', 'Manager'],
+      teacherTypes: ['FT', 'SA', 'VIP SA', 'CC', 'Manager'],
       teacherOptions: [],
       teacherName: 'Hassan',
       teacherIfOther: false,
       teacherOther: '',
       ifDiscover: false,
+      ifShowTip: false,
+      detailTip: "If you check this option, this Event will be displayed in 'Discover' page of miniprogram.",
       intro: '',
       imgUrl: '',
       imgTip: 'Optimal ratio of length to width: 5:3',
@@ -215,6 +224,7 @@ export default {
       // table component
       colTitles: ['Date', 'Time', 'Title', 'VIP', 'Level', 'Teacher', 'Location', 'Detail'],
       colKeys: ['date', 'time', 'title', 'vip', 'level', 'teacher', 'location', 'ifDiscover', 'intro', 'imgUrl', 'detail'],
+      detail: true,
       events: [],
       // from table component to manipulate
       checkedEvents: [],
@@ -252,9 +262,6 @@ export default {
     },
     teacher () {
       return (this.teacherIfOther) ? this.teacherOther : `${this.teacherType} ${this.teacherName}`
-    },
-    detail () {
-      return (this.ifDiscover) ? 'view' : '-'
     },
     // form status
     ifDisabled () {
@@ -395,7 +402,7 @@ export default {
       return teachersArr
     },
     chooseFile (e) {
-      console.log('chooseFile works')
+      // console.log('chooseFile works')
       // console.log(e.target) // <input>
       let file = e.target.files
       // file 是对象，length 和 0 都是对象中的 key
@@ -457,7 +464,7 @@ export default {
           // frontend
           this.ifShowForm = false
           displayEvent.id = eventObj.id // id 是存储成功后生成的
-          console.log('id is ' + displayEvent.id)
+          // console.log('id is ' + displayEvent.id)
           this.resultMsg = operationMsg('create')
           this.events.unshift(displayEvent)
           this.resetForm()
@@ -563,7 +570,7 @@ export default {
 
       // params：包含改动项目的obj，表格中需要改动的obj，后端存储的obj
       this.updateEditedItems(this.changedObj, tableObj, eventObj)
-      console.log(tableObj)
+      // console.log(tableObj)
 
       eventObj.save()
         .then((eventObj) => {
@@ -581,7 +588,7 @@ export default {
     },
     updateEditedItems (changedObj, tableObj, backObj) {
       for (let key in changedObj) {
-        console.log(key, changedObj[key])
+        // console.log(key, changedObj[key])
         if (!tableObj.hasOwnProperty(key)) {
           switch (key) {
             case 'isVIP':
@@ -628,7 +635,6 @@ export default {
       // console.log('queryEvents starts')
       let AV = this.$AV
       let queryEvents = new AV.Query('Events')
-      // for production
       queryEvents.greaterThanOrEqualTo('startTime', formatTime('today'))
       queryEvents.descending('startTime')
         .find()
@@ -645,7 +651,7 @@ export default {
         backObj.date = displayDate(backObj.startTime)
         backObj.time = `${displayTime(backObj.startTime)} - ${displayTime(backObj.endTime)}`
         backObj.vip = backObj.isVIP ? 'Yes' : 'No'
-        backObj.detail = (backObj.ifDiscover) ? 'view' : '-'
+        backObj.detail = true
         let tableObj = {
           id: item.id
         }
@@ -665,7 +671,7 @@ export default {
         this.dialogMsg = 'Are you sure you want to remove checked data?'
         this.$dialog.confirm({})
           .then((value) => {
-            console.log(value)
+            // console.log(value)
             this.dialogMsg = ''
             this.removeEvents(this.events, this.checkedEvents, 'Events')
           }).catch()
@@ -758,6 +764,21 @@ export default {
     width: 32%;
   }
 
+  .icon-btn:hover {
+    cursor: pointer;
+  }
+
+  .detail-tip {
+    font-size: 12px;
+    padding: 3px 5px;
+    color: #42b983;
+    border-color: #42b983;
+    width: 88%;
+    margin: auto;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .form-textarea {
     height: 140px;
   }
@@ -789,12 +810,12 @@ export default {
 
   /* 深度作用选择器：影响子组件样式 */
 
-  .filter-section >>> .filter-label {
+  .filter-section>>>.filter-label {
     width: 30%;
   }
 
   .filter-footer {
-    border-radius: 0 0 5px 5px ;
+    border-radius: 0 0 5px 5px;
     border-top: none;
     align-items: center;
   }
@@ -806,3 +827,5 @@ export default {
     overflow: hidden;
   }
 </style>
+
+<style scoped src="../assets/iconfont.css"></style>
