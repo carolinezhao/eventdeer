@@ -6,7 +6,6 @@
       </router-link>
       <div class="navbar flex-col">
         <template v-for="nav in navs">
-          <!-- to='string' :to='js' -->
           <router-link :to="{name: nav.text.toLowerCase()}" :key="nav.id">
             <div class="nav-inner flex-col">
               <i class="iconfont" :class="nav.icon"></i>
@@ -44,6 +43,9 @@ export default {
       }, {
         text: 'Event',
         icon: 'icon-taolun'
+      }, {
+        text: 'Archive',
+        icon: 'icon-archive2'
       }],
       dialogMsg: '',
       isAlert: false
@@ -80,7 +82,7 @@ export default {
 
   .content-container {
     width: 90%;
-    padding: 20px 25px;
+    padding: 20px 30px;
   }
 
   .navbar-placeholder {
@@ -113,7 +115,7 @@ export default {
   .nav-logout {
     text-align: center;
     color: #2c3e50;
-    padding: 15px 0;
+    padding: 18px 0;
   }
 
   .nav-inner:hover {

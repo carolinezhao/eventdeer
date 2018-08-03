@@ -6,6 +6,7 @@ import Dashboard from '@/components/Dashboard'
 import Course from '@/components/Course'
 import Event from '@/components/Event'
 import Detail from '@/components/Detail'
+import Archive from '@/components/Archive'
 
 const AV = require('leancloud-storage')
 // index.js 不能访问 main.js 的 AV，且不能在此处使用 AV
@@ -66,7 +67,12 @@ const router = new Router({
             }
           ]
         },
-        { // test
+        {
+          path: 'archive',
+          name: 'archive',
+          component: Archive
+        },
+        {
           path: 'activity1',
           name: 'activity1',
           component: Activity1
@@ -95,9 +101,9 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !currentUser) { // 要权限，未登录
     next('/login')
   } else {
-    if (currentUser) {
-      console.log('已登录: ' + currentUser.attributes.username)
-    }
+    // if (currentUser) {
+    //   console.log('已登录: ' + currentUser.attributes.username)
+    // }
     next()
   }
 })
