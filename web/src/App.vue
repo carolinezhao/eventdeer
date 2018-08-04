@@ -82,7 +82,7 @@ export default {
 
   .input,
   .lg-input {
-    padding: 7px 7px 8px;
+    padding: 6px 7px 7px;
   }
 
   .input {
@@ -155,18 +155,21 @@ export default {
     align-items: center;
   }
 
-  /* modal window for form and msg */
+  /* modal window for form */
 
   .modal-container {
-    width: 100%;
-    min-height: 100vh;
+    /* min-height: 100vh; */
     background-color: rgba(66, 66, 66, 0.7);
-    position: absolute;
+    position: fixed;
     left: 0;
+    right: 0;
     top: 0;
-    z-index: 100;
+    bottom: 0;
+    z-index: 999;
     box-sizing: border-box;
     padding: 3% 0 4%;
+    overflow-x: hidden;
+    overflow-y: auto; /* let it scroll */
   }
 
   /* form for Course and Event */
@@ -175,7 +178,8 @@ export default {
     border: 2px solid #bfcbd9;
     border-radius: 5px;
     background-color: #fff;
-    overflow: hidden;
+    position: relative;
+    margin: auto; /* 如果没有，超出屏幕高度的上部分无法显示 */
   }
 
   .form-title {
