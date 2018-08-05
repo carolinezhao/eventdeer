@@ -15,13 +15,14 @@ Page({
         deviceInfo: {},
         canvas: {},
         hasUserInfo: false,
+        downloadFilePath: '',
         // nickName: '',
         nickName: 'rabbit', // test 
         tempFilePath: '' // 图片临时路径
     },
     onLoad: function (param) {
         // param 是由上一页传递过来的内容
-        console.log(param);
+        // console.log(param);
 
         // ===== 页面基础内容 =====
         // 根据场景值判断是否显示 button
@@ -54,7 +55,7 @@ Page({
                 isDisplayButton: true
             })
         }
-        console.log(this.data.isDisplay);
+        console.log(this.data.isDisplayButton);
     },
     setQueryData: function (param) {
         this.setData({
@@ -73,14 +74,14 @@ Page({
         // 获取设备信息 (在 onReady 函数中调用？？)
         wx.getSystemInfo({
             success: (res) => {
-                console.log(res);
+                // console.log(res);
                 this.setData({
                     deviceInfo: {
                         maxHeight: res.windowHeight,
                         maxWidth: res.windowWidth
                     }
                 })
-                console.log(this.data.deviceInfo);
+                // console.log(this.data.deviceInfo);
             }
         })
     },
@@ -98,7 +99,7 @@ Page({
                 this.setData({
                     event: event
                 })
-                console.log(this.data.event);
+                // console.log(this.data.event);
             })
             .catch(console.error);
     },
@@ -147,11 +148,10 @@ Page({
             // 如果 canvas 采用这种方案，则内容也需要根据比例设置
             canvas: {
                 // width: `${device.maxWidth * 0.8}px`,
-                // height: `${device.maxHeight * 0.8}px`,
-                container: `${device.maxHeight}px`
+                // height: `${device.maxHeight * 0.8}px`
             },
         })
-        console.log(this.data.canvas);
+        // console.log(this.data.canvas);
         // }
 
         // 创建对象
@@ -190,15 +190,21 @@ Page({
         let signatureX = boxStartX + codeWidth + 10,
             signatureY = codeStartY + 25;
 
-        // 活动信息-边框
+        // 边框
         ctx.setStrokeStyle('#8E8E93');
         ctx.setLineWidth(boxBorderWidth);
         ctx.setLineDash([3, 2]);
         ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight); // 不填充的矩形
-
-        // 活动信息-头图
+        
+        // 活动信息
         let obj = this.data.event;
-        ctx.drawImage(obj.imgUrl, imageStatX, imageStatY, contentWidth, imageHeight);
+
+        // 绘制网络图片时，要先将网络图片路径保存到本地，再用本地生成的路径绘制。
+        this.getOnlineImg(obj.imgUrl);
+        let imgUrl = wx.getStorageSync('storageUrl');
+
+        // 活动信息-头图       
+        ctx.drawImage(imgUrl, imageStatX, imageStatY, contentWidth, imageHeight);
 
         // 活动信息-文字
         ctx.setFontSize(15);
@@ -227,6 +233,24 @@ Page({
         // must-end-with
         // ctx.draw(); // test
         ctx.draw(false, (options) => this.getTempFilePath(options));
+    },
+    getOnlineImg (url) {
+        console.log(url);
+        wx.downloadFile({ // or getImageInfo
+            url: url,
+            success: (res) => {
+                if (res.statusCode === 200) {
+                    console.log(res.tempFilePath);                   
+                    wx.setStorage({
+                        key: 'storageUrl',
+                        data: res.tempFilePath
+                    });              
+                }
+            },
+            fail: () => {
+                console.log('Failed to get image.');
+            }
+        })
     },
     createFillText: function (ctx, string, x, y, maxWidth, gap) {
         // 中文字宽度 36，英文字母宽度约为 4-17
