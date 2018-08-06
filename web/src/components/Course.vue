@@ -7,7 +7,7 @@
           <div class="form-row">
             <label class="form-label">Date</label>
             <div class="form-content">
-              <datepicker v-model="rawDate" :format="formatPickedDate" :clear-button="true" placeholder="Select Date" input-class="m-input"></datepicker>
+              <datepicker v-model="rawDate" :format="formatPickedDate" :disabledDates="disabledDates" input-class="m-input" calendar-class="calendar" placeholder="Select Date"></datepicker>
             </div>
           </div>
 
@@ -160,6 +160,11 @@ export default {
     date () {
       return (typeof this.rawDate === 'object' && this.rawDate !== null) ? this.rawDate.toDateString() : this.rawDate
     },
+    disabledDates () {
+      return {
+        to: formatTime('today')
+      }
+    },
     timeOptions () {
       return continuousNum(11, 20)
     },
@@ -168,7 +173,7 @@ export default {
     },
     // form status
     ifDisabled () {
-      if ((this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
+      if (!this.date || (this.ifShowUnit && !this.unit) || (!this.ifShowUnit && (!this.lowerLevel || !this.upperLevel))) {
         return true
       } else if (this.checkLevel() || this.checkUnit()) {
         return true

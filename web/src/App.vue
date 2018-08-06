@@ -222,6 +222,55 @@ export default {
     font-size: 12px;
   }
 
+  /* calendar */
+
+  .calendar {
+    border-color: #bfcbd9;
+    border-radius: 5px;
+    padding: 8px;
+  }
+
+  .calendar header .prev:after {
+    border-right: 10px solid #42b983;
+  }
+
+  .calendar header .next:after {
+    border-left: 10px solid #42b983;
+  }
+
+  .calendar header .prev:not(.disabled):hover,
+  .calendar header .next:not(.disabled):hover,
+  .calendar header .up:not(.disabled):hover {
+    border-radius: 5px;
+  }
+
+  .calendar.cell.day-header {
+    font-size: 90%;
+  }
+
+  .calendar .cell.day {
+    font-size: 14px;
+  }
+
+  .calendar .cell:not(.blank):not(.disabled).month:hover,
+  .calendar .cell:not(.blank):not(.disabled).year:hover,
+  .calendar .cell:not(.blank):not(.disabled).day:hover {
+    border: 1px solid #42b983;
+    border-radius: 5px;
+  }
+
+  .calendar .cell.selected {
+    background-color: #42b983;
+    border: 1px solid #42b983;
+    color: #fff;
+    border-radius: 5px;
+  }
+
+  .calendar .cell.selected:hover {
+    background-color: #42b983;
+    border: 1px solid #42b983;
+  }
+
   /* common styles */
 
   .card {
