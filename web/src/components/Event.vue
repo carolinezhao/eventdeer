@@ -7,7 +7,7 @@
           <div class="form-row">
             <label class="form-label">Date</label>
             <div class="form-content">
-              <input type="text" class="lg-input" v-model="date">
+              <datepicker v-model="rawDate" :format="formatPickedDate" :clear-button="true" placeholder="Select Date" input-class="m-input"></datepicker>
             </div>
           </div>
 
@@ -179,18 +179,20 @@ import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 import Dialog from '@/components/Dialog'
 import Message from '@/components/Message'
+import Datepicker from 'vuejs-datepicker'
 export default {
   name: 'event',
   components: {
     eventTable: Table,
     eventFilter: Filter,
     eventDialog: Dialog,
-    eventMessage: Message
+    eventMessage: Message,
+    Datepicker
   },
   data () {
     return {
       // form content
-      date: 'Wed Aug 2 2018', // test
+      rawDate: '', // obj
       startTime: 14,
       endTime: 15,
       title: '',
@@ -214,7 +216,7 @@ export default {
       imgTip: 'Optimal ratio of length to width: 5:3',
       // form editing (与 'editingForm' 对应)
       formKey: ['date', 'startTime', 'endTime', 'time', 'title', 'location', 'level', 'isVIP', 'vip', 'teacher', 'ifDiscover', 'intro', 'imgUrl'],
-      origin: ['Wed Aug 2 2018', 14, 15, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT Hassan', false, '', ''], // 初始值，用于在编辑状态下比较
+      origin: ['', 14, 15, '11:00 - 12:00', '', 'Center', 'Unlimited', false, 'No', 'FT Hassan', false, '', ''], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -241,6 +243,9 @@ export default {
     }
   },
   computed: {
+    date () {
+      return (typeof this.rawDate === 'object' && this.rawDate !== null) ? this.rawDate.toDateString() : this.rawDate
+    },
     startTimeOptions () {
       return continuousNum(14, 20)
     },
@@ -352,6 +357,9 @@ export default {
     this.queryTeachers()
   },
   methods: {
+    formatPickedDate (date) {
+      return displayDate(date) // 选择日期后显示的内容
+    },
     // common
     emptySelected () {
       // before creating; after removing
@@ -429,7 +437,7 @@ export default {
       this.emptySelected()
     },
     resetForm () {
-      this.date = 'Wed Aug 2 2018' // test
+      this.rawDate = ''
       this.startTime = 14
       this.endTime = 15
       this.title = ''
@@ -511,7 +519,7 @@ export default {
       }
     },
     tableToForm (obj) {
-      this.date = obj.date
+      this.rawDate = obj.date
       this.startTime = this.timeNum(obj.time)[0]
       this.endTime = this.timeNum(obj.time)[1]
       this.title = obj.title

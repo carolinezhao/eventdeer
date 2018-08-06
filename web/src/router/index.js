@@ -19,6 +19,7 @@ const Activity1 = {
 
 // 路由实例
 const router = new Router({
+  mode: 'history', // 默认 hash 模式
   routes: [
     {
       path: '/',

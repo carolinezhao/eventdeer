@@ -7,7 +7,7 @@
           <div class="form-row">
             <label class="form-label">Date</label>
             <div class="form-content">
-              <input type="text" class="lg-input" v-model="date">
+              <datepicker v-model="rawDate" :format="formatPickedDate" :clear-button="true" placeholder="Select Date" input-class="m-input"></datepicker>
             </div>
           </div>
 
@@ -107,18 +107,20 @@ import Table from '@/components/Table'
 import Filter from '@/components/Filter'
 import Dialog from '@/components/Dialog'
 import Message from '@/components/Message'
+import Datepicker from 'vuejs-datepicker'
 export default {
   name: 'course',
   components: {
     courseTable: Table,
     courseFilter: Filter,
     courseDialog: Dialog,
-    courseMessage: Message
+    courseMessage: Message,
+    Datepicker
   },
   data () {
     return {
       // form content
-      date: 'Wed Aug 1 2018', // test
+      rawDate: '', // obj
       time: 11,
       type: 'FTClass',
       typeOptions: ['FTClass', 'Extend', 'GroupChat'],
@@ -128,7 +130,7 @@ export default {
       isVIP: false,
       // form editing
       formKey: ['date', 'time', 'type', 'unit', 'lowerLevel', 'upperLevel', 'description', 'isVIP'],
-      origin: ['Wed Aug 1 2018', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
+      origin: ['', 11, 'FTClass', '', '', '', 'Unit ', false], // 初始值，用于在编辑状态下比较
       editing: [], // 打开编辑框时的值
       changedObj: {}, // 更改的 key-value
       // form status
@@ -155,6 +157,9 @@ export default {
   },
   computed: {
     // form content
+    date () {
+      return (typeof this.rawDate === 'object' && this.rawDate !== null) ? this.rawDate.toDateString() : this.rawDate
+    },
     timeOptions () {
       return continuousNum(11, 20)
     },
@@ -236,6 +241,9 @@ export default {
     this.queryCourses()
   },
   methods: {
+    formatPickedDate (date) {
+      return displayDate(date) // 选择日期后显示的内容
+    },
     // common
     emptySelected () {
       // before creating; after removing
@@ -266,7 +274,7 @@ export default {
       this.emptySelected()
     },
     resetForm () { // <-- create / edit / cancel
-      this.date = 'Wed Aug 1 2018' // test
+      this.rawDate = ''
       this.time = 11
       this.type = 'FTClass'
       this.unit = ''
@@ -347,7 +355,7 @@ export default {
       }
     },
     tableToForm (obj) {
-      this.date = obj.date
+      this.rawDate = obj.date
       this.time = Number.parseInt(obj.time)
       this.type = obj.type
       if (obj.type === 'FTClass') {

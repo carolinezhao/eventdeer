@@ -80,13 +80,13 @@ export default {
     padding: 5px 5px 6px;
   }
 
-  .input,
+  .m-input,
   .lg-input {
     padding: 6px 7px 7px;
   }
 
-  .input {
-    width: 100px;
+  .m-input {
+    width: 150px;
   }
 
   .lg-input {
