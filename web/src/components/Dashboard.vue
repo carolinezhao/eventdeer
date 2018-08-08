@@ -10,19 +10,24 @@
 
     <section class="card-section flex">
       <div class="calendar-container">
-        <datepicker :value="new Date()" :inline="true" calendar-class="calendar"></datepicker>
-        <!-- <div class="calendar-tip">Click on a date to preview the schedule.</div> -->
+        <datepicker @selected="queryByDate" :highlighted="highlighted" :inline="true" calendar-class="calendar"></datepicker>
+        <div class="calendar-tip">Click on a date to preview the schedule.</div>
       </div>
       <router-link class="nav-entry card" v-for="nav of navs" :to="{name: nav.name}" :key="nav.id">
         <div class="nav-title flex-center">{{nav.title}}</div>
-        <div class="nav-content" v-for="obj of nav.schedule" :key="obj.id">
-          <span class="time">{{obj.time}}</span>
-          <span v-if="nav.name === 'course'">
-            <span class="type">{{obj.type}}</span>
-            <span>{{obj.description}}</span>
-          </span>
-          <span v-if="nav.name === 'event'">{{obj.title}}</span>
-          <span class="vip" v-if="obj.isVIP">{{obj.isVIP}}</span>
+        <div class="nav-content">
+          <div v-for="obj of nav.schedule" :key="obj.id">
+            <span class="time">{{obj.time}}</span>
+            <span v-if="nav.name === 'course'">
+              <span class="type">{{obj.type}}</span>
+              <span>{{obj.description}}</span>
+            </span>
+            <span v-if="nav.name === 'event'">{{obj.title}}</span>
+            <span class="vip" v-if="obj.isVIP">{{obj.isVIP}}</span>
+          </div>
+        </div>
+        <div class="nav-btn flex-center">
+          <button class="main-btn lg-btn">Go to post</button>
         </div>
       </router-link>
     </section>
@@ -43,13 +48,18 @@ export default {
         username: '',
         role: ''
       },
+      highlighted: {
+        dates: [
+          new Date()
+        ]
+      },
       navs: [{
         name: 'course',
-        title: 'Regular Course',
+        title: 'Course Preview',
         schedule: ''
       }, {
         name: 'event',
-        title: 'Special Event',
+        title: 'Event Preview',
         schedule: ''
       }]
     }
@@ -125,6 +135,17 @@ export default {
           isVIP: backObj.isVIP ? 'VIP' : ''
         }
       })
+    },
+    queryByDate (date) {
+      if (typeof date === 'object' && date !== null) {
+        let year = date.getFullYear()
+        let month = date.getMonth()
+        let day = date.getDate()
+        let startTimeStr = `${year}/${month + 1}/${day}`
+        let endTimeStr = `${year}/${month + 1}/${day}/24:00`
+        this.queryCourses(startTimeStr, endTimeStr)
+        this.queryEvents(startTimeStr, endTimeStr)
+      }
     }
   }
 }
@@ -179,7 +200,7 @@ export default {
     margin-right: 30px;
     color: #2c3e50;
     box-shadow: 3px 3px 8px 1px #bfcbd962;
-    padding-bottom: 18px;
+    padding: 0;
   }
 
   .nav-entry:hover {
@@ -189,12 +210,13 @@ export default {
 
   .nav-title {
     font-size: 18px;
-    padding: 8px;
+    padding: 12px;
+    border-bottom: 1px solid #bfcbd9;
   }
 
   .nav-content {
     font-size: 15px;
-    padding: 0 6px;
+    padding: 10px 15px;
     line-height: 30px;
   }
 
@@ -214,5 +236,9 @@ export default {
     font-size: 13px;
     color: #42b983;
     margin-left: 10px;
+  }
+
+  .nav-btn {
+    padding: 5px 0 20px 0;
   }
 </style>

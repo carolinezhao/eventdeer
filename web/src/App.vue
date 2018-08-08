@@ -138,6 +138,12 @@ export default {
     margin-right: 12px;
   }
 
+  .lg-btn {
+    font-size: 14px;
+    width: 100px;
+    height: 27px;
+  }
+
   /* layout */
 
   .flex {
@@ -222,19 +228,20 @@ export default {
     font-size: 12px;
   }
 
-  /* calendar */
+  /* calendar package */
+  /* 已有样式必须使用相同的选择器才能覆盖 */
 
-  .calendar {
+  .vdp-datepicker__calendar {
     border-color: #bfcbd9;
     border-radius: 5px;
     padding: 8px;
   }
 
-  .calendar header .prev:after {
+  .vdp-datepicker__calendar header .prev:after {
     border-right: 10px solid #42b983;
   }
 
-  .calendar header .next:after {
+  .vdp-datepicker__calendar header .next:after {
     border-left: 10px solid #42b983;
   }
 
@@ -244,7 +251,7 @@ export default {
     border-radius: 5px;
   }
 
-  .calendar.cell.day-header {
+  .vdp-datepicker__calendar .cell.day-header {
     font-size: 90%;
   }
 
@@ -252,23 +259,30 @@ export default {
     font-size: 14px;
   }
 
-  .calendar .cell:not(.blank):not(.disabled).month:hover,
-  .calendar .cell:not(.blank):not(.disabled).year:hover,
-  .calendar .cell:not(.blank):not(.disabled).day:hover {
+  .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).day:hover,
+  .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).month:hover,
+  .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).year:hover {
     border: 1px solid #42b983;
     border-radius: 5px;
   }
 
-  .calendar .cell.selected {
+  .vdp-datepicker__calendar .cell.selected,
+  .vdp-datepicker__calendar .cell.selected.highlighted {
     background-color: #42b983;
     border: 1px solid #42b983;
     color: #fff;
     border-radius: 5px;
   }
 
-  .calendar .cell.selected:hover {
+  .vdp-datepicker__calendar .cell.selected:hover {
     background-color: #42b983;
     border: 1px solid #42b983;
+  }
+
+  .vdp-datepicker__calendar .cell.highlighted {
+    background-color: #c0ebd7;
+    border: 1px solid #c0ebd7;
+    border-radius: 5px;
   }
 
   /* common styles */
