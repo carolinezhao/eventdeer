@@ -201,6 +201,7 @@ Page({
 
         // 绘制网络图片时，要先将网络图片路径保存到本地，再用本地生成的路径绘制。
         this.getOnlineImg(obj.imgUrl);
+        // 先把异步拿到的临时路径缓存，然后同步获取该路径。
         let imgUrl = wx.getStorageSync('storageUrl');
 
         // 活动信息-头图       
@@ -240,7 +241,8 @@ Page({
             url: url,
             success: (res) => {
                 if (res.statusCode === 200) {
-                    console.log(res.tempFilePath);                   
+                    console.log(res.tempFilePath);
+                    // 异步调用，为保证拿到结果先缓存  
                     wx.setStorage({
                         key: 'storageUrl',
                         data: res.tempFilePath
@@ -337,6 +339,16 @@ Page({
     closeCanvas: function () {
         this.setData({
             isDisplayCanvas: false
+        })
+    },
+    openShareMenu () {
+        this.setData({
+            ifShowMenu: true
+        })
+    },
+    closeShareMenu () {
+        this.setData({
+            ifShowMenu: false
         })
     }
 })

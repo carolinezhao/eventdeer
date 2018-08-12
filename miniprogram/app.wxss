@@ -38,20 +38,26 @@
 
 button {
     border-radius: 50rpx;
-    width: 350rpx;
+    width: 300rpx;
     margin-top: 50rpx;
     line-height: 2;
     border: 1px solid #dedede;
 }
 
-.navi {
+.primary-btn {
     color: #222;
     background-color: #fff;
     border-color: #222;
+    font-size: 32rpx;
+    margin-bottom: 20px;
 }
 
-.long {
-    width: 600rpx;
+.md-btn {
+    width: 400rpx;
+}
+
+.lg-btn {
+    width: 580rpx;
 }
 
 /* icon */

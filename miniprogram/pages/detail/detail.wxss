@@ -9,7 +9,7 @@
 .inner-container {
     width: 100%;
     border: 1.5px dashed #8E8E93;
-    border-radius: 18rpx 18rpx 0 0;
+    border-radius: 18rpx;
 }
 
 .image-container {
@@ -34,10 +34,11 @@
 
 .content view:not(.title) {
     margin-bottom: 15rpx;
+    font-size: 32rpx;
 }
 
 .title {
-    font-size: 50rpx;
+    font-size: 48rpx;
     margin-bottom: 30rpx;
 }
 
@@ -48,21 +49,43 @@
     padding: 2rpx 10rpx;
     height: 90%;
     margin-left: 15rpx;
-    font-size: 35rpx;
+    font-size: 32rpx;
     display: inline-block;
 }
 
 .detail {
     margin-top: 30rpx;
-    font-size: 30rpx;
     line-height: 45rpx;
 }
 
-/* canvas */
+/* share menu */
+
+.menu-entry {
+    font-size: 50rpx;
+    margin-top: 20rpx;
+}
+
+.share-menu {
+    background-color: #7878787e;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
 
 .button-container {
-    margin-bottom: 50rpx;
+    background-color: #fff;
+    width: 100%;
+    padding-bottom: 50rpx;
 }
+
+/* canvas */
 
 .canvas-container {
     background-color: rgba(66, 66, 66, 0.9);
