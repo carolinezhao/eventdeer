@@ -3,10 +3,9 @@
         <view class="image-container">
             <image mode="aspectFill" src="{{event.imgUrl}}"></image>
         </view>
-
         <view class="content">
-            <view class="title">{{event.title}}
-                <text class="vip" wx:if="{{event.isVIP}}">VIP</text>
+            <view class="title flex">{{event.title}}
+                <view class="vip-lg" wx:if="{{event.isVIP}}">VIP</view>
             </view>
             <view>{{event.date}}</view>
             <view>
@@ -20,19 +19,34 @@
         </view>
     </view>
 
-    <view class="menu-entry" bindtap="openShareMenu">...</view>
-    <view class="share-menu" wx:if="{{ifShowMenu}}" bindtap="closeShareMenu">
-        <view class="button-container">
-            <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
-            <button class="primary-btn lg-btn" bindtap="openDiscoverPage" wx:if="{{isDisplayButton}}">View All Upcoming Events</button>
-            <button class="primary-btn" open-type="share"><text class="icon-small icon-share"></text>Share</button>
-            <!-- 保存为图片后：保存到相册，分享到朋友圈 -->
-            <button class="primary-btn md-btn" bindtap="saveAsImage"><text class="icon-small icon-save"></text>Save as Image</button>
-        </view>   
-    </view> 
+    <button class="primary-btn" bindtap="openShareMenu">
+        <text class="icon-small icon-share"></text>Share
+    </button>
+    <view class="operation-menu flex-col" wx:if="{{ifShowMenu}}">
+        <view class="menu-container flex">
+            <view class="btn-wrap flex-col">
+                <button class="btn-img" open-type="share">
+                    <image src="../../libs/friends.png"></image>
+                </button>
+                <view class="btn-text">Share with friends</view>
+            </view>
+            <view class="btn-wrap flex-col">
+                <button class="btn-img" bindtap="saveAsImage">
+                    <image src="../../libs/moments.png"></image>
+                </button>
+                <view class="btn-text">Save as image</view>
+            </view>
+        </view>
+        <view class="menu-close flex-center" bindtap="closeShareMenu">Cancel
+            <!-- <text class="icon-big icon-close"></text> -->
+        </view>
+    </view>
+
+    <!-- 此按钮出现的场景：二维码/分享的消息卡片等 -->
+    <button class="primary-btn lg-btn" bindtap="openDiscoverPage" wx:if="{{isDisplayButton}}">View All Upcoming Events</button>
 </view>
 
-<view class="canvas-container" wx:if="{{isDisplayCanvas}}">
+<view class="canvas-container flex-center" wx:if="{{isDisplayCanvas}}">
     <canvas canvas-id="event-info" id="canvas" style="width: {{canvas.width}}; height: {{canvas.height}}"></canvas>
     <view class="close-button" bindtap="closeCanvas">
         <view class="icon-big icon-close"></view>
