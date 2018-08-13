@@ -1,7 +1,7 @@
 <view class="container">
-    <view class="userinfo">
+    <view class="userinfo flex-center">
         <!-- 授权登录 -->
-        <button class="navi" wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo">使用微信登录</button>
+        <button class="primary-btn" wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo">使用微信登录</button>
         <block wx:else>
             <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
             <text class="userinfo-nickname">{{userInfo.nickName}}</text>
@@ -11,10 +11,11 @@
 
 <view class="list-container">
     <block wx:for="{{lists}}" wx:for-index="index" wx:for-item="list" wx:key="index">
-        <view class="list" bindtap="{{list.bindtap}}">
-            <a>
+        <view class="list flex" bindtap="{{list.bindtap}}">
+            <a class="flex">
                 <text class="list-name">
-                    <text class="icon-small {{list.icon}}"></text>{{list.name}}</text>
+                    <text class="icon-small {{list.icon}}"></text>{{list.name}}
+                </text>
                 <text class="icon-small icon-arrow"></text>
             </a>
         </view>
@@ -22,10 +23,11 @@
 </view>
 
 <view class="logout-container">
-    <view class="list" bindtap="logout">
-        <a>
+    <view class="list flex" bindtap="logout">
+        <a class="flex">
             <text class="logout">
-                <text class="icon-small icon-logout"></text>退出登录</text>
+                <text class="icon-small icon-logout"></text>退出登录
+            </text>
         </a>
     </view>
 </view>

@@ -1,5 +1,5 @@
 .icon-small {
-	color: #fff;
+    color: #fff;
 }
 
 .section-title {
@@ -13,11 +13,8 @@
     border-radius: 15rpx;
     color: #fff;
     box-shadow: 5px 5px 10px 0px #dedede;
-    /* background: linear-gradient(to bottom right, #ff5f6d, #ffc371);
-    background: linear-gradient(to bottom right, #7168A3, #C2B1F8);
-    background: linear-gradient(to bottom right, #1d976c, #93f9b9); */
-    background: linear-gradient(to bottom right, #4ca1af, #c4e0e5);
-    margin-bottom: 30rpx;
+    background: linear-gradient(to bottom right, #FF7F6A, #fbd5a0);
+    margin-bottom: 35rpx;
 }
 
 .card a {
@@ -27,25 +24,17 @@
 }
 
 .title {
-    font-size: 50rpx;
+    font-size: 45rpx;
     padding-bottom: 20rpx;
     border-bottom: .2px solid #dedede;
     display: flex;
     align-items: center;
 }
 
-.title .vip {
-    border: 1.5px solid #fff;
-    border-radius: 10rpx;
+.title .vip-lg {
+    border-color: #fff;
     color: #fff;
-    padding: 2rpx 10rpx;
-    height: 90%;
     margin-right: 15rpx;
-    font-size: 35rpx;
-    display: inline-block;
-    /* display: flex;
-	flex-direction: column;
-	justify-content: center; */
 }
 
 .date,

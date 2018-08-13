@@ -1,5 +1,3 @@
-<!--index.wxml-->
-
 <import src="./calendar.wxml"></import>
 
 <view class="calendar-container" wx:if="{{ifShowCalender}}">
@@ -7,7 +5,7 @@
 </view>
 
 <view class="container">
-    <view class="calendar-button theme-color" bindtap="toggleCalendar">
+    <view class="calendar-button flex theme-color" bindtap="toggleCalendar">
         <text class="icon-big icon-calendar"></text>
         <text wx:if="{{!ifShowCalender}}">Show</text>
         <text wx:else>Hide</text>
@@ -21,7 +19,7 @@
         <view class="date theme-color" bindtap="jump">Jump to Today</view>
     </block>
 
-    <view class="page-info">
+    <view class="page-info flex">
         <view>
             <text class="icon-small icon-location theme-color"></text>{{location}}</view>
         <view>
@@ -34,23 +32,23 @@
     <template name="group-item-content">
         <view>{{time}}</view>
         <view>{{description}}</view>
-        <view class="vip theme-color" wx:if="{{isVIP}}">VIP</view>
+        <view class="vip" wx:if="{{isVIP}}">VIP</view>
     </template>
 
     <template name="group-item-empty">
         <view class="group-item">no arrangement</view>
     </template>
 
-    <view class="group" wx:for="{{courseSets}}" wx:for-index="index" wx:for-item="courseSet" wx:key="index">
-        <view class="group-title theme-bg-color">
+    <view class="group flex" wx:for="{{courseSets}}" wx:for-index="index" wx:for-item="courseSet" wx:key="index">
+        <view class="group-title flex-center theme-bg-color">
             <view class="group-title-text">{{courseSet.courseType}}</view>
         </view>
-        <view class="group-content">
+        <view class="group-content flex-col">
             <block wx:if="{{courseSet.courseNum == 0}}">
                 <template is="group-item-empty"></template>
             </block>
             <block wx:else>
-                <view class="group-item" wx:for="{{courseSet.courses}}" wx:for-index="index" wx:for-item="course" wx:key="index">
+                <view class="group-item flex" wx:for="{{courseSet.courses}}" wx:for-index="index" wx:for-item="course" wx:key="index">
                     <template is="group-item-content" data="{{...course}}"></template>
                 </view>
             </block>
@@ -61,19 +59,21 @@
     <view class="section-title">Special Event</view>
 
     <template name="event-item">
-        <view class="event-title theme-bg-color">{{title}}
+        <view class="event-title flex-center theme-bg-color">{{title}}
             <view class="event-level" wx:if="{{level}}">{{level}}</view>
         </view>
-        <view class="event-content">
+        <view class="event-content flex">
             <view>{{time}}</view>
-            <view class="vip theme-color" wx:if="{{isVIP}}">VIP</view>
+            <view class="vip" wx:if="{{isVIP}}">VIP</view>
             <view class="event-host" wx:if="{{teacher}}">by {{teacher}}</view>
         </view>
     </template>
 
-    <view class="event" wx:for="{{events}}" wx:for-index="index" wx:for-item="event" wx:key="index">
+    <view class="event flex-col" wx:for="{{events}}" wx:for-index="index" wx:for-item="event" wx:key="index">
         <template is="event-item" data="{{...event}}"></template>
     </view>
 
-    <button class="navi" open-type="share">Share</button>
+    <button class="primary-btn" open-type="share">
+        <text class="icon-small icon-share"></text>Share
+    </button>
 </view>

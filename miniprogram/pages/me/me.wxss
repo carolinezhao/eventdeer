@@ -3,16 +3,8 @@
 }
 
 .userinfo {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
 	height: 250rpx;
 }
-
-/* .userinfo button {
-	margin: 0;
-} */
 
 .userinfo-avatar {
 	width: 128rpx;
@@ -25,37 +17,39 @@
 	color: #222;
 }
 
+/* nav list */
+
 .list-container {
 	background-color: #f8f8f8;
 	padding: 35rpx 0;
+	font-size: 32rpx;
 }
 
 .icon-small {
 	font-size: 35rpx;
-	color: #dedede;
+	color: #8E8E93;
 	margin-right: 20rpx;
 }
 
 .list {
 	width: 100%;
-	display: flex;
-	margin-bottom: 5rpx;
+	margin: 3rpx 0;
 }
 
 .list a {
 	width: 100%;
 	background-color: #fff;
 	padding: 20rpx 55rpx;
-	display: flex;
 	justify-content: space-between;
 	align-items: center;
 }
 
 .logout-container {
 	background-color: #f8f8f8;
-	padding: 35rpx 0 70rpx 0;
+	padding-bottom: 35rpx;
+	font-size: 32rpx;
 }
 
 .logout {
-	color: red;
+	color: #f66;
 }
