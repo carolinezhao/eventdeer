@@ -4,7 +4,7 @@
       <label class="form-label filter-label">{{filter.name}}</label>
       <div class="form-content">
         <div class="form-content filter-option" v-for="option in filter.options" :key="option.id">
-          <input type="checkbox" :value="{prop: filter.prop, value: option}" v-model="checkedObjs">
+          <input type="checkbox" :value="{key: filter.key, value: option}" v-model="checkedObjs">
           <label>{{option}}</label>
         </div>
       </div>
@@ -39,13 +39,13 @@ export default {
     padding: 10px;
   }
 
-  .form-label.filter-label {
+  .filter-label {
     width: 20%;
   }
 
-  .form-content.filter-option {
+  .filter-option {
     width: 120px;
     background-color: #bfcbd9;
-    padding: 2px 0;
+    padding-top: 2px;
   }
 </style>

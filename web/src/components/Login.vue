@@ -10,7 +10,7 @@
           <input v-model="username" class="login-input" type="text" placeholder="Username" autocomplete="" required autofocus>
           <input v-model="password" class="login-input" type="password" placeholder="Password" autocomplete="" required>
           <div class="err-msg">{{errMsg}}</div>
-          <button v-on:click="login" class="main-button login-button" type="submit">Login</button>
+          <button @click="login" class="main-btn login-button" type="submit">Login</button>
         </div>
       </form>
     </section>
@@ -35,7 +35,7 @@ export default {
       let AV = this.$AV
       AV.User.logIn(this.username, this.password)
         .then((res) => {
-          console.log(res.attributes.username + ' 登录成功')
+          // console.log(res.attributes.username + ' 登录成功')
           this.$router.push('/home')
         })
         .catch((res) => {

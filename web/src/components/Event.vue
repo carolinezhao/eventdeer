@@ -169,6 +169,7 @@
 
     <event-message :message="resultMsg" :ifShowMsg="ifShowMsg"></event-message>
 
+    <!-- event detail -->
     <router-view></router-view>
   </div>
 </template>
@@ -302,7 +303,7 @@ export default {
           key: 'vip',
           options: ['Yes', 'No']
         }, {
-          name: 'Display in Discover',
+          name: 'Discover',
           key: 'ifDiscover',
           options: [true, false]
         }]

@@ -229,7 +229,6 @@ export default {
   }
 
   /* calendar package */
-  /* 已有样式必须使用相同的选择器才能覆盖 */
 
   .vdp-datepicker__calendar {
     border-color: #bfcbd9;
@@ -238,11 +237,11 @@ export default {
   }
 
   .vdp-datepicker__calendar header .prev:after {
-    border-right: 10px solid #42b983;
+    border-right: 10px solid #42b983 !important;
   }
 
   .vdp-datepicker__calendar header .next:after {
-    border-left: 10px solid #42b983;
+    border-left: 10px solid #42b983 !important;
   }
 
   .calendar header .prev:not(.disabled):hover,
@@ -262,26 +261,26 @@ export default {
   .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).day:hover,
   .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).month:hover,
   .vdp-datepicker__calendar .cell:not(.blank):not(.disabled).year:hover {
-    border: 1px solid #42b983;
+    border: 1px solid #42b983 !important;
     border-radius: 5px;
   }
 
   .vdp-datepicker__calendar .cell.selected,
   .vdp-datepicker__calendar .cell.selected.highlighted {
-    background-color: #42b983;
-    border: 1px solid #42b983;
-    color: #fff;
+    background-color: #42b983 !important;
+    border: 1px solid #42b983 !important;
+    color: #fff !important;
     border-radius: 5px;
   }
 
   .vdp-datepicker__calendar .cell.selected:hover {
-    background-color: #42b983;
-    border: 1px solid #42b983;
+    background-color: #42b983 !important;
+    border: 1px solid #42b983 !important;
   }
 
   .vdp-datepicker__calendar .cell.highlighted {
-    background-color: #c0ebd7;
-    border: 1px solid #c0ebd7;
+    background-color: #c0ebd7 !important;
+    border: 1px solid #c0ebd7 !important;
     border-radius: 5px;
   }
 
