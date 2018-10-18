@@ -1,10 +1,14 @@
 # 活动鹿 eventdeer
 
+<img src="img/eventdeer-qrcode.jpg">
+
 ## 1. 功能简介
 
-### 1.1 网页端
+### 1.1 发布端 (web)
 
-查看：http://eventdeer.surge.sh
+查看：http://eventdeer.surge.sh (用户名/密码见简历)
+
+<img src="img/eventdeer-web.png">
 
 用户类型：课程发布者
 
@@ -17,9 +21,11 @@
 - Archive
     - 查看归档课程
 
-### 1.2 小程序端
+### 1.2 展示端 (小程序)
 
-查看：在微信中搜索“活动鹿”
+查看：扫上方小程序码或在微信中搜索“活动鹿”
+
+<img src="img/eventdeer-minip.png">
 
 用户类型：学员
 
@@ -59,14 +65,20 @@
 工作人员在网页端发布课程，学生通过小程序查看课程，可以有效改善以上缺点，提高双方的效率。
 同时，原有的发布方式也可以保留，作为一种辅助手段。
 
-## 3. 技术实现
+## 3. 技术实现 (work in progress)
 
-### 3.1 网页端
+### 3.1 发布端
 
 前端框架 Vue.js
 
 [基于 Vue 的日历组件](https://github.com/charliekassel/vuejs-datepicker)
 
-### 3.2 小程序端
+### 3.2 展示端
+
+微信小程序
 
 [基于小程序的日历组件](https://github.com/treadpit/wx_calendar)
+
+### 3.3 后端
+
+LeanCloud
